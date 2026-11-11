@@ -195,9 +195,12 @@ tfoot td{font-weight:600;border-top:2px solid var(--ink);border-bottom:0}
       <fieldset>
         <legend>Sistem schelă</legend>
         <label>Lățime cadru<select id="w"><option value="0.73">0,73 m (uzual)</option><option value="1.09">1,09 m (lat)</option></select></label>
-        <label>Travee principală<select id="bay"><option value="3.07">3,07 m</option><option value="2.57">2,57 m</option><option value="2.07">2,07 m</option></select></label>
+        <label>Travee principală<select id="bay"><option value="3.07">3,07 m</option><option value="2.57">2,57 m</option><option value="2.07">2,07 m</option><option value="2">2,00 m</option></select></label>
         <label>Distanța față de perete (m)<input id="gap" type="number" step="0.05" min="0.1" value="0.25"></label>
         <label>Podine pe niveluri<select id="decks"><option value="all">toate nivelurile</option><option value="alt">din 2 în 2 niveluri</option></select></label>
+        <label>Diagonale<select id="dfreq"><option value="5">1 la 5 travee (minimul uzual)</option><option value="3">1 la 3 travee</option><option value="2">1 la 2 travee</option><option value="1">în fiecare travee</option></select></label>
+        <label>Tip diagonală<select id="dtype"><option value="1">simplă ( / )</option><option value="2">în cruce ( X )</option></select></label>
+        <p class="hint">Diagonalele se pun pe toate nivelurile. Minimul uzual din fișele producătorilor: 1 diagonală la cel mult 5 travee, pe fiecare nivel. Dacă voi puneți mai multe, alege aici.</p>
         <label>Rezervă (%)<input id="rez" type="number" min="0" max="50" value="5"></label>
         <label>Camion – încărcătură (t)<input id="truck" type="number" step="0.1" min="0.5" value="3"></label>
         <label class="chk full"><input id="plasa" type="checkbox" checked> Plasă de protecție pe toată fața</label>
@@ -216,7 +219,7 @@ tfoot td{font-weight:600;border-top:2px solid var(--ink);border-bottom:0}
       <div class="alerts" id="alerts"></div>
 
       <section class="panel" id="sec-schita">
-        <h2>Elevație fațadă <small>schemă orientativă</small></h2>
+        <h2 style="justify-content:space-between">Elevație fațadă <button type="button" id="fitBtn" class="ghost" style="font-size:13px;padding:5px 10px">Mărește schița</button></h2>
         <div class="tabs" id="tabs"></div>
         <div class="elev" id="elev"></div>
         <div class="legend">
@@ -257,11 +260,11 @@ const esc=s=>String(s).replace(/&/g,'&amp;').replace(/"/g,'&quot;').replace(/</g
 
 const KG={
   cadru:{0.73:18.5,1.09:22.0}, capat:{0.73:9.5,1.09:11.5}, stalp:4.0, picior:3.6, talpa:2.5,
-  podina:{0.73:6.5,1.09:8.5,1.57:11.5,2.07:14.5,2.57:18.5,3.07:22.0},
-  trapa:{2.07:19,2.57:22,3.07:25}, scara:7.4,
-  balustrada:{0.73:2.2,1.09:3.0,1.57:3.6,2.07:4.5,2.57:5.3,3.07:6.3},
-  plinta:{0.73:2.6,1.09:3.6,1.57:5.0,2.07:6.5,2.57:7.9,3.07:9.4},
-  diag:{1.57:7.4,2.07:8.0,2.57:8.8,3.07:9.6},
+  podina:{2:14.2,0.73:6.5,1.09:8.5,1.57:11.5,2.07:14.5,2.57:18.5,3.07:22.0},
+  trapa:{2:19,2.07:19,2.57:22,3.07:25}, scara:7.4,
+  balustrada:{2:4.4,0.73:2.2,1.09:3.0,1.57:3.6,2.07:4.5,2.57:5.3,3.07:6.3},
+  plinta:{2:6.2,0.73:2.6,1.09:3.6,1.57:5.0,2.07:6.5,2.57:7.9,3.07:9.4},
+  diag:{2:7.9,1.57:7.4,2.07:8.0,2.57:8.8,3.07:9.6},
   ancora:{0.38:1.9,0.60:2.8,0.95:4.1,1.10:4.8,1.45:6.1,1.80:7.5},
   cupla:1.2, teavaM:3.6, surub:0.15, consola:{0.36:4.5,0.73:8.5}, plasaRola:16
 };
@@ -362,7 +365,7 @@ function read(){
   return {nume:$('nume').value, client:$('client').value, H:+$('H').value||0, hEt:+$('hEt').value||2.9,
     w:+$('w').value, bay:+$('bay').value, gap:Math.max(0.05,+$('gap').value||0.25), decks:$('decks').value,
     rez:Math.max(0,+$('rez').value||0), plasa:$('plasa').checked, cons:$('cons').checked,
-    baseExt, baseInt, truck:Math.max(0.5,+$('truck').value||3)};
+    dfreq:+$('dfreq').value||5, dtype:+$('dtype').value||1, baseExt, baseInt, truck:Math.max(0.5,+$('truck').value||3)};
 }
 const levelsFor=H=>Math.max(1,Math.ceil((H-0.2)/2));
 
@@ -397,12 +400,13 @@ function calc(){
     add('stalp','Structură','Stâlp balustradă nivel final','1,00 m',F,KG.stalp,'deasupra ultimului nivel');
     add('picior','Bază','Picior reglabil (bază cu filet)','0,60 m',2*F,KG.picior,'2 la fiecare linie de cadre');
     add('talpa','Bază','Talpă de repartiție lemn','40 × 25 × 5 cm',2*F,KG.talpa,'sub fiecare picior');
-        // diagonale: 1 pe nivel la fiecare grup de max. 5 travee; se montează doar în traveele cele mai lungi din grup
-    let nd=0;
-    tr.forEach(t=>{ for(let gs=0;gs<t.bays.length;gs+=5){ const gb=t.bays.slice(gs,gs+5), mb=Math.max(...gb); nd++;
-      if(KG.diag[mb]) add('diag'+mb,'Structură','Diagonală (contravântuire)',`travee ${fmt(mb)} × 2,00 m`,N,KG.diag[mb],'1 la fiecare grup de max. 5 travee, pe fiecare nivel, montate în linie continuă');
-      else { add('tdiag','Structură','Țeavă Ø48,3 ca diagonală (travee scurte)','3,00 m',N,KG.teavaM*3,'unde tronsonul are doar travee sub 1,57 m');
-             add('cuplaR','Structură','Cuplă rotativă','Ø48,3',2*N,1.4,'2 la fiecare diagonală din țeavă'); } } });
+    // diagonale: pe fiecare nivel, 1 la fiecare grup de f travee (f ales), simple sau în cruce; în traveele cele mai lungi din grup
+    let nd=0; const f=P.dfreq, mult=P.dtype;
+    const rule=(f===1?'în fiecare travee':`1 la fiecare grup de max. ${f} travee`)+(mult===2?', în cruce (2 bucăți)':'')+', pe fiecare nivel';
+    tr.forEach(t=>{ for(let gs=0;gs<t.bays.length;gs+=f){ const gb=t.bays.slice(gs,gs+f), mb=Math.max(...gb); nd+=mult;
+      if(KG.diag[mb]) add('diag'+mb,'Structură','Diagonală (contravântuire)',`travee ${fmt(mb)} m · lungime reală ≈ ${fmt(Math.hypot(mb,2))} m`,N*mult,KG.diag[mb],rule);
+      else { add('tdiag','Structură','Țeavă Ø48,3 ca diagonală (travee scurte)','3,00 m',N*mult,KG.teavaM*3,'în traveele sub 1,57 m, unde nu există diagonală de sistem');
+             add('cuplaR','Structură','Cuplă rotativă','Ø48,3',2*N*mult,1.4,'2 la fiecare diagonală din țeavă'); } } });
     const a=Math.min(s.sc,B); A+=a;
     if(s.sc>B) alerts.push({t:`<b>${esc(s.n)}:</b> ai cerut ${s.sc} scări, dar fațada are doar ${B} travee. Am calculat ${B}.`});
     bays.forEach((b,bi)=>{
@@ -527,6 +531,7 @@ function renderTabs(){
   $('tabs').innerHTML=segs.map((s,i)=>`<button type="button" aria-pressed="${i===active}" data-t="${i}">${esc(s.n)} · ${fmt(s.L,1)} m</button>`).join('');
   $('tabs').querySelectorAll('button').forEach(b=>b.addEventListener('click',()=>{active=+b.dataset.t;renderTabs();renderElev();}));
 }
+let fitElev=true;
 function renderElev(){
   const g=last.geo[active]; const {P}=last;
   if(!g){$('elev').innerHTML='<p style="padding:16px;color:var(--muted)">Scrie lungimea acestei fațade.</p>';$('check').innerHTML='';renderCheck();return;}
@@ -540,7 +545,7 @@ function renderElev(){
   const W=padL+Lr*sx+30, Hh=padT+(top+1)*sy+padB;
   const y=m=>padT+(top+1-m)*sy, X=m=>padL+m*sx;
   const dl=new Set(); for(let k=N;k>=1;k-=(P.decks==='alt'?2:1)) dl.add(k);
-  let o=`<svg width="${W}" height="${Hh}" viewBox="0 0 ${W} ${Hh}" xmlns="http://www.w3.org/2000/svg" font-family="IBM Plex Mono, monospace" font-size="10">`;
+  let o=`<svg ${fitElev?`style="width:100%;height:auto"`:`width="${W}" height="${Hh}"`} viewBox="0 0 ${W} ${Hh}" xmlns="http://www.w3.org/2000/svg" font-family="IBM Plex Mono, monospace" font-size="10">`;
   // clădire: tronsoanele alternează (fața de bază / retras sau ieșit)
   spans.forEach(([a,b],ti)=>{ o+=`<rect x="${X(a)}" y="${y(Hs)}" width="${(b-a)*sx}" height="${Hs*sy}" fill="${ti%2?'var(--line)':'var(--steel-soft)'}"/>`; });
   spans.slice(1).forEach(([a],ti)=>{ o+=`<text x="${X(a-GAP/2)}" y="${y(Hs/2)}" fill="var(--muted)" text-anchor="middle" transform="rotate(-90 ${X(a-GAP/2)} ${y(Hs/2)})">treaptă ${fmt(s.sd)} m</text>`; });
@@ -557,15 +562,16 @@ function renderElev(){
   });
   for(let k=0;k<=N;k++) if(k%2===0||k===N) o+=`<text x="${padL-6}" y="${y(0.2+2*k)+3}" fill="var(--muted)" text-anchor="end">${fmt(0.2+2*k,1)}</text>`;
   frames.forEach(fx=>{o+=`<line x1="${X(fx)}" x2="${X(fx)}" y1="${y(0.2)}" y2="${y(top+1)}" stroke="var(--steel)" stroke-width="1.6"/><rect x="${X(fx)-4}" y="${y(0.2)}" width="8" height="${0.2*sy}" fill="var(--muted)"/>`;});
-  // diagonale: în fiecare grup de max. 5 travee, câte una pe nivel, urcând travee cu travee -> linie continuă
-  let grp=0;
+  // diagonale: în fiecare grup de f travee se alege O travee (lungă, nu cea cu scara) și primește diagonală pe FIECARE nivel, în zigzag continuu
+  const f=P.dfreq, cross=P.dtype===2;
+  const accB=new Set(accIdx);
+  const dline=(c,h0,mir)=>{ const h1=h0+2; return mir?`<line x1="${X(c.x1)}" y1="${y(h0)}" x2="${X(c.x0)}" y2="${y(h1)}" stroke="var(--accent)" stroke-width="2.2"/>`:`<line x1="${X(c.x0)}" y1="${y(h0)}" x2="${X(c.x1)}" y2="${y(h1)}" stroke="var(--accent)" stroke-width="2.2"/>`; };
   fr.forEach((t,ti)=>{
-    const tb=bx.filter(c=>c.t===ti);
-    for(let gs=0;gs<tb.length;gs+=5){
-      const all=tb.slice(gs,gs+5), mb=Math.max(...all.map(c=>c.b)), gb=all.filter(c=>c.b===mb), n=gb.length, mirror=grp%2===1; grp++;
-      for(let k=0;k<N;k++){ const h0=0.2+2*k, h1=h0+2; const idx=k%n; const c=mirror?gb[n-1-idx]:gb[idx];
-        o+= mirror ? `<line x1="${X(c.x1)}" y1="${y(h0)}" x2="${X(c.x0)}" y2="${y(h1)}" stroke="var(--accent)" stroke-width="2.2"/>`
-                   : `<line x1="${X(c.x0)}" y1="${y(h0)}" x2="${X(c.x1)}" y2="${y(h1)}" stroke="var(--accent)" stroke-width="2.2"/>`; }
+    const tb=bx.map((c,i)=>({...c,i})).filter(c=>c.t===ti);
+    for(let gs=0;gs<tb.length;gs+=f){
+      const all=tb.slice(gs,gs+f), mb=Math.max(...all.map(c=>c.b));
+      const c=all.find(c=>c.b===mb&&!accB.has(c.i))||all.find(c=>c.b===mb);
+      for(let k=0;k<N;k++){ const h0=0.2+2*k; o+= cross ? dline(c,h0,false)+dline(c,h0,true) : dline(c,h0,k%2===1); }
     }
   });
   // scări
@@ -588,7 +594,7 @@ function renderElev(){
 function renderCheck(){
   const rows=last.geo.map((g,i)=>g?`<tr${i===active?' class="on"':''}><td>${esc(g.s.n)}</td><td class="n">${g.bays.length}</td><td class="n">${g.tr.filter(t=>t.bays.length).length}</td><td class="n">${g.F}</td><td class="n">${g.N}</td><td class="n">${fmt0(g.F*g.N)}</td><td class="n">${g.nd} × ${g.N} = ${fmt0(g.nd*g.N)}</td><td class="n">${g.a} × ${g.N} = ${fmt0(g.a*g.N)}</td><td class="n">${fmt0(g.nA)}</td></tr>`:'').join('');
   $('check').innerHTML=`<h3>Verificare pe fațadă <small>fără rezervă</small></h3><div class="tbl"><table><thead><tr><th>Fațadă</th><th class="n">Travee</th><th class="n">Tronsoane</th><th class="n">Cadre / nivel</th><th class="n">Niveluri</th><th class="n">Cadre</th><th class="n">Diagonale</th><th class="n">Scări</th><th class="n">Ancore</th></tr></thead><tbody>${rows}</tbody></table></div>
-  <p class="note">Cadre pe nivel = travee + 1 pe fiecare tronson. Diagonale: 1 la fiecare grup de cel mult 5 travee, pe fiecare nivel, puse în traveele lungi (nu în cele de 0,73 / 1,09 m), urcând travee cu travee ca să formeze o linie continuă. La retrageri/rezalituri fațada se împarte în tronsoane egale. Scări: 1 pe nivel în fiecare coloană de acces.</p>`;
+  <p class="note">Cadre pe nivel = travee + 1 pe fiecare tronson. Diagonale: în fiecare grup de travee ales în „Sistem schelă” se alege o travee lungă (nu cea cu scara, nu cele de 0,73 / 1,09 m) și primește diagonală pe fiecare nivel, de jos până sus, în zigzag continuu. La retrageri/rezalituri fațada se împarte în tronsoane egale. Scări: 1 pe nivel în fiecare coloană de acces.</p>`;
 }
 
 $('copy').addEventListener('click',()=>{
@@ -613,7 +619,7 @@ $('autoSc').addEventListener('click',()=>{readSegs();segs.forEach(s=>s.sc=autoSc
 ['Lb','lb'].forEach(id=>$(id).addEventListener('change',()=>{ if(!CFG[cfg].mk)return; readSegs(); const L=+$('Lb').value||0,l=+$('lb').value||0;
   segs.forEach(s=>{ if(/principal|spate/i.test(s.n)) {s.L=L;} else if(/lateral/i.test(s.n)) {s.L=l;} }); renderSegs(); calc(); }));
 
-const FIELDS=['nume','client','H','hEt','Lb','lb','cExt','cInt','w','bay','gap','decks','rez','truck'];
+const FIELDS=['nume','client','H','hEt','Lb','lb','cExt','cInt','w','bay','gap','decks','dfreq','dtype','rez','truck'];
 const CHK=['plasa','cons'];
 function getStore(){try{return JSON.parse(localStorage.getItem('schela_proiecte')||'{}')}catch(e){return {}}}
 function setStore(o){try{localStorage.setItem('schela_proiecte',JSON.stringify(o));return true}catch(e){return false}}
@@ -629,6 +635,7 @@ $('save').addEventListener('click',()=>{ readSegs(); const o={segs,cfg}; FIELDS.
 
 $('frm').addEventListener('input',e=>{ if(e.target.closest('#segs'))return; $('exTag').hidden=true; calc(); });
 $('frm').addEventListener('submit',e=>e.preventDefault());
+$('fitBtn').addEventListener('click',()=>{ fitElev=!fitElev; $('fitBtn').textContent=fitElev?'Mărește schița':'Încadrează în ecran'; renderElev(); });
 document.querySelectorAll('.mnav [data-go]').forEach(b=>b.addEventListener('click',()=>{ const el=$(b.dataset.go); if(el) el.scrollIntoView({behavior:matchMedia('(prefers-reduced-motion: reduce)').matches?'auto':'smooth',block:'start'}); }));
 
 segs=defaultSegs(); renderFaces(); renderSegs(); renderSaved(); calc();
