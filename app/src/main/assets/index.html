@@ -1,0 +1,638 @@
+<!doctype html>
+<html lang="ro"><head><meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<style>:root{padding-top:env(safe-area-inset-top,0px)}body{margin:0;font:14px system-ui,sans-serif}img{max-width:100%}[hidden]{display:none!important}</style>
+<title>Calcul Schelă Fațadă</title>
+<meta name="claude:viewport-fit-sides" content="cover">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Barlow:wght@400;500;600&family=Barlow+Condensed:wght@500;600;700&family=IBM+Plex+Mono:wght@400;500&display=swap">
+<style>
+/* Layout: bandă de brand (logo Giovani Construct), apoi fișa de măsurători în stânga și rezultatele în dreapta: rezumat → elevație → listă */
+:root{
+  --bg:#eef0f1; --panel:#ffffff; --ink:#1c2328; --muted:#5d6a73; --line:#d3d9dd;
+  --steel:#7d8b95; --steel-soft:#e3e8eb; --accent:#e8b400; --accent-ink:#2e2400; --accent-soft:#fff6d6;
+  --warn:#b4471b; --warn-soft:#fbe9e1; --ok:#2f7d4f; --bal:#a07a55;
+  --brand-bg:#151718; --brand-ink:#f3f3f0; --brand-y:#f5d10f; --brand-muted:#a9adb0;
+  --f-display:"Barlow Condensed","Arial Narrow",Arial,sans-serif;
+  --f-body:"Barlow",system-ui,-apple-system,"Segoe UI",sans-serif;
+  --f-mono:"IBM Plex Mono",ui-monospace,Consolas,monospace;
+}
+@media (prefers-color-scheme: dark){:root:not([data-theme="light"]){
+  --bg:#14191d; --panel:#1d2429; --ink:#e6eaec; --muted:#9aa7b0; --line:#323c43;
+  --steel:#8d9ba5; --steel-soft:#273036; --accent:#f5d10f; --accent-ink:#231c00; --accent-soft:#363014;
+  --warn:#f08a5d; --warn-soft:#3b241a; --ok:#6cc391; --bal:#c99d74; --brand-bg:#0d0f10; color-scheme:dark}}
+:root[data-theme="dark"]{
+  --bg:#14191d; --panel:#1d2429; --ink:#e6eaec; --muted:#9aa7b0; --line:#323c43;
+  --steel:#8d9ba5; --steel-soft:#273036; --accent:#f5d10f; --accent-ink:#231c00; --accent-soft:#363014;
+  --warn:#f08a5d; --warn-soft:#3b241a; --ok:#6cc391; --bal:#c99d74; --brand-bg:#0d0f10; color-scheme:dark}
+*{box-sizing:border-box}
+body{background:var(--bg);color:var(--ink);font-family:var(--f-body);font-size:15px;line-height:1.45;
+  padding-left:max(16px,env(safe-area-inset-left,0px));padding-right:max(16px,env(safe-area-inset-right,0px));padding-block:16px 40px}
+.wrap{max-width:1360px;margin:0 auto;display:flex;flex-direction:column;gap:18px}
+header.top{background:var(--brand-bg);color:var(--brand-ink);border-radius:8px;padding:14px 18px;display:flex;flex-wrap:wrap;align-items:center;gap:16px 22px;border-bottom:4px solid var(--brand-y)}
+header.top img{width:96px;height:96px;border-radius:6px;flex:none}
+header.top .ttl{flex:1 1 260px;min-width:0}
+header.top h1{font-family:var(--f-display);font-weight:700;font-size:clamp(26px,3.6vw,38px);letter-spacing:.02em;margin:0;line-height:1;text-transform:uppercase}
+header.top h1 span{color:var(--brand-y)}
+header.top p{margin:6px 0 0;color:var(--brand-muted);max-width:62ch;font-size:14px}
+.std{font-family:var(--f-mono);font-size:12px;color:var(--brand-muted);text-align:right}
+@media (max-width:600px){.std{text-align:left}}
+.grid{display:grid;grid-template-columns:minmax(320px,430px) minmax(0,1fr);gap:18px;align-items:start}
+@media (max-width:920px){.grid{grid-template-columns:minmax(0,1fr)}}
+.panel{background:var(--panel);border:1px solid var(--line);border-radius:6px;padding:16px;min-width:0}
+.panel h2{font-family:var(--f-display);font-size:19px;font-weight:600;text-transform:uppercase;letter-spacing:.06em;margin:0 0 12px;display:flex;align-items:center;gap:8px;flex-wrap:wrap}
+.panel h2 small{font-family:var(--f-body);text-transform:none;letter-spacing:0;font-weight:400;font-size:13px;color:var(--muted)}
+.inputs{display:flex;flex-direction:column;gap:16px}
+fieldset{border:0;border-top:1px solid var(--line);margin:0;padding:12px 0 0;display:grid;grid-template-columns:1fr 1fr;gap:10px 12px;min-width:0}
+fieldset:first-of-type{border-top:0;padding-top:0}
+legend{font-family:var(--f-display);font-weight:600;text-transform:uppercase;letter-spacing:.08em;font-size:13px;color:var(--muted);padding:0 0 6px;grid-column:1/-1}
+label{display:flex;flex-direction:column;gap:4px;font-size:13px;color:var(--muted);min-width:0}
+label.full{grid-column:1/-1}
+label.chk{flex-direction:row;align-items:center;gap:8px;color:var(--ink);font-size:14px}
+input,select{font:inherit;font-size:15px;color:var(--ink);background:var(--bg);border:1px solid var(--line);border-radius:4px;padding:7px 9px;width:100%;min-width:0}
+input[type=number]{font-family:var(--f-mono);font-size:14px}
+input[type=checkbox]{width:18px;height:18px;accent-color:var(--accent);flex:none}
+input:disabled{opacity:.45}
+input:focus-visible,select:focus-visible,button:focus-visible{outline:2px solid var(--accent);outline-offset:1px}
+.hint{font-size:12px;color:var(--muted);grid-column:1/-1;margin:-4px 0 0}
+button{font:inherit;font-weight:600;font-size:14px;border-radius:4px;padding:7px 12px;cursor:pointer;border:1px solid var(--line);background:var(--steel-soft);color:var(--ink)}
+button:hover{border-color:var(--steel)}
+button.pri{background:var(--accent);border-color:var(--accent);color:var(--accent-ink)}
+button.ghost{background:transparent}
+.row{display:flex;flex-wrap:wrap;gap:8px;align-items:center}
+.full{grid-column:1/-1}
+/* config fețe */
+.faces{grid-column:1/-1;display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:6px}
+.faces button{display:flex;flex-direction:column;align-items:center;gap:4px;padding:8px 4px;font-size:12px;font-weight:500;background:var(--bg)}
+.faces button svg{width:34px;height:34px}
+.faces button[aria-pressed="true"]{border-color:var(--accent);background:var(--accent-soft);font-weight:600}
+@media (max-width:420px){.faces{grid-template-columns:repeat(3,minmax(0,1fr))}}
+/* carduri fațadă */
+.segs{grid-column:1/-1;display:flex;flex-direction:column;gap:10px}
+.seg{border:1px solid var(--line);border-radius:6px;padding:10px;display:grid;grid-template-columns:repeat(6,minmax(0,1fr));gap:8px;background:var(--bg)}
+.seg label{font-size:12px}
+.seg input{background:var(--panel)}
+.seg .c2{grid-column:span 2}.seg .c3{grid-column:span 3}.seg .c4{grid-column:span 4}.seg .c6{grid-column:1/-1}
+.seg .sub{grid-column:1/-1;font-family:var(--f-display);font-weight:600;text-transform:uppercase;letter-spacing:.07em;font-size:12px;color:var(--muted);border-top:1px dashed var(--line);padding-top:6px;display:flex;align-items:center;gap:8px}
+.seg .sub label.chk{font-family:var(--f-body);text-transform:none;letter-spacing:0;font-size:13px;font-weight:500}
+.seg .del{align-self:end;padding:7px 0}
+.seg .hd{grid-column:1/-1;display:grid;grid-template-columns:minmax(0,1fr) auto;gap:8px;align-items:end}
+.stepper{display:flex;align-items:stretch}
+.stepper button{padding:0 10px;font-size:16px;border-radius:0}
+.stepper button:first-child{border-radius:4px 0 0 4px}.stepper button:last-child{border-radius:0 4px 4px 0}
+.stepper input{border-radius:0;text-align:center;border-left:0;border-right:0}
+.cornerbox{grid-column:1/-1;display:flex;flex-wrap:wrap;gap:6px 18px;font-size:13px;color:var(--muted);background:var(--steel-soft);border-radius:4px;padding:8px 10px}
+.cornerbox b{color:var(--ink);font-family:var(--f-mono);font-weight:500}
+/* rezultate */
+.results{display:flex;flex-direction:column;gap:18px;min-width:0}
+.tiles{display:grid;grid-template-columns:repeat(auto-fit,minmax(150px,1fr));gap:10px}
+.tile{background:var(--panel);border:1px solid var(--line);border-radius:6px;padding:12px 14px}
+.tile .k{font-size:12px;text-transform:uppercase;letter-spacing:.07em;color:var(--muted);font-family:var(--f-display);font-weight:600}
+.tile .v{font-family:var(--f-display);font-weight:700;font-size:30px;line-height:1.1;font-variant-numeric:tabular-nums}
+.tile .v small{font-size:16px;font-weight:500;color:var(--muted);margin-left:3px}
+.tile .s{font-size:12px;color:var(--muted)}
+.tile.hl{background:var(--accent-soft);border-color:var(--accent)}
+.alerts{display:flex;flex-direction:column;gap:8px}
+.alert{border-left:4px solid var(--warn);background:var(--warn-soft);padding:9px 12px;border-radius:0 4px 4px 0;font-size:14px}
+.alert.info{border-color:var(--steel);background:var(--steel-soft)}
+.alert b{font-weight:600}
+.tabs{display:flex;flex-wrap:wrap;gap:6px;margin-bottom:10px}
+.tabs button{font-size:13px;padding:5px 10px}
+.tabs button[aria-pressed="true"]{background:var(--ink);color:var(--panel);border-color:var(--ink)}
+.elev{overflow-x:auto;border:1px solid var(--line);border-radius:4px;background:var(--bg)}
+.elev svg{display:block;max-width:none}
+.legend{display:flex;flex-wrap:wrap;gap:14px;font-size:12px;color:var(--muted);margin-top:8px}
+.legend i{display:inline-block;width:18px;height:3px;vertical-align:middle;margin-right:5px}
+.tbl{overflow-x:auto}
+.check{margin-top:16px;display:flex;flex-direction:column;gap:6px}
+.check h3{font-family:var(--f-display);font-size:16px;font-weight:600;text-transform:uppercase;letter-spacing:.06em;margin:0}
+.check h3 small{font-family:var(--f-body);text-transform:none;letter-spacing:0;font-weight:400;font-size:13px;color:var(--muted)}
+tr.on td{background:var(--accent-soft)}
+table{border-collapse:collapse;width:100%;font-size:14px;min-width:560px}
+th{text-align:left;font-family:var(--f-display);text-transform:uppercase;letter-spacing:.06em;font-size:12px;color:var(--muted);font-weight:600;border-bottom:2px solid var(--ink);padding:6px 8px}
+td{padding:6px 8px;border-bottom:1px solid var(--line);vertical-align:top}
+td.n{text-align:right;font-family:var(--f-mono);font-variant-numeric:tabular-nums;white-space:nowrap}
+th.n{text-align:right}
+tr.cat td{background:var(--steel-soft);font-family:var(--f-display);font-weight:600;text-transform:uppercase;letter-spacing:.07em;font-size:13px;padding:5px 8px;border-bottom:0}
+td .why{display:block;font-size:12px;color:var(--muted)}
+.qty{font-weight:500;font-size:15px}
+tfoot td{font-weight:600;border-top:2px solid var(--ink);border-bottom:0}
+.toast{position:fixed;left:50%;bottom:calc(20px + env(safe-area-inset-bottom,0px));transform:translateX(-50%);background:var(--ink);color:var(--panel);padding:8px 14px;border-radius:4px;font-size:14px;z-index:20}
+.note{font-size:13px;color:var(--muted);max-width:80ch}
+.saved{display:flex;flex-wrap:wrap;gap:6px}
+.saved button{font-weight:500;font-size:13px}
+.mnav{display:none}
+@media (max-width:920px){
+  .mnav{display:grid;grid-template-columns:repeat(4,1fr);position:fixed;left:0;right:0;bottom:0;z-index:15;background:var(--brand-bg);border-top:3px solid var(--brand-y);
+    padding:6px max(8px,env(safe-area-inset-right,0px)) calc(6px + env(safe-area-inset-bottom,0px)) max(8px,env(safe-area-inset-left,0px));gap:6px}
+  .mnav button{background:transparent;border:0;color:var(--brand-ink);font-family:var(--f-display);text-transform:uppercase;letter-spacing:.06em;font-size:14px;padding:9px 4px}
+  .mnav button:active,.mnav button.on{color:var(--brand-y)}
+  body{padding-bottom:calc(76px + env(safe-area-inset-bottom,0px))}
+  .toast{bottom:calc(76px + env(safe-area-inset-bottom,0px))}
+  header.top img{width:64px;height:64px}
+  header.top{padding:12px 14px}
+  .seg{grid-template-columns:repeat(4,minmax(0,1fr))}
+  .seg .c4{grid-column:1/-1}
+  [id^="sec-"],#frm{scroll-margin-top:10px}
+}
+@media (max-width:600px){
+  header.top p,header.top .std{display:none}
+  header.top h1{font-size:26px}
+  #tbl{min-width:0}
+  #tbl th:nth-child(4),#tbl td:nth-child(4){display:none}
+  #tbl td,#tbl th{padding:6px 5px}
+  .tile .v{font-size:26px}
+}
+@media (prefers-reduced-motion:reduce){*{transition:none!important}}
+</style>
+
+<div class="wrap">
+  <header class="top">
+    <img src="data:image/jpeg;base64,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" alt="Giovani Construct – împreună susținem viitorul">
+    <div class="ttl">
+      <h1>Calcul necesar <span>schelă</span></h1>
+      <p>Schelă de fațadă pe cadre: din dimensiunile blocului rezultă lista de cadre, podine, protecții, scări și ancoraje, cu greutate și transport.</p>
+    </div>
+    <div class="std">SR EN 12810 / 12811<br>cadru 2,00 m · podine 0,32 m</div>
+  </header>
+
+  <div class="grid">
+    <form class="panel inputs" id="frm" autocomplete="off">
+      <h2>Date proiect <small id="exTag">exemplu completat</small></h2>
+
+      <fieldset>
+        <legend>Proiect</legend>
+        <label class="full">Denumire<input id="nume" type="text" value="Bloc P+13 – exemplu"></label>
+        <label class="full">Client / adresă<input id="client" type="text" value=""></label>
+      </fieldset>
+
+      <fieldset>
+        <legend>Clădire</legend>
+        <label>Înălțime la cornișă (m)<input id="H" type="number" step="0.1" min="2" value="42"></label>
+        <label>Înălțime etaj (m)<input id="hEt" type="number" step="0.05" min="2" value="2.9"></label>
+        <label>Lungime bloc (m)<input id="Lb" type="number" step="0.1" min="0" value="36"></label>
+        <label>Lățime bloc (m)<input id="lb" type="number" step="0.1" min="0" value="15"></label>
+        <p class="hint">Înălțimea etajului se folosește la desenarea balcoanelor. Dacă știi doar numărul de etaje: înălțime ≈ etaje × înălțime etaj + 0,5 m.</p>
+      </fieldset>
+
+      <fieldset>
+        <legend>Câte fețe se schelează</legend>
+        <div class="faces" id="faces"></div>
+        <p class="hint" id="facesHint"></p>
+      </fieldset>
+
+      <fieldset>
+        <legend>Fațade</legend>
+        <div class="segs" id="segs"></div>
+        <div class="row full"><button type="button" id="addSeg">+ Adaugă fațadă</button><button type="button" class="ghost" id="autoSc">Propune scări automat</button></div>
+        <div class="cornerbox" id="cornerbox"></div>
+        <div id="manualCorners" class="full" style="display:grid;grid-template-columns:1fr 1fr;gap:10px 12px" hidden>
+          <label>Colțuri exterioare (de bază)<input id="cExt" type="number" min="0" value="4"></label>
+          <label>Colțuri interioare (de bază)<input id="cInt" type="number" min="0" value="0"></label>
+        </div>
+      </fieldset>
+
+      <fieldset>
+        <legend>Sistem schelă</legend>
+        <label>Lățime cadru<select id="w"><option value="0.73">0,73 m (uzual)</option><option value="1.09">1,09 m (lat)</option></select></label>
+        <label>Travee principală<select id="bay"><option value="3.07">3,07 m</option><option value="2.57">2,57 m</option><option value="2.07">2,07 m</option></select></label>
+        <label>Distanța față de perete (m)<input id="gap" type="number" step="0.05" min="0.1" value="0.25"></label>
+        <label>Podine pe niveluri<select id="decks"><option value="all">toate nivelurile</option><option value="alt">din 2 în 2 niveluri</option></select></label>
+        <label>Rezervă (%)<input id="rez" type="number" min="0" max="50" value="5"></label>
+        <label>Camion – încărcătură (t)<input id="truck" type="number" step="0.1" min="0.5" value="3"></label>
+        <label class="chk full"><input id="plasa" type="checkbox" checked> Plasă de protecție pe toată fața</label>
+        <label class="chk full"><input id="cons" type="checkbox" checked> Console interioare unde golul la perete &gt; 30 cm</label>
+      </fieldset>
+
+      <fieldset>
+        <legend>Proiecte salvate pe acest dispozitiv</legend>
+        <div class="row full"><button type="button" class="pri" id="save">Salvează proiectul</button></div>
+        <div class="saved full" id="saved"></div>
+      </fieldset>
+    </form>
+
+    <div class="results" id="sec-rezultat">
+      <div class="tiles" id="tiles"></div>
+      <div class="alerts" id="alerts"></div>
+
+      <section class="panel" id="sec-schita">
+        <h2>Elevație fațadă <small>schemă orientativă</small></h2>
+        <div class="tabs" id="tabs"></div>
+        <div class="elev" id="elev"></div>
+        <div class="legend">
+          <span><i style="background:var(--steel)"></i>cadre și niveluri</span>
+          <span><i style="background:var(--accent)"></i>diagonale</span>
+          <span><i style="background:var(--ok)"></i>coloană de acces (trapă + scară)</span>
+          <span><i style="background:var(--bal);height:6px"></i>balcoane</span>
+          <span><i style="background:var(--warn);height:8px;width:8px;border-radius:50%"></i>ancoraj</span>
+        </div>
+        <div id="check" class="check"></div>
+      </section>
+
+      <section class="panel" id="sec-lista">
+        <h2 style="justify-content:space-between">Listă de materiale
+          <button type="button" id="copy" class="pri">Copiază lista (Excel)</button>
+        </h2>
+        <div class="tbl"><table id="tbl"></table></div>
+        <p class="note">Cantitățile includ rezerva aleasă. Greutățile sunt medii pentru cadre din oțel zincat și pot diferi cu ±10% între producători. Lista e o estimare pentru ofertare; configurația finală se verifică cu fișa tehnică a sistemului și, peste 24 m, cu calculul de rezistență.</p>
+      </section>
+    </div>
+  </div>
+</div>
+<nav class="mnav" aria-label="Secțiuni">
+  <button type="button" data-go="frm">Date</button>
+  <button type="button" data-go="sec-rezultat">Rezultat</button>
+  <button type="button" data-go="sec-schita">Schiță</button>
+  <button type="button" data-go="sec-lista">Listă</button>
+</nav>
+<div class="toast" id="toast" hidden></div>
+
+<script>
+(function(){
+const $=id=>document.getElementById(id);
+const STD=[0.73,1.09,1.57,2.07,2.57,3.07];
+const fmt=(n,d=2)=>n.toLocaleString('ro-RO',{minimumFractionDigits:d,maximumFractionDigits:d});
+const fmt0=n=>Math.round(n).toLocaleString('ro-RO');
+const esc=s=>String(s).replace(/&/g,'&amp;').replace(/"/g,'&quot;').replace(/</g,'&lt;');
+
+const KG={
+  cadru:{0.73:18.5,1.09:22.0}, capat:{0.73:9.5,1.09:11.5}, stalp:4.0, picior:3.6, talpa:2.5,
+  podina:{0.73:6.5,1.09:8.5,1.57:11.5,2.07:14.5,2.57:18.5,3.07:22.0},
+  trapa:{2.07:19,2.57:22,3.07:25}, scara:7.4,
+  balustrada:{0.73:2.2,1.09:3.0,1.57:3.6,2.07:4.5,2.57:5.3,3.07:6.3},
+  plinta:{0.73:2.6,1.09:3.6,1.57:5.0,2.07:6.5,2.57:7.9,3.07:9.4},
+  diag:{1.57:7.4,2.07:8.0,2.57:8.8,3.07:9.6},
+  ancora:{0.38:1.9,0.60:2.8,0.95:4.1,1.10:4.8,1.45:6.1,1.80:7.5},
+  cupla:1.2, teavaM:3.6, surub:0.15, consola:{0.36:4.5,0.73:8.5}, plasaRola:16
+};
+const ANC=[0.38,0.60,0.95,1.10,1.45,1.80];
+
+/* configurații de fețe: colțuri exterioare/interioare de bază */
+const CFG={
+  f1:{t:'1 față',ext:0,int:0,hint:'O singură fațadă, cu capete libere la ambele margini.',
+      mk:(L,l)=>[S('Fațada principală',L)],
+      ic:'<rect x="6" y="12" width="22" height="14" fill="none" stroke="currentColor" stroke-width="1.5" stroke-dasharray="2 2"/><line x1="4" y1="29" x2="30" y2="29" stroke="var(--accent)" stroke-width="3"/>'},
+  f2o:{t:'2 fețe opuse',ext:0,int:0,hint:'Față și spate, fără colțuri. Fiecare schelă are 2 capete libere.',
+      mk:(L,l)=>[S('Fațada principală',L),S('Fațada spate',L)],
+      ic:'<rect x="6" y="9" width="22" height="16" fill="none" stroke="currentColor" stroke-width="1.5" stroke-dasharray="2 2"/><line x1="4" y1="28" x2="30" y2="28" stroke="var(--accent)" stroke-width="3"/><line x1="4" y1="6" x2="30" y2="6" stroke="var(--accent)" stroke-width="3"/>'},
+  f2l:{t:'2 fețe în colț',ext:1,int:0,hint:'Fațada principală și un lateral, legate printr-un colț exterior.',
+      mk:(L,l)=>[S('Fațada principală',L),S('Lateral dreapta',l)],
+      ic:'<rect x="6" y="9" width="20" height="16" fill="none" stroke="currentColor" stroke-width="1.5" stroke-dasharray="2 2"/><polyline points="4,28 29,28 29,6" fill="none" stroke="var(--accent)" stroke-width="3"/>'},
+  f3:{t:'3 fețe',ext:2,int:0,hint:'Față și două laterale (în formă de U), cu 2 colțuri exterioare.',
+      mk:(L,l)=>[S('Fațada principală',L),S('Lateral stânga',l),S('Lateral dreapta',l)],
+      ic:'<rect x="8" y="9" width="18" height="16" fill="none" stroke="currentColor" stroke-width="1.5" stroke-dasharray="2 2"/><polyline points="5,6 5,28 29,28 29,6" fill="none" stroke="var(--accent)" stroke-width="3"/>'},
+  f4:{t:'4 fețe',ext:4,int:0,hint:'Schelă de jur împrejur, cu 4 colțuri exterioare și fără capete libere.',
+      mk:(L,l)=>[S('Fațada principală',L),S('Fațada spate',L),S('Lateral stânga',l),S('Lateral dreapta',l)],
+      ic:'<rect x="9" y="10" width="16" height="14" fill="none" stroke="currentColor" stroke-width="1.5" stroke-dasharray="2 2"/><rect x="5" y="6" width="24" height="22" fill="none" stroke="var(--accent)" stroke-width="3"/>'},
+  man:{t:'altă formă',ext:null,int:null,hint:'Formă neregulată (L, T, U cu aripi): adaugă fațadele de mână și scrie colțurile de bază.',
+      mk:null,
+      ic:'<polyline points="5,28 5,6 17,6 17,16 29,16 29,28 5,28" fill="none" stroke="var(--accent)" stroke-width="3"/>'}
+};
+let cfg='f4';
+
+function S(n,L){return {n,L,H:'',sc:autoSc(L),bal:false,bd:1.2,ancBal:true,st:0,sd:0.6,p:0};}
+function autoSc(L){return L<=0?0:L<=25?1:Math.ceil(L/30);}
+
+let segs=[];
+let active=0;
+function defaultSegs(){
+  const a=CFG.f4.mk(36,15);
+  a[0].bal=true;a[0].bd=1.2;a[1].bal=true;a[1].bd=1.2;a[0].st=2;a[0].sd=0.6;
+  return a;
+}
+
+function renderFaces(){
+  $('faces').innerHTML=Object.entries(CFG).map(([k,c])=>`<button type="button" data-f="${k}" aria-pressed="${k===cfg}"><svg viewBox="0 0 34 34" aria-hidden="true">${c.ic}</svg>${c.t}</button>`).join('');
+  $('facesHint').textContent=CFG[cfg].hint;
+  $('manualCorners').hidden=cfg!=='man';
+  $('faces').querySelectorAll('button').forEach(b=>b.addEventListener('click',()=>{
+    cfg=b.dataset.f; const c=CFG[cfg];
+    if(c.mk){ readSegs(); const old=segs; segs=c.mk(+$('Lb').value||0,+$('lb').value||0);
+      segs.forEach(s=>{const o=old.find(x=>x.n===s.n); if(o){Object.assign(s,{H:o.H,bal:o.bal,bd:o.bd,ancBal:o.ancBal,st:o.st,sd:o.sd,p:o.p});}});
+      active=0; }
+    renderFaces(); renderSegs(); calc();
+  }));
+}
+
+function segHTML(s,i){
+  return `<div class="seg" data-i="${i}">
+    <div class="hd"><label>Denumire fațadă<input id="sn${i}" type="text" value="${esc(s.n)}"></label>
+      <button type="button" class="del" aria-label="Șterge fațada" data-del="${i}" title="Șterge fațada">✕ Șterge</button></div>
+    <label class="c2">Lungime (m)<input id="sl${i}" type="number" step="0.1" min="0" value="${s.L}"></label>
+    <label class="c2">Înălțime (m)<input id="sh${i}" type="number" step="0.1" min="0" placeholder="ca blocul" value="${s.H}"></label>
+    <label class="c2">Scări / accese
+      <span class="stepper"><button type="button" data-dec="${i}" aria-label="Mai puține scări">−</button><input id="ss${i}" type="number" min="0" value="${s.sc}"><button type="button" data-inc="${i}" aria-label="Mai multe scări">+</button></span></label>
+    <div class="sub"><label class="chk"><input id="sb${i}" type="checkbox" ${s.bal?'checked':''}> Are balcoane</label></div>
+    <label class="c2">Adâncime balcon (m)<input id="sbd${i}" type="number" step="0.05" min="0" value="${s.bd}" ${s.bal?'':'disabled'}></label>
+    <label class="chk c4" style="align-self:end;padding-bottom:6px"><input id="sba${i}" type="checkbox" ${s.ancBal?'checked':''} ${s.bal?'':'disabled'}> Schela merge pe fruntea balcoanelor (ancorez în placa balconului)</label>
+    <div class="sub">Fațadă care nu e dreaptă</div>
+    <label class="c2">Retrageri / rezalituri (buc)<input id="sst${i}" type="number" min="0" value="${s.st}"></label>
+    <label class="c2">Adâncime treaptă (m)<input id="ssd${i}" type="number" step="0.05" min="0" value="${s.sd}"></label>
+    <label class="c2">Alt ieșind (m)<input id="sp${i}" type="number" step="0.05" min="0" value="${s.p}" title="cornișă, soclu, termoizolație viitoare"></label>
+  </div>`;
+}
+function renderSegs(){
+  $('segs').innerHTML=segs.map(segHTML).join('');
+  const box=$('segs');
+  box.querySelectorAll('input').forEach(inp=>inp.addEventListener('input',()=>{readSegs();syncDisabled();calc();}));
+  box.querySelectorAll('[data-del]').forEach(b=>b.addEventListener('click',()=>{readSegs();segs.splice(+b.dataset.del,1);
+    if(active>=segs.length)active=Math.max(0,segs.length-1); if(cfg!=='man'){cfg='man';setManualFromCfg();renderFaces();} renderSegs();calc();}));
+  box.querySelectorAll('[data-inc],[data-dec]').forEach(b=>b.addEventListener('click',()=>{
+    const i=+(b.dataset.inc??b.dataset.dec); const inp=$('ss'+i); inp.value=Math.max(0,(+inp.value||0)+(b.dataset.inc!==undefined?1:-1)); readSegs(); calc();}));
+}
+function syncDisabled(){ segs.forEach((s,i)=>{ $('sbd'+i).disabled=!s.bal; $('sba'+i).disabled=!s.bal; }); }
+function readSegs(){
+  segs=segs.map((s,i)=>({n:$('sn'+i).value||('Fațada '+(i+1)),L:Math.max(0,+$('sl'+i).value||0),H:$('sh'+i).value,
+    sc:Math.max(0,Math.round(+$('ss'+i).value||0)),bal:$('sb'+i).checked,bd:Math.max(0,+$('sbd'+i).value||0),ancBal:$('sba'+i).checked,
+    st:Math.max(0,Math.round(+$('sst'+i).value||0)),sd:Math.max(0,+$('ssd'+i).value||0),p:Math.max(0,+$('sp'+i).value||0)}));
+}
+function setManualFromCfg(){ /* păstrează colțurile configurației anterioare ca punct de pornire */ }
+
+function splitBays(L,bay){
+  if(L<=0) return [];
+  let n=Math.floor(L/bay+1e-6), r=L-n*bay, out=Array(n).fill(bay);
+  if(r>0.10){ out.push(STD.find(x=>x>=r-0.02)||bay); }
+  if(!out.length) out.push(STD.find(x=>x>=L)||bay);
+  return out;
+}
+
+function read(){
+  const baseExt=cfg==='man'?Math.max(0,+$('cExt').value||0):CFG[cfg].ext;
+  const baseInt=cfg==='man'?Math.max(0,+$('cInt').value||0):CFG[cfg].int;
+  return {nume:$('nume').value, client:$('client').value, H:+$('H').value||0, hEt:+$('hEt').value||2.9,
+    w:+$('w').value, bay:+$('bay').value, gap:Math.max(0.05,+$('gap').value||0.25), decks:$('decks').value,
+    rez:Math.max(0,+$('rez').value||0), plasa:$('plasa').checked, cons:$('cons').checked,
+    baseExt, baseInt, truck:Math.max(0.5,+$('truck').value||3)};
+}
+const levelsFor=H=>Math.max(1,Math.ceil((H-0.2)/2));
+
+let last=null;
+function calc(){
+  const P=read();
+  const items={};
+  const add=(key,cat,name,dim,qty,kg,why)=>{ if(qty<=0)return; if(!items[key])items[key]={cat,name,dim,qty:0,kg,why}; items[key].qty+=qty; if(why&&!items[key].why)items[key].why=why; };
+  const alerts=[];
+  const nPod=Math.round(P.w/0.32);
+  const Nb=levelsFor(P.H);
+  const stepExt=segs.reduce((a,s)=>a+(s.L>0?2*s.st:0),0), stepInt=stepExt;
+  const cExt=P.baseExt+stepExt, cInt=P.baseInt+stepInt;
+  let area=0, anchorsTotal=0, A=0, maxTop=0, totalL=0;
+  const geo=[];
+
+  segs.forEach((s,i)=>{
+    const Hs=s.H!==''&&+s.H>0?+s.H:P.H;
+    const N=levelsFor(Hs), top=0.2+2*N; maxTop=Math.max(maxTop,top);
+    const deckLv=[]; for(let k=N;k>=1;k-=(P.decks==='alt'?2:1)) deckLv.push(k);
+    const Nd=deckLv.length;
+    // tronsoane: fețele frontale dintre trepte + porțiunile de întoarcere (adâncimea treptei minus traveea de colț)
+    const nFr=2*s.st+1, ret=Math.max(0,s.sd-P.gap-P.w);
+    const tr=[];
+    for(let t=0;t<nFr;t++){ tr.push({front:true,bays:splitBays(s.L/nFr,P.bay)}); if(t<nFr-1&&ret>0.1) tr.push({front:false,bays:splitBays(ret,P.bay)}); }
+    const bays=tr.flatMap(t=>t.bays); const B=bays.length; if(!B||s.L<=0){geo.push(null);return;}
+    totalL+=s.L+2*s.st*s.sd;
+    const F=tr.reduce((a,t)=>a+(t.bays.length?t.bays.length+1:0),0); // fiecare tronson are cadru la ambele capete
+    const len=bays.reduce((a,b)=>a+b,0);
+    area+=len*(top+1);
+    add('cadru','Structură','Cadru vertical oțel',`${fmt(P.w)} × 2,00 m`,F*N,KG.cadru[P.w],'pe fiecare nivel, la fiecare linie de cadre');
+    add('stalp','Structură','Stâlp balustradă nivel final','1,00 m',F,KG.stalp,'deasupra ultimului nivel');
+    add('picior','Bază','Picior reglabil (bază cu filet)','0,60 m',2*F,KG.picior,'2 la fiecare linie de cadre');
+    add('talpa','Bază','Talpă de repartiție lemn','40 × 25 × 5 cm',2*F,KG.talpa,'sub fiecare picior');
+        // diagonale: 1 pe nivel la fiecare grup de max. 5 travee; se montează doar în traveele cele mai lungi din grup
+    let nd=0;
+    tr.forEach(t=>{ for(let gs=0;gs<t.bays.length;gs+=5){ const gb=t.bays.slice(gs,gs+5), mb=Math.max(...gb); nd++;
+      if(KG.diag[mb]) add('diag'+mb,'Structură','Diagonală (contravântuire)',`travee ${fmt(mb)} × 2,00 m`,N,KG.diag[mb],'1 la fiecare grup de max. 5 travee, pe fiecare nivel, montate în linie continuă');
+      else { add('tdiag','Structură','Țeavă Ø48,3 ca diagonală (travee scurte)','3,00 m',N,KG.teavaM*3,'unde tronsonul are doar travee sub 1,57 m');
+             add('cuplaR','Structură','Cuplă rotativă','Ø48,3',2*N,1.4,'2 la fiecare diagonală din țeavă'); } } });
+    const a=Math.min(s.sc,B); A+=a;
+    if(s.sc>B) alerts.push({t:`<b>${esc(s.n)}:</b> ai cerut ${s.sc} scări, dar fațada are doar ${B} travee. Am calculat ${B}.`});
+    bays.forEach((b,bi)=>{
+      if(bi<a){
+        const tl=KG.trapa[b]?b:3.07;
+        add('trapa'+tl,'Platforme','Podină cu trapă și scară',`${fmt(tl)} × 0,64 m`,N,KG.trapa[tl],'pe fiecare nivel în coloana de acces');
+        if(nPod>2) add('pod'+b,'Platforme','Podină oțel',`${fmt(b)} × 0,32 m`,(nPod-2)*N,KG.podina[b]);
+      } else add('pod'+b,'Platforme','Podină oțel',`${fmt(b)} × 0,32 m`,nPod*Nd,KG.podina[b],`${nPod} pe travee, pe nivelurile cu podine`);
+      add('bal'+b,'Protecție','Balustradă (mână curentă + intermediară)',`${fmt(b)} m`,2*Nd,KG.balustrada[b],'2 pe travee pe fața exterioară, pe nivelurile de lucru');
+      add('pl'+b,'Protecție','Plintă',`${fmt(b)} m`,Nd,KG.plinta[b],'1 pe travee pe nivelurile de lucru');
+    });
+    // distanțe
+    const wallDist=P.gap+s.p+(s.bal?s.bd:0);
+    const workDist=s.bal&&s.ancBal?P.gap+s.p:wallDist;   // de unde se lucrează de pe schelă
+    const anchDist=s.bal&&s.ancBal?P.gap:wallDist;       // până la elementul în care se ancorează
+    let cons=null;
+    if(workDist>0.30 && P.cons){
+      if(workDist<=0.66) cons=0.36; else if(workDist<=1.03) cons=0.73;
+      else alerts.push({t:`<b>${esc(s.n)}:</b> golul de lucru la perete e ${fmt(workDist)} m și nu se acoperă nici cu consola de 0,73 m. Variante: schela pe fruntea balcoanelor (bifează opțiunea), cadre de 1,09 m cu console sau schelă separată.`});
+      if(cons){
+        const pc=cons===0.36?1:2;
+        add('cons'+cons,'Console','Consolă interioară',`${fmt(cons)} m`,F*Nd,KG.consola[cons],'pe fiecare cadru, pe nivelurile de lucru (gol > 30 cm)');
+        bays.forEach(b=>add('pod'+b,'Platforme','Podină oțel',`${fmt(b)} × 0,32 m`,pc*Nd,KG.podina[b]));
+      }
+    } else if(workDist>0.30) alerts.push({t:`<b>${esc(s.n)}:</b> golul la perete e ${fmt(workDist)} m (peste 30 cm) și consolele sunt dezactivate. Spre perete trebuie balustradă sau consolă.`});
+    if(s.bal && s.ancBal) alerts.push({cls:'info',t:`<b>${esc(s.n)}:</b> schela stă la ${fmt(P.gap)} m de fruntea balcoanelor. Peretele dintre balcoane se lucrează de pe balcon. Verifică dacă placa balconului ține șurubul de ancorare (beton, nu doar parapet).`});
+    const R=Math.floor(N/2)+(N%2);
+    const perRow=P.plasa?F:Math.ceil(F/2)+1+s.st;
+    const nA=perRow*R; anchorsTotal+=nA;
+    let al=ANC.find(x=>x>=anchDist+0.15);
+    if(!al){ al=1.80; alerts.push({t:`<b>${esc(s.n)}:</b> până la perete sunt ${fmt(anchDist)} m, mai mult decât acoperă o ancoră de 1,80 m. Ancorează în fruntea balcoanelor sau folosește ancorare în V cu țeavă și cuple.`}); }
+    add('anc'+al,'Ancorare','Țeavă de ancorare cu cârlig',`${fmt(al)} m`,nA,KG.ancora[al],P.plasa?'la fiecare cadru, din 4 în 4 m pe înălțime (cu plasă)':'la fiecare al doilea cadru, decalat, din 4 în 4 m');
+    if(al>=0.95) add('cuplaA','Ancorare','Cuplă ortogonală (a doua prindere a ancorei)','Ø48,3',nA,KG.cupla,'pentru ancorele de 0,95 m și mai lungi');
+    add('surub','Ancorare','Șurub cu ochi + diblu','Ø12 × 120–160 mm',nA,KG.surub,'1 la fiecare ancoră, verificat la smulgere');
+    // colțurile treptelor (folosesc înălțimea fațadei)
+    if(s.st>0){
+      const ce=2*s.st, ci=2*s.st;
+      add('pod'+P.w,'Platforme','Podină oțel',`${fmt(P.w)} × 0,32 m`,ce*nPod*Nd+ci*Nd,KG.podina[P.w],'travee de colț la retrageri / rezalituri');
+      add('bal'+P.w,'Protecție','Balustradă (mână curentă + intermediară)',`${fmt(P.w)} m`,ce*2*Nd,KG.balustrada[P.w]);
+      add('pl'+P.w,'Protecție','Plintă',`${fmt(P.w)} m`,ce*Nd,KG.plinta[P.w]);
+      add('t15','Colțuri','Țeavă Ø48,3 pentru legătura de colț','1,50 m',(ce+ci)*N,KG.teavaM*1.5,'1 pe nivel la fiecare colț');
+      add('cuplaC','Colțuri','Cuplă ortogonală','Ø48,3',(ce+ci)*N*2,KG.cupla,'2 pe nivel la fiecare colț');
+      add('t40','Colțuri','Țeavă Ø48,3 verticală de colț','4,00 m',(ce+ci)*Math.ceil(top/4),KG.teavaM*4,'legătură verticală între tronsoane');
+      area+=ce*P.w*(top+1);
+    }
+    add('scara','Acces','Scară interioară aluminiu','2,15 m',a*N,KG.scara,'1 pe nivel în fiecare coloană de acces');
+    geo.push({bays,tr,F,a,N,Nd,nd,nA,top,Hs,wallDist,workDist,cons,al,s,perRow});
+  });
+
+  // colțuri de bază (forma clădirii) – la înălțimea blocului
+  const Nd0=P.decks==='alt'?Math.ceil(Nb/2):Nb;
+  if(P.baseExt>0){
+    add('pod'+P.w,'Platforme','Podină oțel',`${fmt(P.w)} × 0,32 m`,P.baseExt*nPod*Nd0,KG.podina[P.w],'travee de colț exterior');
+    add('bal'+P.w,'Protecție','Balustradă (mână curentă + intermediară)',`${fmt(P.w)} m`,P.baseExt*2*Nd0,KG.balustrada[P.w]);
+    add('pl'+P.w,'Protecție','Plintă',`${fmt(P.w)} m`,P.baseExt*Nd0,KG.plinta[P.w]);
+    area+=P.baseExt*P.w*(0.2+2*Nb+1);
+  }
+  if(P.baseInt>0) add('pod'+P.w,'Platforme','Podină oțel',`${fmt(P.w)} × 0,32 m`,P.baseInt*Nd0,KG.podina[P.w],'închidere colț interior');
+  const bc=P.baseExt+P.baseInt;
+  if(bc>0){
+    add('t15','Colțuri','Țeavă Ø48,3 pentru legătura de colț','1,50 m',bc*Nb,KG.teavaM*1.5,'1 pe nivel la fiecare colț');
+    add('cuplaC','Colțuri','Cuplă ortogonală','Ø48,3',bc*Nb*2,KG.cupla,'2 pe nivel la fiecare colț');
+    add('t40','Colțuri','Țeavă Ø48,3 verticală de colț','4,00 m',bc*Math.ceil((0.2+2*Nb)/4),KG.teavaM*4,'legătură verticală între schele la colț');
+  }
+  // capete libere
+  const active_=segs.filter(s=>s.L>0).length;
+  const freeEnds=Math.max(0,2*active_-2*bc);
+  if(freeEnds>0){
+    add('capat','Protecție','Cadru balustradă de capăt',`${fmt(P.w)} m`,freeEnds*Nd0,KG.capat[P.w],'la capetele libere ale schelei, pe nivelurile de lucru');
+    add('plC','Protecție','Plintă de capăt',`${fmt(P.w)} m`,freeEnds*Nd0,KG.plinta[0.73]);
+  }
+  if(P.plasa && area>0){
+    add('plasa','Protecție','Plasă de protecție fațadă (rolă 3 × 50 m)','150 m²/rolă',Math.ceil(area/150),KG.plasaRola,`suprafață ≈ ${fmt0(area)} m²`);
+    add('bride','Protecție','Bridă / colier plastic pt. plasă','buc',Math.ceil(area*1.2),0.005,'≈ 1,2 pe m²');
+  }
+
+  const k=1+P.rez/100;
+  const list=Object.values(items).filter(x=>x.qty>0).map(x=>({...x,qr:Math.ceil(x.qty*k)}));
+  const order=['Bază','Structură','Platforme','Console','Protecție','Acces','Ancorare','Colțuri'];
+  list.sort((a,b)=>order.indexOf(a.cat)-order.indexOf(b.cat)||a.name.localeCompare(b.name)||parseFloat(a.dim)-parseFloat(b.dim));
+  const totKg=list.reduce((a,x)=>a+x.qr*x.kg,0);
+
+  if(maxTop>24) alerts.unshift({t:`<b>Ultimul nivel la ${fmt(maxTop,1)} m (peste 24 m).</b> Configurațiile standard din SR EN 12810 merg până la 24 m. Peste această înălțime e nevoie de calcul de rezistență de la furnizor sau proiectant: ancorare mai deasă, uneori cadre dublate la bază și verificarea terenului.`});
+  if(maxTop>50) alerts.unshift({t:'<b>Peste 50 m:</b> schela trebuie proiectată individual. Lista de aici servește doar ca primă estimare.'});
+  segs.forEach(s=>{ if(s.L>25 && s.sc<2) alerts.push({t:`<b>${esc(s.n)}:</b> ${fmt(s.L,1)} m cu ${s.sc} ${s.sc===1?'scară':'scări'}. Recomandat: nimeni să nu fie la mai mult de ~20–25 m de o scară.`}); });
+  if(A===0 && totalL>0) alerts.unshift({t:'<b>Nicio scară pusă.</b> Schela trebuie să aibă cel puțin un acces.'});
+  if(P.plasa) alerts.push({cls:'info',t:'Cu plasă pe toată fața, vântul încarcă mult mai tare schela, de aceea ancorele se pun la fiecare cadru.'});
+  alerts.push({cls:'info',t:'Nu sunt incluse: grinzi cu zăbrele pentru treceri pe sub schelă, copertine la intrări, împământare/paratrăsnet, troliu sau lift de material.'});
+
+  last={P,list,totKg,Nb,maxTop,area,A,anchorsTotal,geo,totalL,cExt,cInt,freeEnds};
+  renderCorners(); renderTiles(); renderAlerts(alerts); renderTable(); renderTabs(); renderElev();
+}
+
+function renderCorners(){
+  const {P,cExt,cInt,freeEnds}=last;
+  $('cornerbox').innerHTML=`<span>Colțuri exterioare: <b>${cExt}</b>${cExt!==P.baseExt?` (${P.baseExt} formă + ${cExt-P.baseExt} trepte)`:''}</span><span>Colțuri interioare: <b>${cInt}</b></span><span>Capete libere: <b>${freeEnds}</b></span>`;
+}
+function renderTiles(){
+  const {P,Nb,maxTop,area,totKg,A,anchorsTotal,list,totalL}=last;
+  const cadre=list.filter(x=>x.name.startsWith('Cadru vertical')).reduce((a,x)=>a+x.qr,0);
+  const curse=Math.ceil(totKg/1000/P.truck);
+  $('tiles').innerHTML=`
+   <div class="tile"><div class="k">Suprafață schelată</div><div class="v">${fmt0(area)}<small>m²</small></div><div class="s">${fmt(totalL,1)} m traseu schelă</div></div>
+   <div class="tile"><div class="k">Niveluri</div><div class="v">${Nb}<small>× 2 m</small></div><div class="s">ultimul nivel la ${fmt(maxTop,1)} m</div></div>
+   <div class="tile"><div class="k">Cadre</div><div class="v">${fmt0(cadre)}<small>buc</small></div><div class="s">${A} scări · ${fmt0(anchorsTotal)} ancore</div></div>
+   <div class="tile hl"><div class="k">Greutate totală</div><div class="v">${fmt(totKg/1000,1)}<small>t</small></div><div class="s">≈ ${curse} curse cu camion de ${fmt(P.truck,1)} t</div></div>`;
+}
+function renderAlerts(a){ $('alerts').innerHTML=a.map(x=>`<div class="alert ${x.cls||''}">${x.t}</div>`).join(''); }
+function renderTable(){
+  const {list,totKg}=last;
+  let html='<thead><tr><th>Element</th><th>Dimensiune</th><th class="n">Buc.</th><th class="n">kg/buc</th><th class="n">Total kg</th></tr></thead><tbody>';
+  let cat='';
+  list.forEach(x=>{
+    if(x.cat!==cat){cat=x.cat;html+=`<tr class="cat"><td colspan="5">${cat}</td></tr>`;}
+    html+=`<tr><td>${x.name}${x.why?`<span class="why">${x.why}</span>`:''}</td><td>${x.dim}</td><td class="n qty">${fmt0(x.qr)}</td><td class="n">${fmt(x.kg,x.kg<0.1?3:x.kg<1?2:1)}</td><td class="n">${fmt0(x.qr*x.kg)}</td></tr>`;
+  });
+  html+=`</tbody><tfoot><tr><td colspan="4">Total</td><td class="n">${fmt0(totKg)} kg</td></tr></tfoot>`;
+  $('tbl').innerHTML=html;
+}
+function renderTabs(){
+  if(active>=segs.length) active=0;
+  $('tabs').innerHTML=segs.map((s,i)=>`<button type="button" aria-pressed="${i===active}" data-t="${i}">${esc(s.n)} · ${fmt(s.L,1)} m</button>`).join('');
+  $('tabs').querySelectorAll('button').forEach(b=>b.addEventListener('click',()=>{active=+b.dataset.t;renderTabs();renderElev();}));
+}
+function renderElev(){
+  const g=last.geo[active]; const {P}=last;
+  if(!g){$('elev').innerHTML='<p style="padding:16px;color:var(--muted)">Scrie lungimea acestei fațade.</p>';$('check').innerHTML='';renderCheck();return;}
+  const {N,top,Hs,s}=g;
+  const sx=26, sy=18, padL=46, padT=36, padB=30, GAP=1.0;
+  // poziții pe desen: doar tronsoanele frontale, despărțite de un gol unde e treapta
+  const fr=g.tr.filter(t=>t.front&&t.bays.length);
+  const bx=[], frames=[], spans=[]; let x=0;
+  fr.forEach((t,ti)=>{ if(ti>0) x+=GAP; const x0=x; frames.push(x); t.bays.forEach((b,j)=>{bx.push({x0:x,x1:x+b,b,t:ti,j}); x+=b; frames.push(x);}); spans.push([x0,x]); });
+  const Lr=x;
+  const W=padL+Lr*sx+30, Hh=padT+(top+1)*sy+padB;
+  const y=m=>padT+(top+1-m)*sy, X=m=>padL+m*sx;
+  const dl=new Set(); for(let k=N;k>=1;k-=(P.decks==='alt'?2:1)) dl.add(k);
+  let o=`<svg width="${W}" height="${Hh}" viewBox="0 0 ${W} ${Hh}" xmlns="http://www.w3.org/2000/svg" font-family="IBM Plex Mono, monospace" font-size="10">`;
+  // clădire: tronsoanele alternează (fața de bază / retras sau ieșit)
+  spans.forEach(([a,b],ti)=>{ o+=`<rect x="${X(a)}" y="${y(Hs)}" width="${(b-a)*sx}" height="${Hs*sy}" fill="${ti%2?'var(--line)':'var(--steel-soft)'}"/>`; });
+  spans.slice(1).forEach(([a],ti)=>{ o+=`<text x="${X(a-GAP/2)}" y="${y(Hs/2)}" fill="var(--muted)" text-anchor="middle" transform="rotate(-90 ${X(a-GAP/2)} ${y(Hs/2)})">treaptă ${fmt(s.sd)} m</text>`; });
+  if(s.bal){ const hE=P.hEt>1.5?P.hEt:2.9; spans.forEach(([a,b])=>{ const L=b-a, bw=Math.min(3.6,L/3); for(let h=hE;h<Hs-0.5;h+=hE) for(let xx=a+0.6;xx+bw<=b-0.3;xx+=bw*1.7) o+=`<rect x="${X(xx)}" y="${y(h)}" width="${bw*sx}" height="4" fill="var(--bal)"/>`; }); }
+  o+=`<line x1="${X(0)-10}" x2="${X(Lr)+10}" y1="${y(Hs)}" y2="${y(Hs)}" stroke="var(--muted)" stroke-dasharray="4 3"/>`;
+  o+=`<text x="${X(Lr)+4}" y="${y(Hs)-4}" fill="var(--muted)" text-anchor="end">cornișă ${fmt(Hs,1)} m</text>`;
+  // coloane de acces, distribuite pe lungime
+  const accIdx=[]; for(let a=0;a<g.a;a++) accIdx.push(g.a===1?0:Math.round(a*(bx.length-1)/(g.a-1)));
+  accIdx.forEach(i=>{const c=bx[i]; o+=`<rect x="${X(c.x0)}" y="${y(top)}" width="${c.b*sx}" height="${(top-0.2)*sy}" fill="var(--ok)" fill-opacity=".16"/>`;});
+  // niveluri pe fiecare tronson
+  spans.forEach(([a,b])=>{
+    for(let k=0;k<=N;k++){ const h=0.2+2*k; o+=`<line x1="${X(a)}" x2="${X(b)}" y1="${y(h)}" y2="${y(h)}" stroke="var(--steel)" stroke-width="${dl.has(k)?2.2:1}"/>`; }
+    o+=`<line x1="${X(a)}" x2="${X(b)}" y1="${y(top+1)}" y2="${y(top+1)}" stroke="var(--steel)" stroke-width="1.4"/>`;
+  });
+  for(let k=0;k<=N;k++) if(k%2===0||k===N) o+=`<text x="${padL-6}" y="${y(0.2+2*k)+3}" fill="var(--muted)" text-anchor="end">${fmt(0.2+2*k,1)}</text>`;
+  frames.forEach(fx=>{o+=`<line x1="${X(fx)}" x2="${X(fx)}" y1="${y(0.2)}" y2="${y(top+1)}" stroke="var(--steel)" stroke-width="1.6"/><rect x="${X(fx)-4}" y="${y(0.2)}" width="8" height="${0.2*sy}" fill="var(--muted)"/>`;});
+  // diagonale: în fiecare grup de max. 5 travee, câte una pe nivel, urcând travee cu travee -> linie continuă
+  let grp=0;
+  fr.forEach((t,ti)=>{
+    const tb=bx.filter(c=>c.t===ti);
+    for(let gs=0;gs<tb.length;gs+=5){
+      const all=tb.slice(gs,gs+5), mb=Math.max(...all.map(c=>c.b)), gb=all.filter(c=>c.b===mb), n=gb.length, mirror=grp%2===1; grp++;
+      for(let k=0;k<N;k++){ const h0=0.2+2*k, h1=h0+2; const idx=k%n; const c=mirror?gb[n-1-idx]:gb[idx];
+        o+= mirror ? `<line x1="${X(c.x1)}" y1="${y(h0)}" x2="${X(c.x0)}" y2="${y(h1)}" stroke="var(--accent)" stroke-width="2.2"/>`
+                   : `<line x1="${X(c.x0)}" y1="${y(h0)}" x2="${X(c.x1)}" y2="${y(h1)}" stroke="var(--accent)" stroke-width="2.2"/>`; }
+    }
+  });
+  // scări
+  accIdx.forEach(i=>{const c=bx[i], bw=c.b*sx; for(let k=0;k<N;k++){const h0=0.2+2*k; const x0=X(c.x0)+(k%2?bw*0.72:bw*0.28), x1=x0+(k%2?-bw*0.22:bw*0.22);
+    o+=`<line x1="${x0}" x2="${x1}" y1="${y(h0)}" y2="${y(h0+2)}" stroke="var(--ok)" stroke-width="2.4"/>`;}});
+  // ancoraje
+  const R=Math.floor(N/2)+(N%2);
+  for(let r=0;r<R;r++){ const lev=Math.min(N,2*(r+1)); const h=0.2+2*lev-0.3;
+    frames.forEach((fx,fi)=>{ if(P.plasa||fi===0||fi===frames.length-1||((fi+r)%2===0)) o+=`<circle cx="${X(fx)}" cy="${y(h)}" r="3.6" fill="var(--warn)"/>`;});}
+  // cote travee
+  let prev=null;
+  bx.forEach((c,i)=>{ if(bx.length>14&&c.b===prev&&i>1&&i<bx.length-1)return; prev=c.b;
+    o+=`<text x="${X(c.x0+c.b/2)}" y="${Hh-10}" fill="var(--muted)" text-anchor="middle">${fmt(c.b)}</text>`;});
+  const retB=g.tr.filter(t=>!t.front).reduce((a,t)=>a+t.bays.length,0);
+  o+=`<text x="${padL}" y="16" fill="var(--ink)" font-size="12" font-family="Barlow, sans-serif">${bx.length} travee pe față${retB?` + ${retB} pe întoarceri`:''} · ${g.nd} diagonale pe nivel · ${g.a} ${g.a===1?'scară':'scări'} · gol de lucru ${fmt(g.workDist)} m${g.cons?` → consolă ${fmt(g.cons)} m`:''} · ancore ${fmt(g.al)} m</text>`;
+  o+='</svg>';
+  $('elev').innerHTML=o;
+  renderCheck();
+}
+function renderCheck(){
+  const rows=last.geo.map((g,i)=>g?`<tr${i===active?' class="on"':''}><td>${esc(g.s.n)}</td><td class="n">${g.bays.length}</td><td class="n">${g.tr.filter(t=>t.bays.length).length}</td><td class="n">${g.F}</td><td class="n">${g.N}</td><td class="n">${fmt0(g.F*g.N)}</td><td class="n">${g.nd} × ${g.N} = ${fmt0(g.nd*g.N)}</td><td class="n">${g.a} × ${g.N} = ${fmt0(g.a*g.N)}</td><td class="n">${fmt0(g.nA)}</td></tr>`:'').join('');
+  $('check').innerHTML=`<h3>Verificare pe fațadă <small>fără rezervă</small></h3><div class="tbl"><table><thead><tr><th>Fațadă</th><th class="n">Travee</th><th class="n">Tronsoane</th><th class="n">Cadre / nivel</th><th class="n">Niveluri</th><th class="n">Cadre</th><th class="n">Diagonale</th><th class="n">Scări</th><th class="n">Ancore</th></tr></thead><tbody>${rows}</tbody></table></div>
+  <p class="note">Cadre pe nivel = travee + 1 pe fiecare tronson. Diagonale: 1 la fiecare grup de cel mult 5 travee, pe fiecare nivel, puse în traveele lungi (nu în cele de 0,73 / 1,09 m), urcând travee cu travee ca să formeze o linie continuă. La retrageri/rezalituri fațada se împarte în tronsoane egale. Scări: 1 pe nivel în fiecare coloană de acces.</p>`;
+}
+
+$('copy').addEventListener('click',()=>{
+  const {P,list,totKg}=last;
+  const rows=[['Giovani Construct – necesar schelă'],[`Proiect: ${P.nume}`],[`Client: ${P.client}`],[],['Categorie','Element','Dimensiune','Buc','kg/buc','Total kg']];
+  list.forEach(x=>rows.push([x.cat,x.name,x.dim,x.qr,String(x.kg).replace('.',','),String(Math.round(x.qr*x.kg))]));
+  rows.push(['','','','','Total',String(Math.round(totKg))]);
+  const txt=rows.map(r=>r.join('\t')).join('\n');
+  const done=()=>toast('Lista a fost copiată. Lipește în Excel.');
+  if(window.AndroidApp&&AndroidApp.copy){ try{AndroidApp.copy(txt);done();return;}catch(e){} }
+  try{ navigator.clipboard.writeText(txt).then(done,()=>fallback(txt)); }catch(e){fallback(txt);}
+});
+function fallback(txt){
+  const ta=document.createElement('textarea');ta.value=txt;ta.style.position='fixed';ta.style.opacity='0';document.body.appendChild(ta);ta.select();
+  let ok=false; try{ok=document.execCommand('copy');}catch(e){} ta.remove();
+  toast(ok?'Lista a fost copiată. Lipește în Excel.':'Copierea a fost blocată de browser. Selectează tabelul manual.');
+}
+let tt;function toast(m){const t=$('toast');t.textContent=m;t.hidden=false;clearTimeout(tt);tt=setTimeout(()=>t.hidden=true,2600);}
+
+$('addSeg').addEventListener('click',()=>{readSegs();segs.push(S('Fațada '+(segs.length+1),10)); if(cfg!=='man'){ $('cExt').value=CFG[cfg].ext; $('cInt').value=CFG[cfg].int; cfg='man'; renderFaces(); } renderSegs();calc();});
+$('autoSc').addEventListener('click',()=>{readSegs();segs.forEach(s=>s.sc=autoSc(s.L));renderSegs();calc();toast('Scări propuse: 1 până la 25 m, apoi 1 la ~30 m.');});
+['Lb','lb'].forEach(id=>$(id).addEventListener('change',()=>{ if(!CFG[cfg].mk)return; readSegs(); const L=+$('Lb').value||0,l=+$('lb').value||0;
+  segs.forEach(s=>{ if(/principal|spate/i.test(s.n)) {s.L=L;} else if(/lateral/i.test(s.n)) {s.L=l;} }); renderSegs(); calc(); }));
+
+const FIELDS=['nume','client','H','hEt','Lb','lb','cExt','cInt','w','bay','gap','decks','rez','truck'];
+const CHK=['plasa','cons'];
+function getStore(){try{return JSON.parse(localStorage.getItem('schela_proiecte')||'{}')}catch(e){return {}}}
+function setStore(o){try{localStorage.setItem('schela_proiecte',JSON.stringify(o));return true}catch(e){return false}}
+function renderSaved(){
+  const st=getStore(); const keys=Object.keys(st);
+  $('saved').innerHTML=keys.length?keys.map(k=>`<button type="button" data-k="${esc(k)}">${esc(k)}</button>`).join(''):'<span class="hint" style="margin:0">Niciun proiect salvat încă.</span>';
+  $('saved').querySelectorAll('button').forEach(b=>b.addEventListener('click',()=>load(st[b.dataset.k])));
+}
+function load(o){ if(!o)return; FIELDS.forEach(f=>{if(o[f]!==undefined)$(f).value=o[f];}); CHK.forEach(f=>$(f).checked=!!o[f]);
+  cfg=o.cfg||'man'; segs=(o.segs||[]).map(x=>Object.assign(S('',0),x)); active=0; renderFaces(); renderSegs(); calc(); toast('Proiect încărcat: '+o.nume); }
+$('save').addEventListener('click',()=>{ readSegs(); const o={segs,cfg}; FIELDS.forEach(f=>o[f]=$(f).value); CHK.forEach(f=>o[f]=$(f).checked);
+  const st=getStore(); st[o.nume||'Proiect']=o; toast(setStore(st)?'Proiect salvat pe acest dispozitiv.':'Browserul nu permite salvarea aici.'); renderSaved(); });
+
+$('frm').addEventListener('input',e=>{ if(e.target.closest('#segs'))return; $('exTag').hidden=true; calc(); });
+$('frm').addEventListener('submit',e=>e.preventDefault());
+document.querySelectorAll('.mnav [data-go]').forEach(b=>b.addEventListener('click',()=>{ const el=$(b.dataset.go); if(el) el.scrollIntoView({behavior:matchMedia('(prefers-reduced-motion: reduce)').matches?'auto':'smooth',block:'start'}); }));
+
+segs=defaultSegs(); renderFaces(); renderSegs(); renderSaved(); calc();
+})();
+</script>
+
+</html>
