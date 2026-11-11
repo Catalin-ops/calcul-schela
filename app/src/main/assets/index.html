@@ -62,6 +62,15 @@ button.ghost{background:transparent}
 .row{display:flex;flex-wrap:wrap;gap:8px;align-items:center}
 .full{grid-column:1/-1}
 /* config fețe */
+.dpanel{display:flex;flex-direction:column;gap:10px;border:2px solid var(--accent);background:var(--accent-soft);border-radius:6px;padding:12px;margin-bottom:12px}
+.dpanel-h{font-family:var(--f-display);font-weight:700;text-transform:uppercase;letter-spacing:.06em;font-size:16px}
+.dpanel-h small{font-family:var(--f-body);text-transform:none;letter-spacing:0;font-weight:400;font-size:13px;color:var(--muted);margin-left:6px}
+.dpanel label,.dlab{font-size:13px;color:var(--ink);font-weight:600}
+.dpanel select{background:var(--panel);max-width:360px}
+.dmodes button{background:var(--panel)!important}
+.dmodes button[aria-pressed="true"]{background:var(--accent)!important;color:var(--accent-ink);border-color:var(--accent-ink)}
+.dmodes button[aria-pressed="true"] svg g{stroke:var(--accent-ink)}
+.dmodes button[aria-pressed="true"] svg rect,.dmodes button[aria-pressed="true"] svg line{stroke:var(--accent-ink)}
 .dmodes{display:grid;grid-template-columns:repeat(5,minmax(0,1fr));gap:6px;margin-top:6px}
 .dmodes button{display:flex;flex-direction:column;align-items:center;gap:5px;padding:8px 4px;font-size:11px;font-weight:500;line-height:1.2;background:var(--bg);text-align:center}
 .dmodes button svg{width:30px;height:34px}
@@ -203,10 +212,6 @@ tfoot td{font-weight:600;border-top:2px solid var(--ink);border-bottom:0}
         <label>Travee principală<select id="bay"><option value="3.07">3,07 m</option><option value="2.57">2,57 m</option><option value="2.07">2,07 m</option><option value="2">2,00 m</option></select></label>
         <label>Distanța față de perete (m)<input id="gap" type="number" step="0.05" min="0.1" value="0.25"></label>
         <label>Podine pe niveluri<select id="decks"><option value="all">toate nivelurile</option><option value="alt">din 2 în 2 niveluri</option></select></label>
-        <label>Diagonale<select id="dfreq"><option value="5">1 la 5 travee (minimul uzual)</option><option value="3">1 la 3 travee</option><option value="2">1 la 2 travee</option><option value="1">în fiecare travee</option></select></label>
-        <div class="full"><span style="font-size:13px;color:var(--muted)">Cum se montează diagonalele</span>
-          <div class="dmodes" id="dmodes"></div><input type="hidden" id="dmode" value="zig"></div>
-        <p class="hint">Diagonalele se pun pe toate nivelurile. Minimul uzual din fișele producătorilor: 1 diagonală la cel mult 5 travee, pe fiecare nivel. Dacă voi puneți mai multe, alege aici.</p>
         <label>Rezervă (%)<input id="rez" type="number" min="0" max="50" value="5"></label>
         <label>Camion – încărcătură (t)<input id="truck" type="number" step="0.1" min="0.5" value="3"></label>
         <label class="chk full"><input id="plasa" type="checkbox" checked> Plasă de protecție pe toată fața</label>
@@ -226,6 +231,19 @@ tfoot td{font-weight:600;border-top:2px solid var(--ink);border-bottom:0}
 
       <section class="panel" id="sec-schita">
         <h2 style="justify-content:space-between">Elevație fațadă <button type="button" id="fitBtn" class="ghost" style="font-size:13px;padding:5px 10px">Mărește schița</button></h2>
+        <div class="dpanel" id="dpanel">
+          <div class="dpanel-h">Diagonale <small>alege și vezi imediat pe schiță</small></div>
+          <label class="dfreq-l">1. Unde se pun
+            <select id="dfreq">
+              <option value="1">în fiecare travee (câmp)</option>
+              <option value="2">la fiecare a 2-a travee</option>
+              <option value="3">la fiecare a 3-a travee</option>
+              <option value="5" selected>1 la 5 travee (minimul uzual)</option>
+            </select></label>
+          <div><span class="dlab">2. Cum se montează</span>
+            <div class="dmodes" id="dmodes"></div><input type="hidden" id="dmode" value="zig"></div>
+          <p class="hint" style="margin:0">Pe toate nivelurile. Pentru „câte un X în fiecare travee”: la 1 alege „în fiecare travee”, la 2 alege „Încrucișat (X) pe fiecare nivel”.</p>
+        </div>
         <div class="tabs" id="tabs"></div>
         <div class="elev" id="elev"></div>
         <div class="legend">
@@ -662,6 +680,7 @@ $('save').addEventListener('click',()=>{ readSegs(); const o={segs,cfg}; FIELDS.
 
 $('frm').addEventListener('input',e=>{ if(e.target.closest('#segs'))return; $('exTag').hidden=true; calc(); });
 $('frm').addEventListener('submit',e=>e.preventDefault());
+$('dfreq').addEventListener('change',()=>calc());
 $('fitBtn').addEventListener('click',()=>{ fitElev=!fitElev; $('fitBtn').textContent=fitElev?'Mărește schița':'Încadrează în ecran'; renderElev(); });
 document.querySelectorAll('.mnav [data-go]').forEach(b=>b.addEventListener('click',()=>{ const el=$(b.dataset.go); if(el) el.scrollIntoView({behavior:matchMedia('(prefers-reduced-motion: reduce)').matches?'auto':'smooth',block:'start'}); }));
 
