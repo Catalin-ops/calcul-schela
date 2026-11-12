@@ -212,6 +212,23 @@ table.rt tr.cat td{background:var(--steel-soft);font-size:11px}
   .sign>div{min-height:70px}
   *{-webkit-print-color-adjust:exact;print-color-adjust:exact}
 }
+.qin{width:84px;text-align:right;padding:5px 7px;font-size:14px;background:var(--panel)}
+.qin.ch{border-color:var(--accent);background:var(--accent-soft);font-weight:600}
+.tools{display:flex;flex-direction:column;gap:12px}
+.tt{min-width:0!important}
+.sumbar{background:var(--steel-soft);border-radius:4px;padding:9px 12px;font-size:14px}
+.sumbar.bad{background:var(--warn-soft);border-left:4px solid var(--warn)}
+td.neg{color:var(--warn);font-weight:600}
+td.pos{color:var(--ok)}
+.trips{display:grid;grid-template-columns:repeat(auto-fill,minmax(300px,1fr));gap:12px}
+.trip{border:1px solid var(--line);border-radius:6px;padding:10px;min-width:0}
+.trip h4{margin:0 0 6px;font-family:var(--f-display);text-transform:uppercase;letter-spacing:.06em;display:flex;justify-content:space-between}
+.trip h4 span{text-transform:none;font-family:var(--f-mono);font-weight:500;color:var(--muted)}
+td.pk{font-size:12px;color:var(--muted);white-space:nowrap}
+.ofgrid{display:grid;grid-template-columns:repeat(auto-fill,minmax(180px,1fr));gap:10px}
+table.of td{padding:7px 8px}
+table.of tr.tot td{border-top:2px solid var(--ink);font-size:16px}
+#ttabs button[aria-pressed="true"]{background:var(--ink);color:var(--panel);border-color:var(--ink)}
 .mnav{display:none}
 @media (max-width:920px){
   .mnav{display:grid;grid-template-columns:repeat(5,1fr);position:fixed;left:0;right:0;bottom:0;z-index:15;background:var(--brand-bg);border-top:3px solid var(--brand-y);
@@ -230,7 +247,7 @@ table.rt tr.cat td{background:var(--steel-soft);font-size:11px}
   header.top p,header.top .std{display:none}
   header.top h1{font-size:26px}
   #tbl{min-width:0}
-  #tbl th:nth-child(4),#tbl td:nth-child(4){display:none}
+  #tbl th:nth-child(2),#tbl td:nth-child(2){font-size:12px}
   #tbl td,#tbl th{padding:6px 5px}
   .tile .v{font-size:26px}
 }
@@ -342,16 +359,27 @@ table.rt tr.cat td{background:var(--steel-soft);font-size:11px}
           <button type="button" id="copy" class="pri">Copiază lista (Excel)</button>
         </h2>
         <div class="tbl"><table id="tbl"></table></div>
-        <p class="note">Cantitățile includ rezerva aleasă. Greutățile sunt medii pentru cadre din oțel zincat și pot diferi cu ±10% între producători. Lista e o estimare pentru ofertare; configurația finală se verifică cu fișa tehnică a sistemului și, peste 24 m, cu calculul de rezistență.</p>
+        <p class="note">Coloana <b>Final</b> se poate modifica: pune cantitatea pe care o duci de fapt (de ex. pachete întregi). Ea se folosește la greutate, stoc, încărcare, ofertă și raport. Cantitățile includ rezerva aleasă. Greutățile sunt medii pentru cadre din oțel zincat și pot diferi cu ±10% între producători. Lista e o estimare pentru ofertare; configurația finală se verifică cu fișa tehnică a sistemului și, peste 24 m, cu calculul de rezistență.</p>
+      </section>
+      <section class="panel" id="sec-unelte">
+        <h2>Unelte schelar</h2>
+        <div class="tabs" id="ttabs">
+          <button type="button" data-tt="stoc">Stoc & lipsuri</button>
+          <button type="button" data-tt="camion">Încărcare camion</button>
+          <button type="button" data-tt="etape">Livrare pe etape</button>
+          <button type="button" data-tt="oferta">Ofertă & durată</button>
+        </div>
+        <div id="tbody" class="tools"></div>
+        <div hidden><input id="stageN" type="number" value=""><input id="ofMont" type="number" value=""><input id="ofChirie" type="number" value=""><input id="ofLuni" type="number" value="2"><input id="ofTransp" type="number" value=""><input id="ofTva" type="number" value="21"><input id="ofOameni" type="number" value="4"><input id="ofProd" type="number" value="50"></div>
       </section>
     </div>
   </div>
 </div>
 <nav class="mnav" aria-label="Secțiuni">
   <button type="button" data-go="frm">Date</button>
-  <button type="button" data-go="sec-rezultat">Rezultat</button>
-  <button type="button" data-go="sec-schita">Schiță</button>
+    <button type="button" data-go="sec-schita">Schiță</button>
   <button type="button" data-go="sec-lista">Listă</button>
+  <button type="button" data-go="sec-unelte">Unelte</button>
   <button type="button" id="mRep">Raport</button>
 </nav>
 <div class="report" id="report" hidden>
@@ -497,13 +525,13 @@ function read(){
 const levelsFor=H=>Math.max(1,Math.ceil((H-0.2)/2));
 
 let last=null;
-function calc(){
-  const P=read();
+function compute(capN){
+  const P=read(); const CAP=capN||9999;
   const items={};
-  const add=(key,cat,name,dim,qty,kg,why)=>{ if(qty<=0)return; if(!items[key])items[key]={cat,name,dim,qty:0,kg,why}; items[key].qty+=qty; if(why&&!items[key].why)items[key].why=why; };
+  const add=(key,cat,name,dim,qty,kg,why)=>{ if(qty<=0)return; if(!items[key])items[key]={key,cat,name,dim,qty:0,kg,why}; items[key].qty+=qty; if(why&&!items[key].why)items[key].why=why; };
   const alerts=[];
   const nPod=Math.round(P.w/0.32);
-  const Nb=levelsFor(P.H);
+  const Nb=Math.min(levelsFor(P.H),CAP);
   const stepExt=segs.reduce((a,s)=>a+(s.L>0?2*s.st:0),0), stepInt=stepExt;
   const cExt=P.baseExt+stepExt, cInt=P.baseInt+stepInt;
   let area=0, anchorsTotal=0, A=0, maxTop=0, totalL=0;
@@ -511,7 +539,7 @@ function calc(){
 
   segs.forEach((s,i)=>{
     const Hs=s.H!==''&&+s.H>0?+s.H:P.H;
-    const N=levelsFor(Hs), top=0.2+2*N; maxTop=Math.max(maxTop,top);
+    const N=Math.min(levelsFor(Hs),CAP), top=0.2+2*N; maxTop=Math.max(maxTop,top);
     const deckLv=[]; for(let k=N;k>=1;k-=(P.decks==='alt'?2:1)) deckLv.push(k);
     const Nd=deckLv.length;
     // tronsoane: fețele frontale dintre trepte + porțiunile de întoarcere (adâncimea treptei minus traveea de colț)
@@ -623,9 +651,9 @@ function calc(){
   if(P.plasa) alerts.push({cls:'info',t:'Cu plasă pe toată fața, vântul încarcă mult mai tare schela, de aceea ancorele se pun la fiecare cadru.'});
   alerts.push({cls:'info',t:'Nu sunt incluse: grinzi cu zăbrele pentru treceri pe sub schelă, copertine la intrări, împământare/paratrăsnet, troliu sau lift de material.'});
 
-  last={P,list,totKg,Nb,maxTop,area,A,anchorsTotal,geo,totalL,cExt,cInt,freeEnds};
-  renderCorners(); renderTiles(); renderAlerts(alerts); renderTable(); renderTabs(); renderElev();
+  return {P,list,totKg,Nb,maxTop,area,A,anchorsTotal,geo,totalL,cExt,cInt,freeEnds,alerts};
 }
+function calc(){ last=compute(); applyOvr(); renderCorners(); renderTiles(); renderAlerts(last.alerts); renderTable(); renderTabs(); renderElev(); renderTools(); }
 
 function renderCorners(){
   const {P,cExt,cInt,freeEnds}=last;
@@ -633,8 +661,8 @@ function renderCorners(){
 }
 function renderTiles(){
   const {P,Nb,maxTop,area,totKg,A,anchorsTotal,list,totalL}=last;
-  const cadre=list.filter(x=>x.name.startsWith('Cadru vertical')).reduce((a,x)=>a+x.qr,0);
-  const curse=Math.ceil(totKg/1000/P.truck);
+  const cadre=list.filter(x=>x.name.startsWith('Cadru vertical')).reduce((a,x)=>a+x.qf,0);
+  const curse=planTrips().length;
   $('tiles').innerHTML=`
    <div class="tile"><div class="k">Suprafață schelată</div><div class="v">${fmt0(area)}<small>m²</small></div><div class="s">${fmt(totalL,1)} m traseu schelă</div></div>
    <div class="tile"><div class="k">Niveluri</div><div class="v">${Nb}<small>× 2 m</small></div><div class="s">ultimul nivel la ${fmt(maxTop,1)} m</div></div>
@@ -644,14 +672,17 @@ function renderTiles(){
 function renderAlerts(a){ $('alerts').innerHTML=a.map(x=>`<div class="alert ${x.cls||''}">${x.t}</div>`).join(''); }
 function renderTable(){
   const {list,totKg}=last;
-  let html='<thead><tr><th>Element</th><th>Dimensiune</th><th class="n">Buc.</th><th class="n">kg/buc</th><th class="n">Total kg</th></tr></thead><tbody>';
+  let html='<thead><tr><th>Element</th><th>Dimensiune</th><th class="n">Calculat</th><th class="n">Final</th><th class="n">Total kg</th></tr></thead><tbody>';
   let cat='';
   list.forEach(x=>{
     if(x.cat!==cat){cat=x.cat;html+=`<tr class="cat"><td colspan="5">${cat}</td></tr>`;}
-    html+=`<tr><td>${x.name}${x.why?`<span class="why">${x.why}</span>`:''}</td><td>${x.dim}</td><td class="n qty">${fmt0(x.qr)}</td><td class="n">${fmt(x.kg,x.kg<0.1?3:x.kg<1?2:1)}</td><td class="n">${fmt0(x.qr*x.kg)}</td></tr>`;
+    const ch=x.qf!==x.qr;
+    html+=`<tr><td>${x.name}${x.why?`<span class="why">${x.why}</span>`:''}</td><td>${x.dim}</td><td class="n">${fmt0(x.qr)}</td><td class="n"><input class="qin${ch?' ch':''}" type="number" min="0" data-ovr="${x.key}" value="${x.qf}" aria-label="Cantitate finală ${esc(x.name)} ${esc(x.dim)}"></td><td class="n" data-kg="${x.key}">${fmt0(x.qf*x.kg)}</td></tr>`;
   });
-  html+=`</tbody><tfoot><tr><td colspan="4">Total</td><td class="n">${fmt0(totKg)} kg</td></tr></tfoot>`;
+  const nOv=list.filter(x=>x.qf!==x.qr).length;
+  html+=`</tbody><tfoot><tr><td colspan="3">${nOv?`<button type="button" class="ghost" id="ovrReset">Anulează ${nOv} ${nOv===1?'corectură':'corecturi'}</button>`:'Total'}</td><td></td><td class="n" id="totKgCell">${fmt0(totKg)} kg</td></tr></tfoot>`;
   $('tbl').innerHTML=html;
+  if(nOv) $('ovrReset').addEventListener('click',()=>{ ovr={}; calc(); toast('Cantitățile au revenit la cele calculate.'); });
 }
 function renderTabs(){
   if(active>=segs.length) active=0;
@@ -889,7 +920,7 @@ function buildReport(){
   </section>`;
   let cat='', n=0;
   const rows=list.map(x=>{ let r=''; if(x.cat!==cat){cat=x.cat; r+=`<tr class="cat"><td colspan="7">${cat}</td></tr>`;} n++;
-    return r+`<tr><td class="n">${n}</td><td>${x.name}</td><td>${x.dim}</td><td class="n b">${fmt0(x.qr)}</td><td class="wr"></td><td class="wr"></td><td class="wr w2"></td></tr>`; }).join('');
+    return r+`<tr><td class="n">${n}</td><td>${x.name}</td><td>${x.dim}</td><td class="n b">${fmt0(x.qr)}</td><td class="wr"></td><td class="wr n">${x.qf!==x.qr?fmt0(x.qf):''}</td><td class="wr w2"></td></tr>`; }).join('');
   const chk=items.map(({g,i})=>`<tr><td><b>${LET[i]}</b> ${esc(segs[i].n)}</td><td class="n">${fmt(segs[i].L)}</td><td class="n">${g.bays.length}</td><td class="n">${g.F}</td><td class="n">${g.N}</td><td class="n">${fmt0(g.F*g.N)}</td><td class="n">${fmt0(g.nd*g.N)}</td><td class="n">${fmt0(g.a*g.N)}</td><td class="n">${fmt0(g.nA)}</td></tr>`).join('');
   h+=`<section class="sheet"><div class="shead"><h1>Necesar materiale – de verificat de schelar</h1><span>cantitățile includ rezerva de ${fmt(P.rez,0)}%</span></div>
     <div class="cols">
@@ -908,10 +939,112 @@ function buildReport(){
 function openReport(){ calc(); buildReport(); $('report').hidden=false; document.body.classList.add('rep-open'); $('report').scrollTop=0; }
 function closeReport(){ $('report').hidden=true; document.body.classList.remove('rep-open'); }
 
+/* ===================== UNELTE SCHELAR ===================== */
+let ovr={};            // cantități finale corectate de schelar (pe proiect)
+let toolTab='stoc';
+const PLUR={palet:'paleți',coș:'coșuri',legătură:'legături',cutie:'cutii',rolă:'role',pungă:'pungi',pachet:'pachete'};
+const pu=(n,u)=>n===1?u:(PLUR[u]||u);
+const BUNDLE=[['cadru',25,'palet'],['podC',25,'palet'],['pod',25,'palet'],['trapa',10,'palet'],['bal',50,'legătură'],['plC',50,'legătură'],['pl',50,'legătură'],['diag',50,'legătură'],['tdiag',25,'legătură'],
+  ['picior',50,'coș'],['talpa',50,'palet'],['stalp',50,'coș'],['capat',25,'palet'],['anc',50,'legătură'],['cupla',50,'cutie'],['surub',100,'cutie'],['scara',10,'legătură'],['cons',25,'palet'],['plasa',1,'rolă'],['bride',500,'pungă'],['t',50,'legătură']];
+function bundleOf(key){ const b=BUNDLE.find(([p])=>key.startsWith(p)); return b?{n:b[1],u:b[2]}:{n:50,u:'pachet'}; }
+function getStock(){ try{return JSON.parse(localStorage.getItem('schela_stoc')||'{}')}catch(e){return {}} }
+function setStock(o){ try{localStorage.setItem('schela_stoc',JSON.stringify(o))}catch(e){} }
+function applyOvr(){ last.list.forEach(x=>x.qf=(ovr[x.key]!=null?ovr[x.key]:x.qr)); last.totKg=last.list.reduce((a,x)=>a+x.qf*x.kg,0); }
+const label=x=>`${x.name} <span class="why" style="display:inline">${x.dim}</span>`;
+function copyTSV(rows,msg){ const txt=rows.map(r=>r.join('\t')).join('\n');
+  if(window.AndroidApp&&AndroidApp.copy){ try{AndroidApp.copy(txt);toast(msg);return;}catch(e){} }
+  try{ navigator.clipboard.writeText(txt).then(()=>toast(msg),()=>fallback(txt)); }catch(e){fallback(txt);} }
+
+function planTrips(){ const {list,P}=last;
+    const cap=P.truck*1000, order=['Bază','Ancorare','Structură','Platforme','Console','Protecție','Acces','Colțuri'];
+    const its=list.slice().sort((a,b)=>order.indexOf(a.cat)-order.indexOf(b.cat)).map(x=>({...x,left:x.qf}));
+    const trips=[]; let cur={kg:0,it:[]};
+    // se încarcă pe pachete întregi (palet / legătură); bucățile rămase merg la final
+    its.forEach(x=>{ const bs=bundleOf(x.key).n;
+      while(x.left>0){ const room=cap-cur.kg; const fitPcs=x.kg>0?Math.floor(room/x.kg):x.left;
+        let n = x.left>=bs ? Math.floor(Math.min(fitPcs,x.left)/bs)*bs : Math.min(fitPcs,x.left);
+        if(n<=0){ if(cur.it.length){trips.push(cur);cur={kg:0,it:[]};continue;} n=Math.max(1,Math.min(x.left,fitPcs||1)); }
+        const prev=cur.it.find(z=>z.x===x); if(prev) prev.n+=n; else cur.it.push({x,n}); cur.kg+=n*x.kg; x.left-=n; } });
+    if(cur.it.length) trips.push(cur);
+    return trips; }
+function renderTools(){
+  document.querySelectorAll('#ttabs button').forEach(b=>b.setAttribute('aria-pressed',b.dataset.tt===toolTab));
+  const box=$('tbody'); const {list,P}=last;
+  if(toolTab==='stoc'){
+    const st=getStock(); let lip=0,lipKg=0,tipuri=0;
+    const rows=list.map(x=>{ const s=st[x.key]; const has=s!=null&&s!==''; const d=has?(+s)-x.qf:null;
+      if(has&&d<0){lip+=-d;lipKg+=-d*x.kg;tipuri++;}
+      return `<tr><td>${label(x)}</td><td class="n qty">${fmt0(x.qf)}</td><td class="n"><input class="qin" type="number" min="0" data-stk="${x.key}" value="${has?s:''}" placeholder="—"></td><td class="n ${d==null?'':d<0?'neg':'pos'}">${d==null?'':d<0?'lipsă '+fmt0(-d):'+'+fmt0(d)}</td></tr>`; }).join('');
+    box.innerHTML=`<p class="note">Scrie ce ai în depozit. Stocul rămâne salvat pe acest dispozitiv și se folosește la toate proiectele.</p>
+      <div class="sumbar ${tipuri?'bad':''}">${tipuri?`${tipuri===1?'Lipsește <b>1</b> tip de piesă':`Lipsesc <b>${tipuri}</b> tipuri de piese`}: <b>${fmt0(lip)}</b> buc, ≈ <b>${fmt(lipKg/1000,2)} t</b> de închiriat sau cumpărat.`:'Completează stocul ca să vezi ce lipsește.'}</div>
+      <div class="tbl"><table class="tt"><thead><tr><th>Element</th><th class="n">Necesar</th><th class="n">În stoc</th><th class="n">Diferență</th></tr></thead><tbody>${rows}</tbody></table></div>
+      <div class="row"><button type="button" class="pri" id="cpLip">Copiază lipsurile</button><button type="button" id="stFill">Pune stocul = necesar</button><button type="button" class="ghost" id="stClr">Golește stocul</button></div>`;
+    box.querySelectorAll('[data-stk]').forEach(i=>i.addEventListener('change',()=>{ const s=getStock(); if(i.value==='') delete s[i.dataset.stk]; else s[i.dataset.stk]=Math.max(0,Math.round(+i.value)); setStock(s); renderTools(); }));
+    $('cpLip').addEventListener('click',()=>{ const s=getStock(); const r=[['Lipsuri – '+(P.nume||'')],['Element','Dimensiune','Lipsă buc']];
+      list.forEach(x=>{ if(s[x.key]!=null&&s[x.key]<x.qf) r.push([x.name,x.dim,x.qf-s[x.key]]); }); copyTSV(r,'Lipsurile au fost copiate.'); });
+    $('stFill').addEventListener('click',()=>{ const s=getStock(); list.forEach(x=>s[x.key]=x.qf); setStock(s); renderTools(); });
+    $('stClr').addEventListener('click',()=>{ setStock({}); renderTools(); toast('Stocul a fost golit.'); });
+  }
+  else if(toolTab==='camion'){
+    const trips=planTrips();
+    box.innerHTML=`<p class="note">Ordinea de încărcare urmează ordinea de montaj: bază și ancoraje, apoi cadre, podine, protecții și scări. Cursele se umplu până la ${fmt(P.truck,1)} t. Paletul/legătura are valori uzuale și poate diferi la voi.</p>
+      <div class="sumbar"><b>${trips.length}</b> ${trips.length===1?'cursă':'curse'} · ${fmt(last.totKg/1000,2)} t în total</div>
+      <div class="trips">${trips.map((t,ti)=>`<div class="trip"><h4>Cursa ${ti+1} <span>${fmt(t.kg/1000,2)} t</span></h4><table class="tt"><tbody>${t.it.map(({x,n})=>{const b=bundleOf(x.key);const pk=Math.floor(n/b.n), r=n-pk*b.n;
+        return `<tr><td>${label(x)}</td><td class="n qty">${fmt0(n)}</td><td class="n pk">${b.n>1?(pk?`${pk} ${pu(pk,b.u)}${r?` + ${r} buc`:''}`:`${r} buc`):`${n} ${pu(n,b.u)}`}</td></tr>`;}).join('')}</tbody></table></div>`).join('')}</div>
+      <div class="row"><button type="button" class="pri" id="cpTrip">Copiază listele de încărcare</button></div>`;
+    $('cpTrip').addEventListener('click',()=>{ const r=[['Încărcare – '+(P.nume||'')]]; trips.forEach((t,ti)=>{ r.push([],[`Cursa ${ti+1}`,'',fmt(t.kg/1000,2)+' t']); t.it.forEach(({x,n})=>r.push([x.name,x.dim,n])); }); copyTSV(r,'Listele de încărcare au fost copiate.'); });
+  }
+  else if(toolTab==='etape'){
+    const Nmax=last.Nb; let sN=Math.round(+($('stageN').value||0)); if(!(sN>0)) sN=Math.min(Nmax,3); sN=Math.min(sN,Nmax); $('stageN').value=sN;
+    const st=compute(sN); const map={}; st.list.forEach(x=>map[x.key]=x.qr);
+    let kg1=0;
+    const rows=list.map(x=>{ const a=Math.min(map[x.key]||0,x.qf), b=Math.max(0,x.qf-a); kg1+=a*x.kg;
+      return `<tr><td>${label(x)}</td><td class="n qty">${fmt0(a)}</td><td class="n">${fmt0(b)}</td><td class="n">${fmt0(x.qf)}</td></tr>`; }).join('');
+    box.innerHTML=`<p class="note">Prima livrare acoperă baza și primele niveluri. Restul se aduce pe măsură ce schela urcă.</p>
+      <div class="row"><label style="flex-direction:row;align-items:center;gap:8px;color:var(--ink)">Prima livrare: până la nivelul <span class="stepper"><button type="button" id="sDec">−</button><input id="stageNv" type="number" min="1" max="${Nmax}" value="${sN}" style="width:64px"><button type="button" id="sInc">+</button></span> din ${Nmax} (≈ ${fmt(0.2+2*sN,1)} m)</label></div>
+      <div class="sumbar">Etapa 1: ≈ <b>${fmt(kg1/1000,2)} t</b> · restul: ≈ <b>${fmt((last.totKg-kg1)/1000,2)} t</b></div>
+      <div class="tbl"><table class="tt"><thead><tr><th>Element</th><th class="n">Etapa 1</th><th class="n">Restul</th><th class="n">Total</th></tr></thead><tbody>${rows}</tbody></table></div>
+      <div class="row"><button type="button" class="pri" id="cpSt">Copiază etapele</button></div>`;
+    const setN=v=>{ $('stageN').value=Math.max(1,Math.min(Nmax,v)); renderTools(); };
+    $('stageNv').addEventListener('change',e=>setN(+e.target.value)); $('sDec').addEventListener('click',()=>setN(sN-1)); $('sInc').addEventListener('click',()=>setN(sN+1));
+    $('cpSt').addEventListener('click',()=>{ const r=[['Livrare pe etape – '+(P.nume||'')],['Element','Dimensiune',`Etapa 1 (niv. 1–${sN})`,'Restul','Total']];
+      list.forEach(x=>{ const a=Math.min(map[x.key]||0,x.qf); r.push([x.name,x.dim,a,Math.max(0,x.qf-a),x.qf]); }); copyTSV(r,'Etapele au fost copiate.'); });
+  }
+  else if(toolTab==='oferta'){
+    const v=id=>Math.max(0,+$(id).value||0);
+    const area=last.area, curse=planTrips().length;
+    const mont=v('ofMont')*area, chir=v('ofChirie')*area*v('ofLuni'), tr=v('ofTransp')*curse*2, sub=mont+chir+tr, tva=sub*v('ofTva')/100;
+    const om=v('ofOameni')||1, prod=v('ofProd')||1, zM=area/(om*prod), zD=zM/1.6;
+    const lei=n=>fmt(n,2)+' lei';
+    box.innerHTML=`<div class="ofgrid">
+      <label>Montaj + demontaj (lei/m²)<input id="ofMontv" type="number" step="0.5" min="0" value="${$('ofMont').value}" placeholder="ex. 15"></label>
+      <label>Chirie (lei/m² pe lună)<input id="ofChiriev" type="number" step="0.1" min="0" value="${$('ofChirie').value}" placeholder="ex. 4"></label>
+      <label>Durată închiriere (luni)<input id="ofLuniv" type="number" step="0.5" min="0" value="${$('ofLuni').value}"></label>
+      <label>Transport (lei/cursă)<input id="ofTranspv" type="number" step="10" min="0" value="${$('ofTransp').value}" placeholder="ex. 500"></label>
+      <label>TVA (%)<input id="ofTvav" type="number" min="0" value="${$('ofTva').value}"></label>
+      <label>Oameni în echipă<input id="ofOameniv" type="number" min="1" value="${$('ofOameni').value}"></label>
+      <label>Montaj (m² / om / zi)<input id="ofProdv" type="number" min="1" value="${$('ofProd').value}"></label>
+    </div>
+    <table class="tt of"><tbody>
+      <tr><td>Montaj + demontaj · ${fmt0(area)} m² × ${fmt($('ofMont').value?+$('ofMont').value:0)} lei</td><td class="n">${lei(mont)}</td></tr>
+      <tr><td>Chirie · ${fmt0(area)} m² × ${fmt(v('ofChirie'))} lei × ${fmt(v('ofLuni'),1)} luni</td><td class="n">${lei(chir)}</td></tr>
+      <tr><td>Transport · ${curse} curse dus + ${curse} întors × ${fmt(v('ofTransp'),0)} lei</td><td class="n">${lei(tr)}</td></tr>
+      <tr><td><b>Total fără TVA</b></td><td class="n"><b>${lei(sub)}</b></td></tr>
+      <tr><td>TVA ${fmt(v('ofTva'),0)}%</td><td class="n">${lei(tva)}</td></tr>
+      <tr class="tot"><td><b>Total cu TVA</b></td><td class="n"><b>${lei(sub+tva)}</b></td></tr>
+    </tbody></table>
+    <div class="sumbar">Durată estimată cu ${fmt0(om)} oameni: montaj ≈ <b>${fmt(Math.ceil(zM*2)/2,1)} zile</b> · demontaj ≈ <b>${fmt(Math.ceil(zD*2)/2,1)} zile</b> (+ timp de transport)</div>
+    <p class="note">Prețurile le pui tu, după tarifele voastre. Productivitatea de montaj diferă mult după teren, înălțime și echipă; demontajul e socotit de ~1,6 ori mai rapid.</p>
+    <div class="row"><button type="button" class="pri" id="cpOf">Copiază oferta</button></div>`;
+    ['ofMont','ofChirie','ofLuni','ofTransp','ofTva','ofOameni','ofProd'].forEach(id=>$(id+'v').addEventListener('change',e=>{ $(id).value=e.target.value; renderTools(); }));
+    $('cpOf').addEventListener('click',()=>copyTSV([[`Ofertă schelă – ${P.nume||''}`],[`Client: ${P.client||''}`],[],['Suprafață schelă',fmt0(area)+' m²'],['Montaj + demontaj',lei(mont)],['Chirie '+fmt(v('ofLuni'),1)+' luni',lei(chir)],['Transport '+(curse*2)+' curse',lei(tr)],['Total fără TVA',lei(sub)],['TVA '+fmt(v('ofTva'),0)+'%',lei(tva)],['Total cu TVA',lei(sub+tva)],[],['Montaj estimat',fmt(Math.ceil(zM*2)/2,1)+' zile'],['Demontaj estimat',fmt(Math.ceil(zD*2)/2,1)+' zile']],'Oferta a fost copiată.'));
+  }
+}
+
 $('copy').addEventListener('click',()=>{
   const {P,list,totKg}=last;
   const rows=[['Giovani Construct – necesar schelă'],[`Proiect: ${P.nume}`],[`Client: ${P.client}`],[],['Categorie','Element','Dimensiune','Buc','kg/buc','Total kg']];
-  list.forEach(x=>rows.push([x.cat,x.name,x.dim,x.qr,String(x.kg).replace('.',','),String(Math.round(x.qr*x.kg))]));
+  list.forEach(x=>rows.push([x.cat,x.name,x.dim,x.qf,String(x.kg).replace('.',','),String(Math.round(x.qf*x.kg))]));
   rows.push(['','','','','Total',String(Math.round(totKg))]);
   const txt=rows.map(r=>r.join('\t')).join('\n');
   const done=()=>toast('Lista a fost copiată. Lipește în Excel.');
@@ -930,7 +1063,7 @@ $('autoSc').addEventListener('click',()=>{readSegs();segs.forEach(s=>s.sc=autoSc
 ['Lb','lb'].forEach(id=>$(id).addEventListener('change',()=>{ if(!CFG[cfg].mk)return; readSegs(); const L=+$('Lb').value||0,l=+$('lb').value||0;
   segs.forEach(s=>{ if(/principal|spate/i.test(s.n)) {s.L=L;} else if(/lateral/i.test(s.n)) {s.L=l;} }); renderSegs(); calc(); }));
 
-const FIELDS=['nume','client','rautor','rschelar','rdata','H','hEt','Lb','lb','cExt','cInt','w','bay','gap','decks','dfreq','dmode','rez','truck'];
+const FIELDS=['nume','client','rautor','rschelar','rdata','stageN','ofMont','ofChirie','ofLuni','ofTransp','ofTva','ofOameni','ofProd','H','hEt','Lb','lb','cExt','cInt','w','bay','gap','decks','dfreq','dmode','rez','truck'];
 const CHK=['plasa','cons'];
 function getStore(){try{return JSON.parse(localStorage.getItem('schela_proiecte')||'{}')}catch(e){return {}}}
 function setStore(o){try{localStorage.setItem('schela_proiecte',JSON.stringify(o));return true}catch(e){return false}}
@@ -940,13 +1073,16 @@ function renderSaved(){
   $('saved').querySelectorAll('button').forEach(b=>b.addEventListener('click',()=>load(st[b.dataset.k])));
 }
 function load(o){ if(!o)return; FIELDS.forEach(f=>{if(o[f]!==undefined)$(f).value=o[f];}); CHK.forEach(f=>$(f).checked=!!o[f]);
-  if(!DMODES[$('dmode').value]) $('dmode').value='zig'; renderDmodes(); cfg=o.cfg||'man'; segs=(o.segs||[]).map(x=>Object.assign(S('',0),x)); active=0; renderFaces(); renderSegs(); calc(); toast('Proiect încărcat: '+o.nume); }
-$('save').addEventListener('click',()=>{ readSegs(); const o={segs,cfg}; FIELDS.forEach(f=>o[f]=$(f).value); CHK.forEach(f=>o[f]=$(f).checked);
+  if(!DMODES[$('dmode').value]) $('dmode').value='zig'; renderDmodes(); ovr=o.ovr||{}; cfg=o.cfg||'man'; segs=(o.segs||[]).map(x=>Object.assign(S('',0),x)); active=0; renderFaces(); renderSegs(); calc(); toast('Proiect încărcat: '+o.nume); }
+$('save').addEventListener('click',()=>{ readSegs(); const o={segs,cfg,ovr}; FIELDS.forEach(f=>o[f]=$(f).value); CHK.forEach(f=>o[f]=$(f).checked);
   const st=getStore(); st[o.nume||'Proiect']=o; toast(setStore(st)?'Proiect salvat pe acest dispozitiv.':'Browserul nu permite salvarea aici.'); renderSaved(); });
 
 $('frm').addEventListener('input',e=>{ if(e.target.closest('#segs'))return; $('exTag').hidden=true; calc(); });
 $('frm').addEventListener('submit',e=>e.preventDefault());
 $('dfreq').addEventListener('change',()=>calc());
+$('tbl').addEventListener('change',e=>{ const i=e.target.closest('[data-ovr]'); if(!i)return; const k=i.dataset.ovr, x=last.list.find(z=>z.key===k); if(!x)return;
+  const v=i.value===''?x.qr:Math.max(0,Math.round(+i.value)); if(v===x.qr) delete ovr[k]; else ovr[k]=v; calc(); });
+document.querySelectorAll('#ttabs button').forEach(b=>b.addEventListener('click',()=>{ toolTab=b.dataset.tt; renderTools(); }));
 $('openRep').addEventListener('click',openReport); $('mRep').addEventListener('click',openReport);
 $('repBack').addEventListener('click',closeReport);
 $('repCopy').addEventListener('click',()=>$('copy').click());

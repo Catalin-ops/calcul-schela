@@ -1,0 +1,31 @@
+{
+  "name": "calcul-schela",
+  "version": "1.0.0",
+  "description": "Calcul Schelă – Giovani Construct",
+  "main": "main.js",
+  "author": "Giovani Construct",
+  "license": "UNLICENSED",
+  "scripts": {
+    "start": "electron .",
+    "dist": "electron-builder --win portable nsis --x64 --publish never"
+  },
+  "devDependencies": {
+    "electron": "31.7.7",
+    "electron-builder": "24.13.3"
+  },
+  "build": {
+    "appId": "ro.giovaniconstruct.calculschela",
+    "productName": "Calcul Schela",
+    "files": ["main.js", "preload.js", "index.html", "icon.ico"],
+    "directories": { "output": "dist" },
+    "win": { "target": ["portable", "nsis"], "icon": "icon.ico" },
+    "portable": { "artifactName": "CalculSchela-Portable.exe" },
+    "nsis": {
+      "artifactName": "CalculSchela-Setup.exe",
+      "oneClick": false,
+      "allowToChangeInstallationDirectory": true,
+      "createDesktopShortcut": true,
+      "shortcutName": "Calcul Schelă"
+    }
+  }
+}

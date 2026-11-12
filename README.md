@@ -8,8 +8,13 @@ Ultima versiune: **Releases → CalculSchela.apk** (se construiește automat la 
 
 Pe telefon: descarcă fișierul, deschide-l și permite instalarea din „surse necunoscute” dacă Android îți cere.
 
+## Windows
+
+La Releases: **CalculSchela-Setup.exe** (se instalează, cu scurtătură pe desktop) sau **CalculSchela-Portable.exe** (pornește direct). Windows poate afișa „Windows a protejat computerul” – apasă *Mai multe informații → Rulează oricum* (aplicația nu este semnată digital).
+
 ## Structură
 
 - `app/src/main/assets/index.html` – calculatorul (HTML + JS, merge și fără internet)
 - `app/src/main/java/.../MainActivity.java` – fereastra Android (WebView)
-- `.github/workflows/build-apk.yml` – construiește APK-ul pe GitHub
+- `desktop/` – varianta Windows (Electron) care folosește același `index.html`
+- `.github/workflows/build-apk.yml` – construiește APK-ul și EXE-ul pe GitHub
