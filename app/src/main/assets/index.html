@@ -696,7 +696,7 @@ function elevSVG(idx,opt){
   opt=opt||{};
   const g=last.geo[idx]; const {P}=last; if(!g) return '';
   const {N,top,Hs,s}=g;
-  const sx=26, sy=18, padL=46, padT=opt.report?16:36, padB=opt.report?44:30, padR=62, GAP=1.0;
+  const sx=26, sy=18, padL=46, padT=(opt.report?16:36)+(s.st?14:0), padB=opt.report?44:30, padR=62, GAP=0;
   const fr=g.tr.filter(t=>t.front&&t.bays.length);
   const bx=[], frames=[], spans=[]; let x=0;
   fr.forEach((t,ti)=>{ if(ti>0) x+=GAP; const x0=x; frames.push(x); t.bays.forEach((b,j)=>{bx.push({x0:x,x1:x+b,b,t:ti,j}); x+=b; frames.push(x);}); spans.push([x0,x]); });
@@ -707,7 +707,9 @@ function elevSVG(idx,opt){
   const fit=opt.report||opt.fit;
   let o=`<svg ${fit?`style="width:100%;height:auto"`:`width="${W}" height="${Hh}"`} viewBox="0 0 ${W} ${Hh}" xmlns="http://www.w3.org/2000/svg" font-family="IBM Plex Mono, monospace" font-size="10">`;
   spans.forEach(([a,b],ti)=>{ o+=`<rect x="${X(a)}" y="${y(Hs)}" width="${(b-a)*sx}" height="${Hs*sy}" fill="${ti%2?'var(--line)':'var(--steel-soft)'}"/>`; });
-  spans.slice(1).forEach(([a])=>{ o+=`<text x="${X(a-GAP/2)}" y="${y(Hs/2)}" fill="var(--muted)" text-anchor="middle" transform="rotate(-90 ${X(a-GAP/2)} ${y(Hs/2)})">treaptă ${fmt(s.sd)} m</text>`; });
+  // treptele (retrageri / rezalituri): schela e continuă, doar fața clădirii se mută în adâncime
+  spans.slice(1).forEach(([a],ti)=>{ o+=`<line x1="${X(a)}" x2="${X(a)}" y1="${y(0)}" y2="${y(top+1)-6}" stroke="var(--warn)" stroke-width="1" stroke-dasharray="5 3"/>`+
+    `<text x="${X(a)}" y="${y(top+1)-9}" fill="var(--warn)" text-anchor="middle" font-size="9">${ti%2===0?'▼ treaptă':'▼ treaptă'} ${fmt(s.sd)}</text>`; });
   if(s.bal){ const hE=P.hEt>1.5?P.hEt:2.9; spans.forEach(([a,b])=>{ const L=b-a, bw=Math.min(3.6,L/3); for(let h=hE;h<Hs-0.5;h+=hE) for(let xx=a+0.6;xx+bw<=b-0.3;xx+=bw*1.7) o+=`<rect x="${X(xx)}" y="${y(h)}" width="${bw*sx}" height="4" fill="var(--bal)"/>`; }); }
   o+=`<line x1="${X(0)-10}" x2="${X(Lr)+10}" y1="${y(Hs)}" y2="${y(Hs)}" stroke="var(--muted)" stroke-dasharray="4 3"/>`;
   o+=`<text x="${X(0)+4}" y="${y(Hs)-4}" fill="var(--muted)">cornișă ${fmt(Hs,1)} m</text>`;
@@ -720,7 +722,7 @@ function elevSVG(idx,opt){
     o+=`<line x1="${X(a)}" x2="${X(b)}" y1="${y(top+0.5)}" y2="${y(top+0.5)}" stroke="var(--steel)" stroke-width=".8"/>`;
   });
   for(let k=0;k<=N;k++) if(k%2===0||k===N) o+=`<text x="${padL-6}" y="${y(0.2+2*k)+3}" fill="var(--muted)" text-anchor="end">${fmt(0.2+2*k,1)}</text>`;
-  frames.forEach(fx=>{o+=`<line x1="${X(fx)}" x2="${X(fx)}" y1="${y(0.2)}" y2="${y(top+1)}" stroke="var(--steel)" stroke-width="1.6"/><rect x="${X(fx)-4}" y="${y(0.2)}" width="8" height="${0.2*sy}" fill="var(--muted)"/>`;});
+  frames.forEach((fx,fi)=>{const jt=fi>0&&Math.abs(frames[fi-1]-fx)<1e-6; if(jt)return; o+=`<line x1="${X(fx)}" x2="${X(fx)}" y1="${y(0.2)}" y2="${y(top+1)}" stroke="var(--steel)" stroke-width="${spans.some(([a],k)=>k>0&&Math.abs(a-fx)<1e-6)?3:1.6}"/><rect x="${X(fx)-4}" y="${y(0.2)}" width="8" height="${0.2*sy}" fill="var(--muted)"/>`;});
   const f=P.dfreq, mode=P.dmode;
   const accB=new Set(accIdx);
   const dline=(c,h0,mir)=>{ const h1=h0+2; return mir?`<line x1="${X(c.x1)}" y1="${y(h0)}" x2="${X(c.x0)}" y2="${y(h1)}" stroke="var(--accent)" stroke-width="2.2"/>`:`<line x1="${X(c.x0)}" y1="${y(h0)}" x2="${X(c.x1)}" y2="${y(h1)}" stroke="var(--accent)" stroke-width="2.2"/>`; };
@@ -745,7 +747,7 @@ function elevSVG(idx,opt){
     o+=`<line x1="${x0}" x2="${x1}" y1="${y(h0)}" y2="${y(h0+2)}" stroke="var(--ok)" stroke-width="2.4"/>`;}});
   const R=Math.floor(N/2)+(N%2);
   for(let r=0;r<R;r++){ const lev=Math.min(N,2*(r+1)); const h=0.2+2*lev-0.3;
-    frames.forEach((fx,fi)=>{ if(P.plasa||fi===0||fi===frames.length-1||((fi+r)%2===0)) o+=`<circle cx="${X(fx)}" cy="${y(h)}" r="3.6" fill="var(--warn)"/>`;});}
+    frames.forEach((fx,fi)=>{ if(fi>0&&Math.abs(frames[fi-1]-fx)<1e-6)return; if(P.plasa||fi===0||fi===frames.length-1||((fi+r)%2===0)) o+=`<circle cx="${X(fx)}" cy="${y(h)}" r="3.6" fill="var(--warn)"/>`;});}
   // cote verticale în dreapta: 0,20 (bază) + 2,00 pe fiecare nivel + 1,00 balustradă
   const xr=X(Lr)+16;
   o+=`<line x1="${xr}" x2="${xr}" y1="${y(0)}" y2="${y(top+1)}" stroke="var(--muted)" stroke-width=".8"/>`;
@@ -756,7 +758,7 @@ function elevSVG(idx,opt){
   // lanț de cote orizontal (traveele egale grupate)
   const yd=y(0)+18;
   o+=`<line x1="${X(0)}" x2="${X(Lr)}" y1="${yd}" y2="${yd}" stroke="var(--muted)" stroke-width=".8"/>`;
-  frames.forEach(fx=>o+=`<line x1="${X(fx)-3}" x2="${X(fx)+3}" y1="${yd+3}" y2="${yd-3}" stroke="var(--muted)"/>`);
+  frames.forEach((fx,fi)=>{ if(fi>0&&Math.abs(frames[fi-1]-fx)<1e-6)return; o+=`<line x1="${X(fx)-3}" x2="${X(fx)+3}" y1="${yd+3}" y2="${yd-3}" stroke="var(--muted)"/>`; });
   dimGroups(bx).forEach(d=>{ o+=`<text x="${X((d.x0+d.x1)/2)}" y="${yd-4}" fill="var(--ink)" text-anchor="middle">${d.n>1?d.n+' × ':''}${fmt(d.b)}</text>`; });
   o+=`<text x="${X(Lr/2)}" y="${yd+16}" fill="var(--muted)" text-anchor="middle">fațadă ${fmt(s.L,2)} m${s.st?` · ${s.st} ${s.st===1?'treaptă':'trepte'} de ${fmt(s.sd)} m`:''}</text>`;
   if(!opt.report){ const retB=g.tr.filter(t=>!t.front).reduce((a,t)=>a+t.bays.length,0);
@@ -803,7 +805,11 @@ function planSVG(){
       const P2=(u,v)=>{ if(side==='S')return [X(u),Y(Ly+v)]; if(side==='N')return [X(Lx-u),Y(-v)]; if(side==='W')return [X(-v),Y(Ly-u)]; return [X(Lx+v),Y(u)]; };
       const line=(u1,v1,u2,v2,st)=>{const [a,b]=P2(u1,v1),[c,d]=P2(u2,v2);return `<line x1="${a}" y1="${b}" x2="${c}" y2="${d}" ${st}/>`;};
       const poly=(pts,st)=>`<polygon points="${pts.map(p=>P2(...p).join(',')).join(' ')}" ${st}/>`;
-      let r=poly([[0,off],[len,off],[len,off+W],[0,off+W]],'fill="var(--panel)" stroke="var(--steel)" stroke-width="1.2"');
+      let r='';
+      if(s.bal&&s.bd>0){ const bw=Math.min(3.6,Math.max(1.2,len/3));
+        for(let bu=0.6;bu+bw<=len-0.3;bu+=bw*1.7) r+=poly([[bu,0],[bu+bw,0],[bu+bw,s.bd],[bu,s.bd]],'fill="var(--bal)" fill-opacity=".45" stroke="var(--bal)" stroke-width="1"');
+        const [bx_,by_]=P2(Math.min(len/2,0.6+bw/2),s.bd/2); r+=`<text x="${bx_}" y="${by_}" text-anchor="middle" dominant-baseline="middle" class="t-s" ${side==='W'?`transform="rotate(-90 ${bx_} ${by_})"`:side==='E'?`transform="rotate(90 ${bx_} ${by_})"`:''}>balcon ${fmt(s.bd)}</text>`; }
+      r+=poly([[0,off],[len,off],[len,off+W],[0,off+W]],'fill="var(--panel)" stroke="var(--steel)" stroke-width="1.2"');
       // podine
       for(let d=1;d<nP;d++) r+=line(0,off+W*d/nP,len,off+W*d/nP,'stroke="var(--steel)" stroke-width=".6"');
       // acces
@@ -819,8 +825,8 @@ function planSVG(){
       const rot=side==='W'?-90:side==='E'?90:0;
       dimGroups(bxs).forEach(d=>{ const [tx,ty]=P2((d.x0+d.x1)/2,vd+0.55); r+=`<text x="${tx}" y="${ty}" text-anchor="middle" dominant-baseline="middle" ${rot?`transform="rotate(${rot} ${tx} ${ty})"`:''}>${d.n>1?d.n+' × ':''}${fmt(d.b)}</text>`; });
       const [lx,ly]=P2(len/2,vd+1.9);
-      r+=`<text x="${lx}" y="${ly}" text-anchor="middle" dominant-baseline="middle" class="t-b" ${rot?`transform="rotate(${rot} ${lx} ${ly})"`:''}>TRONSON ${L} · ${esc(s.n)} · ${fmt(s.L)} m</text>`;
-      if(off>0.3){ const [ax,ay]=P2(len/2,off/2); r+=`<text x="${ax}" y="${ay}" text-anchor="middle" dominant-baseline="middle" class="t-s" ${rot?`transform="rotate(${rot} ${ax} ${ay})"`:''}>${fmt(off)}</text>`; }
+      r+=`<text x="${lx}" y="${ly}" text-anchor="middle" dominant-baseline="middle" class="t-b" ${rot?`transform="rotate(${rot} ${lx} ${ly})"`:''}>TRONSON ${L} · ${esc(s.n)} · ${fmt(s.L)} m${off>0.3?` · schela la ${fmt(off)} m de perete${s.bal?` (balcon ${fmt(s.bd)} + ${fmt(off-s.bd)})`:''}`:''}</text>`;
+
       return r;
     };
     // colțuri: travee de colț în prelungirea fațadelor
@@ -906,7 +912,7 @@ function buildReport(){
   let h=`<section class="sheet">
     <div class="shead"><h1>Schemă schelă de fațadă – dispunerea în plan</h1><span>${esc(P.nume||'')}</span></div>
     <div class="plan">${planSVG()}</div>
-    <div class="legend r-leg"><span><i style="background:var(--ink)"></i>cadru (H)</span><span><i style="background:var(--ok)"></i>S = coloană cu scară</span><span><i style="background:var(--accent)"></i>travee de colț</span><span>cote în metri; „11 × 3,07” = 11 travee de 3,07 m</span></div>
+    <div class="legend r-leg"><span><i style="background:var(--ink)"></i>cadru (H)</span><span><i style="background:var(--ok)"></i>S = coloană cu scară</span><span><i style="background:var(--accent)"></i>travee de colț</span><span><i style="background:var(--bal);height:8px"></i>balcoane</span><span>cote în metri; „11 × 3,07” = 11 travee de 3,07 m</span></div>
     <div class="dets">${detailsSVG()}</div>
     <div class="sfoot">${notes}${cartus(1,tot)}</div>
   </section>`;
