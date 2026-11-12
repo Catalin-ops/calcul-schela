@@ -7,6 +7,9 @@ import android.content.Context;
 import android.content.Intent;
 import android.net.Uri;
 import android.os.Bundle;
+import android.print.PrintAttributes;
+import android.print.PrintDocumentAdapter;
+import android.print.PrintManager;
 import android.webkit.JavascriptInterface;
 import android.webkit.WebResourceRequest;
 import android.webkit.WebSettings;
@@ -57,6 +60,23 @@ public class MainActivity extends Activity {
         public void copy(String text) {
             ClipboardManager cm = (ClipboardManager) getSystemService(Context.CLIPBOARD_SERVICE);
             cm.setPrimaryClip(ClipData.newPlainText("Necesar schela", text));
+        }
+
+        @JavascriptInterface
+        public void print(final String title) {
+            runOnUiThread(new Runnable() {
+                @Override
+                public void run() {
+                    String name = "Raport schela - " + (title == null || title.isEmpty() ? "proiect" : title);
+                    PrintManager pm = (PrintManager) getSystemService(Context.PRINT_SERVICE);
+                    PrintDocumentAdapter ad = web.createPrintDocumentAdapter(name);
+                    PrintAttributes attrs = new PrintAttributes.Builder()
+                            .setMediaSize(PrintAttributes.MediaSize.ISO_A3.asLandscape())
+                            .setColorMode(PrintAttributes.COLOR_MODE_COLOR)
+                            .build();
+                    pm.print(name, ad, attrs);
+                }
+            });
         }
     }
 }
