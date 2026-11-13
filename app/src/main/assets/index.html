@@ -147,6 +147,57 @@ tfoot td{font-weight:600;border-top:2px solid var(--ink);border-bottom:0}
 .filebtn:focus-within{outline:2px solid var(--accent)}
 table.pr{min-width:0;font-size:13px}
 table.pr td,table.pr th{padding:4px 6px}
+.sk{--sk-ink:var(--ink);--sk-muted:var(--muted);--sk-line:var(--line);--sk-panel:var(--panel);--sk-accent:var(--accent);--sk-warn:var(--warn);--sk-warn-soft:var(--warn-soft)}
+.sk-grid{display:grid;grid-template-columns:minmax(0,1fr) 400px;gap:16px;align-items:start}
+@media (max-width:980px){.sk-grid{grid-template-columns:minmax(0,1fr)}}
+.sk-sheet{background:var(--sk-panel);border:1px solid var(--sk-line);border-radius:6px;padding:10px;min-width:0;display:flex;flex-direction:column;gap:8px;
+  background-image:linear-gradient(var(--sk-grid) 1px,transparent 1px),linear-gradient(90deg,var(--sk-grid) 1px,transparent 1px);background-size:24px 24px}
+.sk-draw svg{display:block;width:100%;height:auto}
+.sk-canvas{touch-action:none;cursor:crosshair;border:1px solid var(--sk-line);border-radius:4px}
+.sk-drawbar{display:flex;flex-direction:column;gap:6px}
+.sk-drawbar[hidden]{display:none}
+.sk select{min-width:92px;padding:5px 2px}
+.sk td input[type=number]:not(.sk-h){min-width:64px}
+.sk td:nth-child(5){min-width:96px}
+.sk-side{display:flex;flex-direction:column;gap:12px;min-width:0}
+.sk-card{background:var(--sk-panel);border:1px solid var(--sk-line);border-radius:6px;padding:12px;display:flex;flex-direction:column;gap:6px}
+.sk-row{display:flex;flex-wrap:wrap;gap:8px;align-items:center}
+.sk-tot label{display:flex;flex-direction:column;gap:3px;font-size:12px;color:var(--sk-muted);flex:1 1 90px;min-width:0}
+.sk-hint{font-size:12px;color:var(--sk-muted);margin:0}
+.sk-empty{padding:30px;text-align:center;color:var(--sk-muted)}
+.sk-tbl{overflow-x:auto}
+.sk table{border-collapse:collapse;width:100%;font-size:14px;min-width:0}
+.sk th{text-align:left;font-size:11px;text-transform:uppercase;letter-spacing:.06em;color:var(--sk-muted);font-weight:600;border-bottom:2px solid var(--sk-ink);padding:4px 3px}
+.sk td{padding:3px;border-bottom:1px solid var(--sk-line);vertical-align:middle}
+.sk td.sk-l{font-family:"IBM Plex Mono",monospace;font-weight:600;white-space:nowrap}
+.sk input,.sk select{font:inherit;font-size:14px;color:var(--sk-ink);background:var(--sk-bg);border:1px solid var(--sk-line);border-radius:4px;padding:5px 6px;width:100%;min-width:0}
+.sk input[type=number]{font-family:"IBM Plex Mono",monospace;text-align:right}
+.sk input[type=checkbox]{width:18px;height:18px;accent-color:var(--sk-accent)}
+.sk input:disabled{background:var(--sk-accent-soft);color:var(--sk-ink);font-weight:600;opacity:1}
+.sk .sk-h{width:58px;min-width:58px}
+.sk button{font:inherit;font-weight:600;font-size:14px;border-radius:4px;padding:7px 11px;cursor:pointer;border:1px solid var(--sk-line);background:var(--sk-bg);color:var(--sk-ink)}
+.sk button.sk-pri{background:var(--sk-accent);border-color:var(--sk-accent);color:#231c00}
+.sk button.sk-del{padding:4px 8px}
+.sk-status{border-left:4px solid var(--sk-ok);background:var(--sk-panel);padding:8px 10px;font-size:14px;border-radius:0 4px 4px 0}
+.sk-status.bad{border-color:var(--sk-warn);background:var(--sk-warn-soft)}
+
+.sk-file{display:inline-flex;align-items:center;font-weight:600;font-size:14px;border:1px solid var(--sk-line);background:var(--sk-bg);border-radius:4px;padding:7px 11px;cursor:pointer;position:relative}
+.sk-file input{position:absolute;opacity:0;width:1px;height:1px}
+.sk-file:focus-within{outline:2px solid var(--sk-accent)}
+.sk-photo{border:1px dashed var(--sk-accent);background:var(--sk-accent-soft)}
+.sk-photo[hidden]{display:none}
+.sk-act{white-space:nowrap}
+.sk-drag{cursor:grab;touch-action:none}
+
+.sk{--sk-bg:var(--bg);--sk-grid:#e1e7ec;--sk-low:#2f6fb3;--sk-low-soft:#e3eef9;--sk-high:#c0392b;--sk-high-soft:#fbe7e4;--sk-accent-soft:var(--accent-soft);--sk-accent-ink:#8a6400;--sk-ok:var(--ok)}
+@media (prefers-color-scheme: dark){:root:not([data-theme="light"]) .sk{--sk-grid:#1d2836;--sk-low:#6aa8ea;--sk-low-soft:#1c2c40;--sk-high:#ef7d6d;--sk-high-soft:#3a2220;--sk-accent-ink:#f5d10f}}
+:root[data-theme="dark"] .sk{--sk-grid:#1d2836;--sk-low:#6aa8ea;--sk-low-soft:#1c2c40;--sk-high:#ef7d6d;--sk-high-soft:#3a2220;--sk-accent-ink:#f5d10f}
+.skov{position:fixed;inset:0;z-index:30;overflow:auto;background:var(--bg);padding:calc(10px + env(safe-area-inset-top,0px)) max(12px,env(safe-area-inset-right,0px)) 30px max(12px,env(safe-area-inset-left,0px))}
+.skov-bar{position:sticky;top:0;z-index:2;display:flex;flex-wrap:wrap;gap:8px;align-items:center;background:var(--brand-bg);color:var(--brand-ink);padding:10px;border-radius:6px;margin:0 auto 12px;max-width:1500px}
+.skov-bar b{font-family:var(--f-display);text-transform:uppercase;letter-spacing:.05em;font-size:18px;flex:1 1 200px}
+.skov-bar button{background:#2a2f33;color:#f3f3f0;border-color:#444}
+.skov .sk{max-width:1500px;margin:0 auto}
+.skbtn{grid-column:1/-1;font-size:15px;padding:10px 12px;text-align:left;border:2px solid var(--accent);background:var(--accent-soft)}
 .mini{font-size:12px;padding:3px 8px;font-weight:600}
 .seg .c3{grid-column:span 3}
 .seg .del.mini{align-self:end;padding:7px 0}
@@ -310,7 +361,8 @@ table.of tr.tot td{border-top:2px solid var(--ink);font-size:16px}
 
       <fieldset>
         <legend>Fațade</legend>
-        <div class="photo full" id="photoBox">
+        <button type="button" class="skbtn" id="openSk">✎ Schiță contur: desenează, încarcă poza sau scrie cotele</button>
+        <div class="photo full" id="photoBox" hidden>
           <div class="photo-h">Din poza schiței <small>Claude citește lungimile și înălțimile și completează fațadele</small></div>
           <div class="row"><label class="filebtn">Alege poza<input type="file" id="photoIn" accept="image/jpeg,image/png,image/webp"></label><span class="hint" id="photoName" style="margin:0">nicio poză aleasă</span></div>
           <div class="row"><button type="button" class="pri" id="photoGo" disabled>Citește dimensiunile</button><button type="button" class="ghost" id="photoStop" hidden>Oprește</button><span class="hint" id="photoMsg" style="margin:0"></span></div>
@@ -420,6 +472,10 @@ table.of tr.tot td{border-top:2px solid var(--ink);font-size:16px}
     <button type="button" id="repCopy">Copiază lista</button>
   </div>
   <div id="rbody"></div>
+</div>
+<div class="skov" id="skOv" hidden>
+  <div class="skov-bar"><button type="button" id="skBack">← Înapoi la calcul</button><b>Schiță contur clădire</b></div>
+  <div id="skRoot"></div>
 </div>
 <div class="toast" id="toast" hidden></div>
 
@@ -1238,6 +1294,285 @@ Răspunde doar cu JSON: {"fatade":[{"n":"","L":0,"H":0,"parts":[],"ce":"ext","de
   $('photoStop').addEventListener('click',()=>ctl&&ctl.abort());
 })();
 
+/* ===== Editor schiță contur (comun: pagina schiței + aplicația de calcul) =====
+   sides: [{L, H, ce:'ext'|'int'|'drept', auto:bool}]  – ocolire în sensul acelor de ceasornic, prima latură spre dreapta
+   totals: {W, D} – lungimea și lățimea totală (folosite când pe o direcție sunt 2 laturi „auto”) */
+/* ===== Editor schiță contur (comun: pagina schiței + aplicația de calcul) =====
+   sides: [{L, H, ce:'ext'|'int'|'drept', auto:bool}]  – ocolire în sensul acelor de ceasornic, prima latură spre dreapta
+   totals: {W, D} – lungimea și lățimea totală (folosite când pe o direcție sunt 2 laturi „auto”) */
+function mountSketch(root, opts){
+  opts=opts||{};
+  const LET='ABCDEFGHIJKLMNOPQRSTUVWXYZ';
+  const f2=n=>(+n).toLocaleString('ro-RO',{minimumFractionDigits:2,maximumFractionDigits:2});
+  let st={sides:JSON.parse(JSON.stringify(opts.sides||[])),totals:Object.assign({W:'',D:''},opts.totals||{}),Hdef:opts.Hdef||5.5};
+  let drawMode=false, pts=[], hover=null;
+  root.classList.add('sk');
+  root.innerHTML=`
+    <div class="sk-grid">
+      <div class="sk-sheet"><div class="sk-draw"></div>
+        <div class="sk-drawbar" hidden>
+          <span class="sk-hint">Atinge colțurile clădirii pe rând. Liniile se fac singure drepte (orizontal sau vertical). Atinge primul punct ca să închizi conturul.</span>
+          <div class="sk-row"><button type="button" class="sk-undo">↶ Șterge ultimul punct</button><button type="button" class="sk-cancel">Renunță</button></div>
+        </div>
+      </div>
+      <div class="sk-side">
+        <div class="sk-status"></div>
+        <div class="sk-card sk-photo" hidden>
+          <div class="sk-row"><label class="sk-file">📷 Poza schiței<input type="file" class="sk-pfile" accept="image/jpeg,image/png,image/webp"></label><button type="button" class="sk-pri sk-pgo" disabled>Detectează forma</button><button type="button" class="sk-pstop" hidden>Oprește</button></div>
+          <p class="sk-hint sk-pmsg">Claude citește conturul, cotele și înălțimile. Apoi corectezi doar ce e nevoie.</p>
+        </div>
+        <div class="sk-card">
+          <div class="sk-row sk-tot">
+            <label>Lungime totală (m)<input type="number" step="0.01" min="0" class="sk-W"></label>
+            <label>Lățime totală (m)<input type="number" step="0.01" min="0" class="sk-D"></label>
+            <label>H implicit (m)<input type="number" step="0.1" min="0" class="sk-Hd"></label>
+          </div>
+          <p class="sk-hint sk-tothint"></p>
+          <div class="sk-tbl"><table>
+            <thead><tr><th>Latura</th><th>Lungime</th><th title="calculată din celelalte și din total">auto</th><th>H</th><th>La capăt</th><th></th></tr></thead>
+            <tbody class="sk-tb"></tbody></table></div>
+          <div class="sk-row" style="margin-top:8px">
+            <button type="button" class="sk-add">+ Latură</button>
+            <button type="button" class="sk-new">✎ Desenează din nou</button>
+            ${opts.applyLabel?`<button type="button" class="sk-pri sk-apply">${opts.applyLabel}</button>`:''}
+            ${opts.extraButtons||''}
+          </div>
+        </div>
+      </div>
+    </div>`;
+  const q=s=>root.querySelector(s);
+
+  /* direcții din colțuri: prima latură spre est; ext = viraj dreapta, int = stânga */
+  function dirs(){ let dx=1,dy=0; return st.sides.map(s=>{ const d={dx,dy}; if(s.ce==='ext'){const t=dx;dx=-dy;dy=t;} else if(s.ce==='int'){const t=dx;dx=dy;dy=-t;} return d; }); }
+  function walk(Ls){ const D=dirs(); let x=0,y=0; const P=[]; Ls.forEach((L,i)=>{ P.push({x,y,dx:D[i].dx,dy:D[i].dy}); x+=D[i].dx*L; y+=D[i].dy*L; }); return {P,ex:x,ey:y}; }
+  /* rezolvă laturile „auto”: 1 pe direcție -> din închidere; 2 -> din închidere + total */
+  function solve(){
+    const D=dirs(), Ls=st.sides.map(s=>+s.L||0), msg=[];
+    ['h','v'].forEach(ax=>{
+      const isAx=i=>ax==='h'?D[i].dx!==0:D[i].dy!==0, sg=i=>ax==='h'?D[i].dx:D[i].dy;
+      const U=st.sides.map((s,i)=>i).filter(i=>st.sides[i].auto&&isAx(i));
+      const known=st.sides.reduce((a,s,i)=>a+(isAx(i)&&!U.includes(i)?sg(i)*Ls[i]:0),0);
+      const T=+(ax==='h'?st.totals.W:st.totals.D)||0;
+      if(U.length===1){ const v=-known/sg(U[0]); Ls[U[0]]=v; if(v<=0) msg.push(`Latura ${lab(U[0])} ar ieși ${f2(v)} m – verifică celelalte cote.`); }
+      else if(U.length===2){
+        if(!T){ msg.push(`Pentru cele 2 laturi „auto” ${ax==='h'?'orizontale':'verticale'} scrie ${ax==='h'?'lungimea':'lățimea'} totală.`); return; }
+        const [a,b]=U; const span=v=>{ Ls[a]=v; Ls[b]=(-known-sg(a)*v)/sg(b); const w=walk(Ls); const c=w.P.map(p=>ax==='h'?p.x:p.y); return Math.max(...c)-Math.min(...c); };
+        let lo=0.01, hi=500, flo=span(lo)-T, ok=false;
+        for(let it=0;it<80;it++){ const mid=(lo+hi)/2, fm=span(mid)-T; if(Math.abs(fm)<1e-4){ok=true;break;} if((fm>0)===(flo>0)){lo=mid;flo=fm;} else hi=mid; }
+        span((lo+hi)/2); if(Ls[a]<=0||Ls[b]<=0||Math.abs(span(Ls[a])-T)>0.01) msg.push(`Cu totalul de ${f2(T)} m laturile ${lab(a)} și ${lab(b)} nu ies pozitive. Verifică totalul.`);
+      } else if(U.length>2) msg.push(`Pe o direcție pot fi cel mult 2 laturi „auto”.`);
+    });
+    return {Ls,msg};
+  }
+  const lab=i=>`${LET[i%26]}–${LET[(i+1)%st.sides.length%26]}`;
+
+  function renderTable(Ls){
+    q('.sk-W').value=st.totals.W; q('.sk-D').value=st.totals.D; q('.sk-Hd').value=st.Hdef;
+    q('.sk-tb').innerHTML=st.sides.map((s,i)=>`<tr>
+      <td class="sk-l">${lab(i)}</td>
+      <td><input type="number" step="0.01" min="0" data-k="L" data-i="${i}" value="${s.auto?(Math.round(Ls[i]*100)/100):s.L}" ${s.auto?'disabled':''} aria-label="Lungime ${lab(i)}"></td>
+      <td><input type="checkbox" data-k="auto" data-i="${i}" ${s.auto?'checked':''} aria-label="${lab(i)} calculată automat"></td>
+      <td><input type="number" step="0.1" min="0" data-k="H" data-i="${i}" value="${s.H}" class="sk-h" aria-label="Înălțime ${lab(i)}"></td>
+      <td><select data-k="ce" data-i="${i}" aria-label="Colț la ${LET[(i+1)%st.sides.length]}"><option value="ext" ${s.ce==='ext'?'selected':''}>exterior</option><option value="int" ${s.ce==='int'?'selected':''}>interior</option><option value="drept" ${s.ce==='drept'?'selected':''}>drept</option></select></td>
+      <td class="sk-act"><button type="button" class="sk-del" data-split="${i}" title="Împarte latura în două (punct unde se schimbă înălțimea)" aria-label="Împarte latura ${lab(i)}">✂</button><button type="button" class="sk-del" data-del="${i}" aria-label="Șterge latura ${lab(i)}">✕</button></td></tr>`).join('');
+  }
+  function update(full){
+    const {Ls,msg}=solve();
+    if(full) renderTable(Ls); else st.sides.forEach((s,i)=>{ if(s.auto){ const el=q(`[data-k="L"][data-i="${i}"]`); if(el) el.value=Math.round(Ls[i]*100)/100; } });
+    drawPlan(Ls,msg);
+    opts.onChange&&opts.onChange(get());
+  }
+  function get(){ const {Ls}=solve(); return {sides:st.sides.map((s,i)=>({...s,L:Math.round(Ls[i]*100)/100})),totals:{...st.totals},Hdef:st.Hdef}; }
+
+  function drawPlan(Ls,msg){
+    if(drawMode) return drawCanvas();
+    if(!st.sides.length){ q('.sk-draw').innerHTML='<p class="sk-empty">Nicio latură încă. Apasă „Desenează din nou” și atinge colțurile clădirii.</p>'; q('.sk-status').className='sk-status bad'; q('.sk-status').textContent='Conturul e gol.'; return; }
+    const {P,ex,ey}=walk(Ls);
+    const xs=P.map(p=>p.x), ys=P.map(p=>p.y);
+    const minX=Math.min(...xs,ex),maxX=Math.max(...xs,ex),minY=Math.min(...ys,ey),maxY=Math.max(...ys,ey);
+    const M=4.2, k=Math.min(1000/Math.max(1,maxX-minX+2*M),700/Math.max(1,maxY-minY+2*M));
+    const X=v=>(v-minX+M)*k, Y=v=>(v-minY+M)*k, W=(maxX-minX+2*M)*k, H=(maxY-minY+2*M)*k;
+    const closed=Math.hypot(ex,ey)<0.02;
+    const pts=P.map(p=>`${X(p.x)},${Y(p.y)}`).join(' ');
+    const Hs=st.sides.map(s=>+s.H||st.Hdef), hi=Math.max(...Hs), lo=Math.min(...Hs);
+    let o=`<svg viewBox="0 0 ${W} ${H}" xmlns="http://www.w3.org/2000/svg" font-size="12" font-family="IBM Plex Mono, monospace">`;
+    const cid='skcp'+Math.random().toString(36).slice(2,7);
+    o+=`<defs><clipPath id="${cid}"><polygon points="${pts}"/></clipPath></defs><polygon points="${pts}" fill="var(--sk-low-soft)"/>`;
+    // zona înaltă: verticala prin vârful unde se schimbă înălțimea pe o latură dreaptă
+    const j=st.sides.findIndex((s,i)=>s.ce==='drept'&&(+st.sides[(i+1)%st.sides.length].H||st.Hdef)!==(+s.H||st.Hdef));
+    if(j>=0&&hi!==lo){ const pv=P[(j+1)%P.length], bx=pv.x, up=(+st.sides[(j+1)%st.sides.length].H||st.Hdef)>(+st.sides[j].H||st.Hdef);
+      const right=(pv.dx>0)===up; const x0=right?bx:minX-1, x1=right?maxX+1:bx;
+      if(pv.dx!==0){ o+=`<rect x="${X(x0)}" y="${Y(minY-1)}" width="${(x1-x0)*k}" height="${(maxY-minY+2)*k}" fill="var(--sk-high-soft)" clip-path="url(#${cid})"/><line x1="${X(bx)}" y1="${Y(minY)}" x2="${X(bx)}" y2="${Y(maxY)}" stroke="var(--sk-muted)" stroke-width="1.2" stroke-dasharray="7 5" clip-path="url(#${cid})"/>`;
+        const cy=(minY+maxY)/2; o+=`<text x="${X((minX+bx)/2)}" y="${Y(cy)}" text-anchor="middle" fill="${right?'var(--sk-low)':'var(--sk-high)'}" font-weight="600" font-size="15">${right?'PARTE JOASĂ · H '+f2(lo):'PARTE ÎNALTĂ · H '+f2(hi)}</text><text x="${X((bx+maxX)/2)}" y="${Y(cy)}" text-anchor="middle" fill="${right?'var(--sk-high)':'var(--sk-low)'}" font-weight="600" font-size="15">${right?'PARTE ÎNALTĂ · H '+f2(hi):'PARTE JOASĂ · H '+f2(lo)}</text>`; } }
+    o+= closed?`<polygon points="${pts}" fill="none" stroke="var(--sk-ink)" stroke-width="4"/>`:`<polyline points="${pts} ${X(ex)},${Y(ey)}" fill="none" stroke="var(--sk-ink)" stroke-width="4"/><line x1="${X(ex)}" y1="${Y(ey)}" x2="${X(0)}" y2="${Y(0)}" stroke="var(--sk-warn)" stroke-width="2" stroke-dasharray="4 4"/>`;
+    P.forEach((p,i)=>{ const s=st.sides[i], L=Ls[i], nx=p.dy, ny=-p.dx, off=1.15;
+      const x0=p.x,y0=p.y,x1=p.x+p.dx*L,y1=p.y+p.dy*L; const col=(+s.H||st.Hdef)>=hi&&hi!==lo?'var(--sk-high)':'var(--sk-low)';
+      const ang=Math.round(Math.atan2(p.dy,p.dx)*180/Math.PI), rot=Math.abs(ang)===180?0:ang;
+      const txt=`${f2(L)}${s.auto?'*':''}`;
+      if(L<2.6){ const tx=(x0+x1)/2+nx*0.6, ty=(y0+y1)/2+ny*0.6; o+=`<text x="${X(tx)}" y="${Y(ty)}" text-anchor="middle" dominant-baseline="middle" font-weight="600" fill="var(--sk-ink)">${txt}</text>`; return; }
+      const ax=x0+nx*off, ay=y0+ny*off, bx2=x1+nx*off, by2=y1+ny*off;
+      o+=`<line x1="${X(x0+nx*.25)}" y1="${Y(y0+ny*.25)}" x2="${X(x0+nx*(off+.3))}" y2="${Y(y0+ny*(off+.3))}" stroke="var(--sk-muted)" stroke-width=".8"/><line x1="${X(x1+nx*.25)}" y1="${Y(y1+ny*.25)}" x2="${X(x1+nx*(off+.3))}" y2="${Y(y1+ny*(off+.3))}" stroke="var(--sk-muted)" stroke-width=".8"/><line x1="${X(ax)}" y1="${Y(ay)}" x2="${X(bx2)}" y2="${Y(by2)}" stroke="var(--sk-ink)"/>`;
+      [[ax,ay],[bx2,by2]].forEach(([u,v])=>o+=`<line x1="${X(u)-5}" y1="${Y(v)+5}" x2="${X(u)+5}" y2="${Y(v)-5}" stroke="var(--sk-ink)" stroke-width="1.6"/>`);
+      const mx=(ax+bx2)/2+nx*.45, my=(ay+by2)/2+ny*.45;
+      o+=`<text x="${X(mx)}" y="${Y(my)}" text-anchor="middle" dominant-baseline="middle" font-weight="600" font-size="13" fill="${s.auto?'var(--sk-accent-ink)':'var(--sk-ink)'}" ${rot?`transform="rotate(${rot} ${X(mx)} ${Y(my)})"`:''}>${txt}</text>`;
+      const hx=(x0+x1)/2-nx*.75, hy=(y0+y1)/2-ny*.75; o+=`<text x="${X(hx)}" y="${Y(hy)}" text-anchor="middle" dominant-baseline="middle" font-size="11" fill="${col}" ${rot?`transform="rotate(${rot} ${X(hx)} ${Y(hy)})"`:''}>H ${f2(+s.H||st.Hdef)}</text>`;
+    });
+    P.forEach((p,i)=>{ const pr=P[(i-1+P.length)%P.length], drept=st.sides[(i-1+st.sides.length)%st.sides.length].ce==='drept';
+      // eticheta spre exterior: suma normalelor celor două laturi
+      const ox=(pr.dy+p.dy), oy=(-pr.dx-p.dx), n=Math.hypot(ox,oy)||1;
+      if(drept) o+=`<circle class="sk-drag" data-v="${i}" cx="${X(p.x)}" cy="${Y(p.y)}" r="16" fill="var(--sk-accent)" fill-opacity=".25"/>`;
+      o+=`<circle cx="${X(p.x)}" cy="${Y(p.y)}" r="${drept?7:4}" fill="${drept?'var(--sk-accent)':'var(--sk-ink)'}" stroke="var(--sk-panel)" stroke-width="1.5" ${drept?`class="sk-drag" data-v="${i}"`:''}/><text x="${X(p.x)+ox/n*14}" y="${Y(p.y)+oy/n*14+5}" text-anchor="middle" font-family="Barlow Condensed, sans-serif" font-weight="700" font-size="17" fill="var(--sk-ink)">${LET[i%26]}</text>`; });
+    const dimH=(a,b,yv,t)=>`<line x1="${X(a)}" y1="${Y(yv)}" x2="${X(b)}" y2="${Y(yv)}" stroke="var(--sk-muted)" stroke-width=".8"/><line x1="${X(a)-4}" y1="${Y(yv)+4}" x2="${X(a)+4}" y2="${Y(yv)-4}" stroke="var(--sk-muted)" stroke-width="1.4"/><line x1="${X(b)-4}" y1="${Y(yv)+4}" x2="${X(b)+4}" y2="${Y(yv)-4}" stroke="var(--sk-muted)" stroke-width="1.4"/><text x="${X((a+b)/2)}" y="${Y(yv)-6}" text-anchor="middle" fill="var(--sk-muted)">${t}</text>`;
+    const dimV=(a,b,xv,t)=>`<line x1="${X(xv)}" y1="${Y(a)}" x2="${X(xv)}" y2="${Y(b)}" stroke="var(--sk-muted)" stroke-width=".8"/><line x1="${X(xv)-4}" y1="${Y(a)+4}" x2="${X(xv)+4}" y2="${Y(a)-4}" stroke="var(--sk-muted)" stroke-width="1.4"/><line x1="${X(xv)-4}" y1="${Y(b)+4}" x2="${X(xv)+4}" y2="${Y(b)-4}" stroke="var(--sk-muted)" stroke-width="1.4"/><text x="${X(xv)-7}" y="${Y((a+b)/2)}" text-anchor="middle" fill="var(--sk-muted)" transform="rotate(-90 ${X(xv)-7} ${Y((a+b)/2)})">${t}</text>`;
+    o+=dimH(minX,maxX,minY-2.9,`total ${f2(maxX-minX)}`)+dimV(minY,maxY,minX-2.9,`total ${f2(maxY-minY)}`)+'</svg>';
+    q('.sk-draw').innerHTML=o;
+    // tragerea punctului galben pe latura lui: o latură se lungește, cealaltă se scurtează
+    const svgEl=q('.sk-draw svg');
+    svgEl.querySelectorAll('.sk-drag').forEach(c=>c.addEventListener('pointerdown',ev=>{
+      ev.preventDefault(); const v=+c.dataset.v, a=(v-1+st.sides.length)%st.sides.length, b=v; const pd=P[a];
+      const r=svgEl.getBoundingClientRect(), sc=r.width/W, x0=ev.clientX, y0=ev.clientY, La=Ls[a], Lb=Ls[b];
+      const move=e2=>{ const d=Math.round((((e2.clientX-x0)*pd.dx+(e2.clientY-y0)*pd.dy)/sc/k)*20)/20;
+        const na=Math.max(0.3,La+d), nb=Lb-(na-La); if(nb<0.3) return;
+        st.sides[a].L=na; st.sides[a].auto=false; if(!st.sides[b].auto) st.sides[b].L=nb; update(true); };
+      const up=()=>{ window.removeEventListener('pointermove',move); window.removeEventListener('pointerup',up); };
+      window.addEventListener('pointermove',move); window.addEventListener('pointerup',up); }));
+    const s=q('.sk-status');
+    const autoN=st.sides.filter(z=>z.auto).length;
+    if(closed&&!msg.length){ s.className='sk-status'; s.innerHTML=`Conturul se închide. Gabarit <b>${f2(maxX-minX)} × ${f2(maxY-minY)} m</b> · perimetru ${f2(Ls.reduce((a,b)=>a+b,0))} m${autoN?` · * = latură calculată`:''}.`; }
+    else { s.className='sk-status bad'; s.innerHTML=(closed?'':`<b>Conturul nu se închide.</b> Lipsesc ${f2(Math.abs(ex))} m pe orizontală și ${f2(Math.abs(ey))} m pe verticală. Bifează „auto” la latura necunoscută sau verifică cotele. `)+msg.join(' '); }
+    const hint=q('.sk-tothint'); const D=dirs();
+    const nh=st.sides.filter((z,i)=>z.auto&&D[i].dx!==0).length, nv=st.sides.filter((z,i)=>z.auto&&D[i].dy!==0).length;
+    hint.textContent=`Totalul se folosește când pe direcția lui sunt 2 laturi „auto”. Acum: ${nh} orizontale, ${nv} verticale.`;
+  }
+
+  /* ---------- desenare cu degetul / mouse-ul ---------- */
+  const GW=46, GH=30, GK=24; // metri pe foaia de desen, px/m
+  function drawCanvas(){
+    let o=`<svg class="sk-canvas" viewBox="0 0 ${GW*GK} ${GH*GK}" xmlns="http://www.w3.org/2000/svg" font-family="IBM Plex Mono, monospace" font-size="12">`;
+    o+=`<rect width="${GW*GK}" height="${GH*GK}" fill="var(--sk-panel)"/>`;
+    for(let x=0;x<=GW;x++) o+=`<line x1="${x*GK}" y1="0" x2="${x*GK}" y2="${GH*GK}" stroke="var(--sk-grid)" stroke-width="${x%5?0.6:1.4}"/>`;
+    for(let y=0;y<=GH;y++) o+=`<line x1="0" y1="${y*GK}" x2="${GW*GK}" y2="${y*GK}" stroke="var(--sk-grid)" stroke-width="${y%5?0.6:1.4}"/>`;
+    for(let x=0;x<=GW;x+=5) o+=`<text x="${x*GK+3}" y="12" fill="var(--sk-muted)" font-size="10">${x}</text>`;
+    const all=hover&&pts.length?pts.concat([hover]):pts;
+    if(all.length>1) o+=`<polyline points="${all.map(p=>`${p.x*GK},${p.y*GK}`).join(' ')}" fill="none" stroke="var(--sk-ink)" stroke-width="4"/>`;
+    for(let i=1;i<all.length;i++){ const a=all[i-1], b=all[i], L=Math.hypot(b.x-a.x,b.y-a.y); o+=`<text x="${(a.x+b.x)/2*GK}" y="${(a.y+b.y)/2*GK-6}" text-anchor="middle" font-weight="600" fill="var(--sk-ink)">${f2(L)}</text>`; }
+    pts.forEach((p,i)=>o+=`<circle cx="${p.x*GK}" cy="${p.y*GK}" r="${i===0?9:5}" fill="${i===0?'var(--sk-accent)':'var(--sk-ink)'}"/>`);
+    o+='</svg>';
+    q('.sk-draw').innerHTML=o;
+    const svg=q('.sk-canvas');
+    const toW=e=>{ const r=svg.getBoundingClientRect(); return {x:(e.clientX-r.left)/r.width*GW, y:(e.clientY-r.top)/r.height*GH}; };
+    const snap=p=>{ let x=Math.round(p.x*2)/2, y=Math.round(p.y*2)/2; if(pts.length){ const l=pts[pts.length-1]; if(Math.abs(x-l.x)>=Math.abs(y-l.y)) y=l.y; else x=l.x; } return {x,y}; };
+    svg.addEventListener('pointermove',e=>{ hover=snap(toW(e)); drawCanvasLite(); });
+    svg.addEventListener('pointerleave',()=>{ hover=null; drawCanvasLite(); });
+    svg.addEventListener('pointerdown',e=>{ e.preventDefault(); const p=snap(toW(e));
+      if(pts.length>=3&&Math.hypot(p.x-pts[0].x,p.y-pts[0].y)<0.8){ finish(); return; }
+      if(pts.length){ const l=pts[pts.length-1]; if(Math.hypot(p.x-l.x,p.y-l.y)<0.25) return;
+        // dacă se continuă pe aceeași direcție, mută punctul în loc să adauge unul nou
+        if(pts.length>=2){ const a=pts[pts.length-2]; const same=(a.x===l.x&&l.x===p.x)||(a.y===l.y&&l.y===p.y); if(same&&Math.sign(p.x-l.x+p.y-l.y)===Math.sign(l.x-a.x+l.y-a.y)){ pts[pts.length-1]=p; drawCanvas(); return; } } }
+      pts.push(p); drawCanvas(); });
+  }
+  let raf=0; function drawCanvasLite(){ cancelAnimationFrame(raf); raf=requestAnimationFrame(drawCanvas); }
+  function finish(){
+    let P=pts.slice(); const f=P[0], l=P[P.length-1];
+    if(f.x!==l.x&&f.y!==l.y) P.push({x:l.x,y:f.y});              // un colț ca să ajungă drept la primul punct
+    // sens orar (în coordonate ecran, y în jos): aria pozitivă
+    let A=0; for(let i=0;i<P.length;i++){ const a=P[i], b=P[(i+1)%P.length]; A+=a.x*b.y-b.x*a.y; }
+    if(A<0) P.reverse();
+    // începe din colțul de sus-stânga, cu latura spre dreapta
+    let s0=0, best=1e9; P.forEach((p,i)=>{ const n=P[(i+1)%P.length]; if(n.x>p.x&&n.y===p.y){ const sc=p.y*1000+p.x; if(sc<best){best=sc;s0=i;} } });
+    P=P.slice(s0).concat(P.slice(0,s0));
+    const n=P.length, sides=[];
+    for(let i=0;i<n;i++){ const a=P[i], b=P[(i+1)%n], c=P[(i+2)%n];
+      const d1={x:Math.sign(b.x-a.x),y:Math.sign(b.y-a.y)}, d2={x:Math.sign(c.x-b.x),y:Math.sign(c.y-b.y)};
+      const cr=d1.x*d2.y-d1.y*d2.x; sides.push({L:Math.round(Math.hypot(b.x-a.x,b.y-a.y)*100)/100,H:st.Hdef,ce:cr>0?'ext':cr<0?'int':'drept',auto:false}); }
+    st.sides=sides; drawMode=false; pts=[]; hover=null; q('.sk-drawbar').hidden=true; update(true);
+  }
+
+  /* ---------- evenimente ---------- */
+  root.addEventListener('input',e=>{ const t=e.target;
+    if(t.classList.contains('sk-W')){ st.totals.W=t.value; update(false); return; }
+    if(t.classList.contains('sk-D')){ st.totals.D=t.value; update(false); return; }
+    if(t.classList.contains('sk-Hd')){ st.Hdef=Math.max(0,+t.value||0)||st.Hdef; update(false); return; }
+    const i=+t.dataset.i, k=t.dataset.k; if(!k||isNaN(i)) return;
+    if(k==='L'){ st.sides[i].L=Math.max(0,+t.value||0); update(false); }
+    else if(k==='H'){ st.sides[i].H=Math.max(0,+t.value||0); update(false); } });
+  root.addEventListener('change',e=>{ const t=e.target, i=+t.dataset.i, k=t.dataset.k; if(!k||isNaN(i)) return;
+    if(k==='auto'){ if(!t.checked){ const {Ls}=solve(); st.sides[i].L=Math.round(Ls[i]*100)/100; } st.sides[i].auto=t.checked; update(true); }
+    else if(k==='ce'){ st.sides[i].ce=t.value; update(true); } });
+  root.addEventListener('click',e=>{ const t=e.target.closest('button'); if(!t||!root.contains(t)) return;
+    if(t.dataset.del!==undefined){ st.sides.splice(+t.dataset.del,1); update(true); }
+    else if(t.dataset.split!==undefined){ const i=+t.dataset.split, {Ls}=solve(), sd=st.sides[i], half=Math.round(Ls[i]/2*100)/100;
+      st.sides.splice(i,1,{L:half,H:sd.H,ce:'drept',auto:false},{L:Math.round((Ls[i]-half)*100)/100,H:sd.H,ce:sd.ce,auto:sd.auto}); update(true); }
+    else if(t.classList.contains('sk-pgo')){ runPhoto(); }
+    else if(t.classList.contains('sk-pstop')){ pctl&&pctl.abort(); }
+    else if(t.classList.contains('sk-add')){ st.sides.push({L:3,H:st.Hdef,ce:'ext',auto:false}); update(true); }
+    else if(t.classList.contains('sk-new')){ drawMode=true; pts=[]; hover=null; q('.sk-drawbar').hidden=false; drawCanvas(); }
+    else if(t.classList.contains('sk-undo')){ pts.pop(); drawCanvas(); }
+    else if(t.classList.contains('sk-cancel')){ drawMode=false; pts=[]; q('.sk-drawbar').hidden=true; update(true); }
+    else if(t.classList.contains('sk-apply')){ const {Ls,msg}=solve(), w=walk(Ls);
+      if(Math.hypot(w.ex,w.ey)>0.02||msg.length){ const s=q('.sk-status'); s.className='sk-status bad'; s.insertAdjacentHTML('afterbegin','<b>Nu pot aplica: conturul trebuie să se închidă.</b> '); s.scrollIntoView({block:'nearest'}); return; }
+      opts.onApply&&opts.onApply(get()); } });
+
+  /* ---------- poză ---------- */
+  let pfile=null, pctl=null;
+  q('.sk-pfile').addEventListener('change',e=>{ pfile=e.target.files&&e.target.files[0]; q('.sk-pgo').disabled=!pfile; q('.sk-pmsg').textContent=pfile?pfile.name:''; });
+  async function runPhoto(){ if(!pfile||!opts.photo) return; pctl=new AbortController(); q('.sk-pgo').disabled=true; q('.sk-pstop').hidden=false; q('.sk-pmsg').textContent='Claude citește schița… (poate dura un minut)';
+    try{ const r=await opts.photo(pfile,pctl.signal); if(!r||!r.sides||r.sides.length<3) throw {code:'empty'};
+      st.sides=r.sides; if(r.totals) st.totals=Object.assign(st.totals,r.totals); update(true);
+      q('.sk-pmsg').textContent='Gata. Verifică cotele (cele cu * sunt calculate) și trage punctul galben dacă limita dintre înălțimi nu e la locul ei.'+(r.note?' Notă: '+r.note:''); }
+    catch(e){ const c=e&&e.code; q('.sk-pmsg').textContent= c==='cancelled'?'Oprit.': c==='not_granted'?'Claude nu are voie să citească poze în această pagină.': c==='rate_limited'?'Prea multe cereri. Încearcă peste câteva minute.': c==='image_rejected'?'Poza nu a putut fi citită. Încearcă JPG sau PNG.':'Nu am putut citi conturul. Încearcă o poză mai clară, dreaptă și luminată.'; }
+    finally{ q('.sk-pstop').hidden=true; q('.sk-pgo').disabled=!pfile; } }
+
+  update(true);
+  return { enablePhoto(on){ q('.sk-photo').hidden=!on; }, get, set(v){ st={sides:JSON.parse(JSON.stringify(v.sides||[])),totals:Object.assign({W:'',D:''},v.totals||{}),Hdef:v.Hdef||st.Hdef}; drawMode=false; q('.sk-drawbar').hidden=true; update(true); } };
+}
+
+/* citire contur din poză (doar în Claude): întoarce {sides, totals, note} pentru editorul de schiță */
+const SK_PROMPT=`Ești schelar cu experiență. Imaginea este schița de mână a planului unei clădiri văzute de sus, cu lungimile laturilor în metri și înălțimile (H) scrise pe ea. Foaia poate fi rotită sau fotografiată strâmb.
+Extrage conturul exterior ca listă de laturi, în ordine, ocolind clădirea în sensul acelor de ceasornic. Prima latură este latura de sus (cea mai de sus), parcursă de la stânga la dreapta, pornind din colțul ei din stânga.
+Pentru fiecare latură dă:
+- "L": lungimea în metri (număr), sau null dacă nu e scrisă pe schiță
+- "H": înălțimea totală de schelat în metri = H scris + parapet. Parapet fără înălțime: adaugă 1.0. „Parapet 3m”: adaugă 3.0. Dacă nu e nicio înălțime, pune null.
+- "ce": ce face conturul la capătul laturii: "ext" colț în afară (viraj la dreapta), "int" colț intrând (viraj la stânga), "drept" dacă latura continuă drept dar acolo se schimbă înălțimea (de ex. un punct marcat unde începe partea înaltă).
+Dacă pe schiță e scrisă o lungime totală a clădirii, pune-o în "W" (orizontal) sau "D" (vertical).
+Răspunde doar cu JSON: {"laturi":[{"L":0,"H":0,"ce":"ext"}],"W":null,"D":null,"note":"ce ai presupus sau n-ai putut citi"}`;
+async function skPhotoReader(){
+  let sample=null; try{ sample=window.claude?await window.claude.use('sample'):null; }catch(e){}
+  if(!sample) return null; let lim=null; try{ lim=await sample.limits(); }catch(e){} if(!lim||!lim.images) return null;
+  return async (file,signal)=>{ const r=await sample.json(SK_PROMPT,{images:[file],modelTier:'complex',signal});
+    const ls=(r&&Array.isArray(r.laturi))?r.laturi:[]; const Hs=ls.map(x=>+x.H).filter(h=>h>0); const Hd=Hs.length?Math.min(...Hs):5.5;
+    return {sides:ls.map(x=>({L:+x.L>0?+x.L:3,H:+x.H>0?+x.H:Hd,ce:['ext','int','drept'].includes(x.ce)?x.ce:'ext',auto:!(+x.L>0)})),
+      totals:{W:+r.W>0?+r.W:'',D:+r.D>0?+r.D:''},note:String(r.note||'')}; };
+}
+
+/* ===== schița în aplicație ===== */
+let sketchState=null, skApi=null, skPhoto;
+const LETS='ABCDEFGHIJKLMNOPQRSTUVWXYZ';
+function sketchFromSegs(){ readSegs(); const Hd=+$('H').value||5.5; const sides=[];
+  segs.forEach(sg=>{ const ce=cfg==='man'?(sg.ce||'ext'):'ext';
+    if(sg.parts&&sg.parts.length) sg.parts.forEach((pp,j)=>sides.push({L:+pp.L||0,H:+pp.H||Hd,ce:j<sg.parts.length-1?'drept':ce,auto:false}));
+    else sides.push({L:+sg.L||0,H:+sg.H||Hd,ce,auto:false}); });
+  return {sides,totals:{W:'',D:''},Hdef:Hd}; }
+function segsFromSketch(v){ const out=[]; let grp=[], start=0;
+  v.sides.forEach((sd,i)=>{ grp.push(sd); if(sd.ce!=='drept'||i===v.sides.length-1){
+      const end=i+1, name=`${LETS[start%26]}–${LETS[end%v.sides.length%26]}`;
+      const L=Math.round(grp.reduce((a,z)=>a+(+z.L||0),0)*100)/100;
+      const old=segs[out.length]||null, desc=old&&old.n?old.n.replace(/^[A-Z]–[A-Z]\s*/,''):'Fațadă';
+      const sg=S(name+' '+(desc||'Fațadă'),L); if(old){ ['sc','bal','bd','ancBal','p'].forEach(k=>sg[k]=old[k]); } else sg.sc=L>=5?autoSc(L):0;
+      const hs=[...new Set(grp.map(z=>+z.H))];
+      if(hs.length>1) sg.parts=grp.map(z=>({L:+z.L,H:+z.H})); else sg.H=hs[0]||'';
+      sg.ce=sd.ce==='drept'?'ext':sd.ce; out.push(sg); grp=[]; start=end; } });
+  return out; }
+function openSketch(){ const init=sketchState||sketchFromSegs();
+  if(!skApi){ const o=Object.assign({},init,{applyLabel:'Aplică în calcul',onChange:v=>{ sketchState=v; },onApply:v=>{
+      sketchState=v; segs=segsFromSketch(v); cfg='man'; const hs=v.sides.map(z=>+z.H).filter(h=>h>0); if(hs.length) $('H').value=Math.max(...hs);
+      active=0; $('exTag').hidden=true; renderFaces(); renderSegs(); calc(); closeSketch(); toast('Fațadele au fost completate din schiță.'); }}); skApi=mountSketch($('skRoot'),o); skApi._o=o; }
+  else skApi.set(init);
+  if(skPhoto===undefined){ skPhoto=null; skPhotoReader().then(fn=>{ skPhoto=fn; if(fn&&skApi){ skApi._o.photo=fn; skApi.enablePhoto(true); } }); }
+  $('skOv').hidden=false; document.body.classList.add('rep-open'); }
+function closeSketch(){ $('skOv').hidden=true; document.body.classList.remove('rep-open'); }
+$('openSk').addEventListener('click',openSketch); $('skBack').addEventListener('click',closeSketch);
+
 $('copy').addEventListener('click',()=>{
   const {P,list,totKg}=last;
   const rows=[['Giovani Construct – necesar schelă'],[`Proiect: ${P.nume}`],[`Client: ${P.client}`],[],['Categorie','Element','Dimensiune','Buc','kg/buc','Total kg']];
@@ -1270,9 +1605,11 @@ function renderSaved(){
   $('saved').querySelectorAll('button').forEach(b=>b.addEventListener('click',()=>load(st[b.dataset.k])));
 }
 function load(o){ if(!o)return; FIELDS.forEach(f=>{if(o[f]!==undefined)$(f).value=o[f];}); CHK.forEach(f=>$(f).checked=!!o[f]);
-  if(!DMODES[$('dmode').value]) $('dmode').value='zig'; renderDmodes(); ovr=o.ovr||{}; cfg=o.cfg||'man'; segs=(o.segs||[]).map(x=>Object.assign(S('',0),x)); active=0; renderFaces(); renderSegs(); calc(); toast('Proiect încărcat: '+o.nume); }
+  if(!DMODES[$('dmode').value]) $('dmode').value='zig'; renderDmodes(); ovr=o.ovr||{}; sketchState=o.sketch||null; cfg=o.cfg||'man'; segs=(o.segs||[]).map(x=>Object.assign(S('',0),x)); active=0; renderFaces(); renderSegs(); calc(); toast('Proiect încărcat: '+o.nume); }
 const EXAMPLES={fundeni:{nume:'Remiză pompieri Fundeni – schiță 13.11',client:'Com. Fundeni, jud. Călărași',rautor:'',rschelar:'',rdata:'',H:'5.5',hEt:'3',Lb:'25.8',lb:'13',w:'0.73',bay:'3.07',gap:'0.25',decks:'all',dfreq:'5',dmode:'zig',ancMode:'min',rez:'5',truck:'3',
-  plasa:false,cons:true,cfg:'man',ovr:{},segs:[
+  plasa:false,cons:true,cfg:'man',ovr:{},
+  sketch:{totals:{W:25.80,D:''},Hdef:5.5,sides:[{L:14.50,H:5.50,ce:'drept',auto:false},{L:11.30,H:9.50,ce:'ext',auto:true},{L:12.30,H:9.50,ce:'ext',auto:true},{L:11.50,H:9.50,ce:'ext',auto:true},{L:1.30,H:9.50,ce:'int',auto:false},{L:3.10,H:5.50,ce:'int',auto:false},{L:2.00,H:5.50,ce:'ext',auto:false},{L:11.20,H:5.50,ce:'ext',auto:false},{L:13.00,H:5.50,ce:'ext',auto:false}]},
+  segs:[
   {n:'A–B Fațada principală',L:25.8,H:'',sc:2,ce:'ext',parts:[{L:14.5,H:5.5},{L:11.3,H:9.5}]},
   {n:'B–C Capăt parte înaltă',L:12.3,H:9.5,sc:1,ce:'ext'},
   {n:'C–D Latura lungă, parte înaltă',L:11.5,H:9.5,sc:1,ce:'ext'},
@@ -1282,7 +1619,7 @@ const EXAMPLES={fundeni:{nume:'Remiză pompieri Fundeni – schiță 13.11',clie
   {n:'G–H Latura lungă, parte joasă',L:11.2,H:5.5,sc:1,ce:'ext'},
   {n:'H–A Capăt parte joasă',L:13.0,H:5.5,sc:1,ce:'ext'}]}};
 document.querySelectorAll('[data-ex]').forEach(b=>b.addEventListener('click',()=>{ $('exTag').hidden=true; load(JSON.parse(JSON.stringify(EXAMPLES[b.dataset.ex]))); }));
-$('save').addEventListener('click',()=>{ readSegs(); const o={segs,cfg,ovr}; FIELDS.forEach(f=>o[f]=$(f).value); CHK.forEach(f=>o[f]=$(f).checked);
+$('save').addEventListener('click',()=>{ readSegs(); const o={segs,cfg,ovr,sketch:sketchState}; FIELDS.forEach(f=>o[f]=$(f).value); CHK.forEach(f=>o[f]=$(f).checked);
   const st=getStore(); st[o.nume||'Proiect']=o; toast(setStore(st)?'Proiect salvat pe acest dispozitiv.':'Browserul nu permite salvarea aici.'); renderSaved(); });
 
 $('frm').addEventListener('input',e=>{ if(e.target.closest('#segs'))return; $('exTag').hidden=true; calc(); });
