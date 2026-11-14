@@ -198,6 +198,31 @@ table.pr td,table.pr th{padding:4px 6px}
 .skov-bar button{background:#2a2f33;color:#f3f3f0;border-color:#444}
 .skov .sk{max-width:1500px;margin:0 auto}
 .skbtn{grid-column:1/-1;font-size:15px;padding:10px 12px;text-align:left;border:2px solid var(--accent);background:var(--accent-soft)}
+.onl{display:flex;flex-direction:column;gap:6px;max-height:340px;overflow:auto}
+.onr{border:1px solid var(--line);border-radius:6px;padding:8px 10px;display:flex;flex-wrap:wrap;gap:6px 10px;align-items:center;justify-content:space-between;background:var(--bg)}
+.onr.cur{border-color:var(--accent);background:var(--accent-soft)}
+.onr-t{display:flex;flex-direction:column;gap:2px;min-width:0;flex:1 1 180px}
+.onr-t span{font-size:12px;color:var(--muted)}
+.ondel{flex-basis:100%;font-size:13px;display:flex;flex-wrap:wrap;gap:6px;align-items:center}
+.ondel[hidden]{display:none}
+.sigb{font-size:11px!important;font-weight:600;align-self:flex-start;border-radius:10px;padding:1px 8px}
+.sigb.ok{background:#dcf1e3;color:#1d5c35}.sigb.old{background:var(--warn-soft);color:var(--warn)}.sigb.no{background:var(--steel-soft);color:var(--muted)}
+.rolepill{font-weight:600;border-radius:10px;padding:1px 8px;background:var(--steel-soft)}
+.rolepill.r-administrator{background:var(--accent);color:var(--accent-ink)}
+.oncur{font-size:13px;margin-bottom:4px}
+.team{display:flex;flex-direction:column;gap:8px;border:1px solid var(--line);border-radius:6px;padding:10px;background:var(--bg)}
+.tres{display:flex;flex-wrap:wrap;gap:6px}
+.trow{display:flex;gap:8px;align-items:center}.trow span{flex:1;min-width:0}
+.trow select,#teamRole{width:auto}
+.sigov{position:fixed;inset:0;z-index:40;background:rgba(10,12,14,.6);display:flex;align-items:center;justify-content:center;padding:16px}
+.sigov[hidden]{display:none}
+.sigbox{background:var(--panel);border-radius:8px;padding:16px;display:flex;flex-direction:column;gap:10px;width:min(640px,100%)}
+.sigbox h3{margin:0;font-family:var(--f-display);text-transform:uppercase;letter-spacing:.05em}
+#sigCanvas{width:100%;height:auto;border:2px dashed var(--line);border-radius:6px;background:#fff;touch-action:none;cursor:crosshair}
+.c-sig{padding:4px 8px!important}
+.c-sig>div{display:flex;align-items:center;gap:10px;flex-wrap:wrap}
+.c-sig img{height:46px;width:auto;background:#fff}
+.c-sig i{font-size:10px;color:var(--muted)}
 .mini{font-size:12px;padding:3px 8px;font-weight:600}
 .seg .c3{grid-column:span 3}
 .seg .del.mini{align-self:end;padding:7px 0}
@@ -328,12 +353,29 @@ table.of tr.tot td{border-top:2px solid var(--ink);font-size:16px}
       <h1>Calcul necesar <span>schelă</span></h1>
       <p>Schelă de fațadă pe cadre: din dimensiunile blocului rezultă lista de cadre, podine, protecții, scări și ancoraje, cu greutate și transport.</p>
     </div>
-    <div class="std">SR EN 12810 / 12811<br>cadru 2,00 m · podine 0,32 m</div>
+    <div class="std">SR EN 12810 / 12811<br>cadru 1,05 × 2,00 m · podine 1,80 × 0,50 m</div>
   </header>
 
   <div class="grid">
     <form class="panel inputs" id="frm" autocomplete="off">
       <h2>Date proiect <small id="exTag">exemplu completat</small></h2>
+
+      <fieldset id="onBox">
+        <legend>Cont și proiecte online</legend>
+        <p class="hint full" id="onState" style="margin:0">Se verifică contul…</p>
+        <div class="full" id="onCur"></div>
+        <div class="row full" id="onAdmin" hidden><button type="button" class="pri" id="onSave">Salvează online</button><button type="button" class="ghost" id="onNew">Proiect nou</button><button type="button" class="ghost" id="teamBtn">Echipa și roluri</button></div>
+        <div class="full" id="teamBox" hidden>
+          <div class="team">
+            <label>Adaugă o persoană din organizație<input type="text" id="teamQ" placeholder="nume sau e-mail" autocomplete="off"></label>
+            <div id="teamRes" class="tres"></div>
+            <div class="row" id="teamAddRow" hidden><span id="teamPicked"></span><select id="teamRole" aria-label="Rol"><option value="inginer">Inginer</option><option value="schelar">Schelar</option><option value="membru">Membru</option></select><button type="button" class="mini pri" id="teamAdd">Adaugă</button></div>
+            <div id="teamList"></div>
+            <p class="hint" style="margin:0">Rolurile se văd în aplicație. Ca să poată deschide pagina, dă-le acces din meniul Share: Inginer = Contributor (ca să poată semna), Schelar și Membru = Viewer. Administratorii sunt cei cu acces Editor.</p>
+          </div>
+        </div>
+        <div class="full" id="onList"></div>
+      </fieldset>
 
       <fieldset>
         <legend>Proiect</legend>
@@ -380,8 +422,12 @@ table.of tr.tot td{border-top:2px solid var(--ink);font-size:16px}
 
       <fieldset>
         <legend>Sistem schelă</legend>
-        <label>Lățime cadru<select id="w"><option value="0.73">0,73 m (uzual)</option><option value="1.09">1,09 m (lat)</option></select></label>
-        <label>Travee principală<select id="bay"><option value="3.07">3,07 m</option><option value="2.57">2,57 m</option><option value="2.07">2,07 m</option><option value="2">2,00 m</option></select></label>
+        <label>Lățime cadru<select id="w"><option value="1.05" selected>1,05 m</option><option value="0.73">0,73 m</option><option value="1.09">1,09 m</option></select></label>
+        <label>Travee (lungime podină)<select id="bay"><option value="1.8" selected>1,80 m (podină ≈1,85 cu cârligele)</option><option value="3.07">3,07 m</option><option value="2.57">2,57 m</option><option value="2.07">2,07 m</option><option value="2">2,00 m</option></select></label>
+        <label>Lățime podină<select id="pw"><option value="0.5" selected>0,50 m</option><option value="0.32">0,32 m</option></select></label>
+        <label>Înălțime cadru<select id="fh" disabled><option>2,00 m</option></select></label>
+        <label class="full">Parapet peste înălțimea dată<select id="par"><option value="frame2" selected>un nivel de cadre de 2,00 m (fără adaos de 1 m)</option><option value="post1">stâlpi de balustradă de 1,00 m</option></select></label>
+        <label class="full">Pasaje (travee incomplete și colțuri)<select id="pas"><option value="overlap" selected>podină normală suprapusă + țeavă de legătură</option><option value="short">travee scurte (podine mai scurte)</option></select></label>
         <label>Distanța față de perete (m)<input id="gap" type="number" step="0.05" min="0.1" value="0.25"></label>
         <label>Podine pe niveluri<select id="decks"><option value="all">toate nivelurile</option><option value="alt">din 2 în 2 niveluri</option></select></label>
         <label class="full">Ancorare<select id="ancMode"><option value="min">1 da – 1 nu, din 4 în 4 m, decalat (minimul uzual)</option><option value="all">la fiecare cadru, din 4 în 4 m (cu plasă / prelată)</option></select></label>
@@ -468,6 +514,7 @@ table.of tr.tot td{border-top:2px solid var(--ink);font-size:16px}
   <div class="rtool">
     <button type="button" id="repBack">← Înapoi la calcul</button>
     <button type="button" class="pri" id="repPrint" hidden>Salvează PDF / Printează</button>
+    <button type="button" class="pri" id="repPdf" hidden>Descarcă PDF</button>
     <span class="rhint" id="repHint">PDF-ul se face din aplicația Android (butonul „Salvează PDF”). Aici poți arăta raportul pe ecran sau copia lista.</span>
     <button type="button" id="repCopy">Copiază lista</button>
   </div>
@@ -476,6 +523,16 @@ table.of tr.tot td{border-top:2px solid var(--ink);font-size:16px}
 <div class="skov" id="skOv" hidden>
   <div class="skov-bar"><button type="button" id="skBack">← Înapoi la calcul</button><b>Schiță contur clădire</b></div>
   <div id="skRoot"></div>
+</div>
+<div class="sigov" id="sigOv" hidden>
+  <div class="sigbox" role="dialog" aria-label="Semnătura inginerului">
+    <h3>Semnătura inginerului</h3>
+    <p class="hint" style="margin:0">Semnează cu degetul sau cu mouse-ul. Semnătura apare în cartușul raportului PDF, cu numele și data.</p>
+    <canvas id="sigCanvas" width="600" height="220"></canvas>
+    <label>Nume sub semnătură<input type="text" id="sigName"></label>
+    <p class="hint" id="sigMsg" style="margin:0"></p>
+    <div class="row"><button type="button" class="pri" id="sigSave">Salvează semnătura</button><button type="button" class="ghost" id="sigClear">Șterge</button><button type="button" class="ghost" id="sigCancel">Renunță</button></div>
+  </div>
 </div>
 <div class="toast" id="toast" hidden></div>
 
@@ -488,12 +545,12 @@ const fmt0=n=>Math.round(n).toLocaleString('ro-RO');
 const esc=s=>String(s).replace(/&/g,'&amp;').replace(/"/g,'&quot;').replace(/</g,'&lt;');
 
 const KG={
-  cadru:{0.73:18.5,1.09:22.0}, capat:{0.73:9.5,1.09:11.5}, stalp:4.0, picior:3.6, talpa:2.5,
+  cadru:{1.05:20.0,0.73:18.5,1.09:22.0}, capat:{1.05:10.5,0.73:9.5,1.09:11.5}, stalp:4.0, picior:3.6, talpa:2.5,
   podina:{2:14.2,0.73:6.5,1.09:8.5,1.57:11.5,2.07:14.5,2.57:18.5,3.07:22.0},
-  trapa:{2:19,2.07:19,2.57:22,3.07:25}, scara:7.4,
-  balustrada:{2:4.4,0.73:2.2,1.09:3.0,1.57:3.6,2.07:4.5,2.57:5.3,3.07:6.3},
-  plinta:{2:6.2,0.73:2.6,1.09:3.6,1.57:5.0,2.07:6.5,2.57:7.9,3.07:9.4},
-  diag:{2:7.9,1.57:7.4,2.07:8.0,2.57:8.8,3.07:9.6},
+  trapa:{1.8:20,2:19,2.07:19,2.57:22,3.07:25}, scara:7.4,
+  balustrada:{1.8:3.8,2:4.4,0.73:2.2,1.09:3.0,1.57:3.6,2.07:4.5,2.57:5.3,3.07:6.3},
+  plinta:{1.8:5.5,2:6.2,0.73:2.6,1.09:3.6,1.57:5.0,2.07:6.5,2.57:7.9,3.07:9.4},
+  diag:{1.8:7.0,2:7.9,1.57:7.4,2.07:8.0,2.57:8.8,3.07:9.6},
   ancora:{0.38:1.9,0.60:2.8,0.95:4.1,1.10:4.8,1.45:6.1,1.80:7.5},
   cupla:1.2, teavaM:3.6, surub:0.15, consola:{0.36:4.5,0.73:8.5}, plasaRola:16
 };
@@ -610,8 +667,9 @@ function accPos(lens,a){ const n=lens.length, out=[]; if(!n||a<=0) return out; c
       if(best<0) for(let d=0;d<n;d++){ for(const j of [i-d,i+d]) if(j>=0&&j<n&&!out.includes(j)){best=j;break;} if(best>=0)break; }
       i=best; } out.push(i); }
   return out; }
-function splitBays(L,bay){
+function splitBays(L,bay,ov){
   if(L<=0) return [];
+  if(ov){ const f=Math.floor(L/bay+1e-6), r=L-f*bay, n=Math.max(1,f+(r>0.3?1:0)), out=Array(n).fill(bay); out.ov=n*bay-L>0.05; return out; }  // rest sub 30 cm: se preia din distanța la perete
   let n=Math.floor(L/bay+1e-6), r=L-n*bay, out=Array(n).fill(bay);
   if(r>0.10){ out.push(STD.find(x=>x>=r-0.06)||bay); }
   if(!out.length) out.push(STD.find(x=>x>=L)||bay);
@@ -622,7 +680,7 @@ function read(){
   const baseExt=cfg==='man'?segs.filter(x=>x.L>0&&(x.ce||'ext')==='ext').length:CFG[cfg].ext;
   const baseInt=cfg==='man'?segs.filter(x=>x.L>0&&x.ce==='int').length:CFG[cfg].int;
   return {nume:$('nume').value, client:$('client').value, H:+$('H').value||0, hEt:+$('hEt').value||2.9,
-    w:+$('w').value, bay:+$('bay').value, gap:Math.max(0.05,+$('gap').value||0.25), decks:$('decks').value,
+    w:+$('w').value, bay:+$('bay').value, pw:+$('pw').value||0.5, par:$('par').value||'frame2', pas:$('pas').value||'overlap', gap:Math.max(0.05,+$('gap').value||0.25), decks:$('decks').value,
     rez:Math.max(0,+$('rez').value||0), plasa:$('plasa').checked, cons:$('cons').checked,
     dfreq:+$('dfreq').value||5, dmode:$('dmode').value||'zig', ancMode:$('ancMode').value||'min', baseExt, baseInt, truck:Math.max(0.5,+$('truck').value||3)};
 }
@@ -634,8 +692,12 @@ function compute(capN){
   const items={};
   const add=(key,cat,name,dim,qty,kg,why)=>{ if(qty<=0)return; if(!items[key])items[key]={key,cat,name,dim,qty:0,kg,why}; items[key].qty+=qty; if(why&&!items[key].why)items[key].why=why; };
   const alerts=[];
-  const nPod=Math.round(P.w/0.32);
-  const Nb=Math.min(levelsFor(P.H),CAP);
+  const PW=P.pw||0.32, nPod=Math.max(1,Math.floor(P.w/PW+0.05)), trapRep=PW<0.4?2:1, EXT=P.par==='frame2'?1:0, PG=EXT?2:1;
+  const pdim=b=>`${fmt(b)} × ${fmt(PW)} m`, pkg=b=>PW>=0.45?Math.round(9.5*b*10)/10:(pkg(b)||Math.round(7.2*b*10)/10);
+  const CB=P.pas==='overlap'?P.bay:P.w;   // lungimea podinei / balustradei la colțuri
+  // cu parapet de 2 m: schela totală ≈ H + 2 m (toleranță 0,4 m din picioarele reglabile); ultimul nivel de cadre e parapetul
+  const decksFor=H=>EXT?Math.max(1,Math.ceil((H+2-0.2)/2-0.2)-1):levelsFor(H);
+  const Nb=Math.min(decksFor(P.H),CAP);
   const stepExt=segs.reduce((a,s)=>a+(s.L>0?2*s.st:0),0), stepInt=stepExt;
   const cExt=P.baseExt+stepExt, cInt=P.baseInt+stepInt;
   let area=0, anchorsTotal=0, A=0, maxTop=0, totalL=0;
@@ -648,7 +710,7 @@ function compute(capN){
   const endInfo=[];                       // N la capătul de start / final al fiecărei fațade (pentru colțuri)
   const capJ={n:0};                       // capete deschise la schimbarea de înălțime
   segs.forEach((s,i)=>{
-    const levInfo=H=>{ const N=Math.min(levelsFor(H),CAP), top=0.2+2*N; let Nd=0; for(let k=N;k>=1;k-=(P.decks==='alt'?2:1)) Nd++; return {N,top,Nd,Hs:H}; };
+    const levInfo=H=>{ const N=Math.min(decksFor(H),CAP), top=0.2+2*N; let Nd=0; for(let k=N;k>=1;k-=(P.decks==='alt'?2:1)) Nd++; return {N,Nf:N+EXT,top,Nd,Hs:H}; };
     const Hdef=s.H!==''&&+s.H>0?+s.H:P.H;
     const parts=(s.parts||[]).filter(p=>+p.L>0);
     const useParts=parts.length>0;
@@ -659,11 +721,11 @@ function compute(capN){
     if(useParts){
       let rem=cut/2, rem2=cut/2;
       parts.forEach((p,j)=>{ let L=+p.L; if(j===0&&cornerStart(i)==='int') L-=(P.gap+P.w); if(j===parts.length-1&&cornerEnd(i)==='int') L-=(P.gap+P.w);
-        const li=levInfo(+p.H>0?+p.H:Hdef); tr.push({front:true,bays:splitBays(Math.max(0.3,L),P.bay),join:j>0,...li}); });
+        const li=levInfo(+p.H>0?+p.H:Hdef); tr.push({front:true,bays:splitBays(Math.max(0.3,L),P.bay,P.pas==='overlap'),join:j>0,...li}); });
     } else {
       const li=levInfo(Hdef);
       const nFr=2*s.st+1, ret=Math.max(0,s.sd-P.gap-P.w), Lf=Math.max(0.3,(s.L-cut));
-      for(let t=0;t<nFr;t++){ tr.push({front:true,bays:splitBays(Lf/nFr,P.bay),join:false,...li}); if(t<nFr-1&&ret>0.1) tr.push({front:false,bays:splitBays(ret,P.bay),join:false,...li}); }
+      for(let t=0;t<nFr;t++){ tr.push({front:true,bays:splitBays(Lf/nFr,P.bay,P.pas==='overlap'),join:false,...li}); if(t<nFr-1&&ret>0.1) tr.push({front:false,bays:splitBays(ret,P.bay,P.pas==='overlap'),join:false,...li}); }
     }
     const bays=tr.flatMap(t=>t.bays); const B=bays.length; if(!B||Ltot<=0){geo.push(null);endInfo.push(null);return;}
     totalL+=Ltot+2*s.st*s.sd;
@@ -672,20 +734,23 @@ function compute(capN){
     endInfo.push({s:fronts[0],e:fronts[fronts.length-1]});
     // linii de cadre și cadre (la îmbinarea a două porțiuni, linia comună se numără o dată, pe înălțimea mai mare)
     let lines=0, frames=0, F=0;
-    tr.forEach((t,ti)=>{ if(!t.bays.length)return; const nl=t.bays.length+1; lines+=nl; frames+=nl*t.N; F+=nl;
-      if(t.join){ const pv=tr[ti-1]; lines--; F--; frames-=Math.min(pv.N,t.N); capJ.n+=Math.abs(pv.Nd-t.Nd); } });
-    tr.forEach(t=>{ const len=t.bays.reduce((a,b)=>a+b,0); area+=len*(t.top+1); });
+    tr.forEach((t,ti)=>{ if(!t.bays.length)return; const nl=t.bays.length+1; lines+=nl; frames+=nl*t.Nf; F+=nl;
+      if(t.join){ const pv=tr[ti-1]; lines--; F--; frames-=Math.min(pv.Nf,t.Nf); capJ.n+=Math.abs(pv.Nd-t.Nd); } });
+    tr.forEach(t=>{ const len=t.bays.reduce((a,b)=>a+b,0); area+=len*(t.top+PG); });
     add('cadru','Structură','Cadru vertical oțel',`${fmt(P.w)} × 2,00 m`,frames,KG.cadru[P.w],'pe fiecare nivel, la fiecare linie de cadre');
-    add('stalp','Structură','Stâlp balustradă nivel final','1,00 m',lines,KG.stalp,'deasupra ultimului nivel');
+    if(!EXT) add('stalp','Structură','Stâlp balustradă nivel final','1,00 m',lines,KG.stalp,'deasupra ultimului nivel');
     add('picior','Bază','Picior reglabil (bază cu filet)','0,60 m',2*lines,KG.picior,'2 la fiecare linie de cadre');
     add('talpa','Bază','Talpă de repartiție lemn','40 × 25 × 5 cm',2*lines,KG.talpa,'sub fiecare picior');
     // diagonale
     let nd=0, ndL=0; const f=P.dfreq, mult=DMODES[P.dmode].mult;
     const rule=(f===1?'în fiecare travee':`1 la fiecare grup de max. ${f} travee`)+', '+DMODES[P.dmode].t.toLowerCase()+(mult===2?' (2 bucăți pe nivel)':'');
-    tr.forEach(t=>{ for(let gs=0;gs<t.bays.length;gs+=f){ const gb=t.bays.slice(gs,gs+f), mb=Math.max(...gb); nd+=mult; ndL+=mult*t.N;
-      if(KG.diag[mb]) add('diag'+mb,'Structură','Diagonală (contravântuire)',`travee ${fmt(mb)} m · lungime reală ≈ ${fmt(Math.hypot(mb,2))} m`,t.N*mult,KG.diag[mb],rule);
-      else { add('tdiag','Structură','Țeavă Ø48,3 ca diagonală (travee scurte)','3,00 m',t.N*mult,KG.teavaM*3,'în traveele sub 1,57 m, unde nu există diagonală de sistem');
-             add('cuplaR','Structură','Cuplă rotativă','Ø48,3',2*t.N*mult,1.4,'2 la fiecare diagonală din țeavă'); } } });
+    tr.forEach(t=>{ for(let gs=0;gs<t.bays.length;gs+=f){ const gb=t.bays.slice(gs,gs+f), mb=Math.max(...gb); nd+=mult; ndL+=mult*t.Nf;
+      if(KG.diag[mb]) add('diag'+mb,'Structură','Diagonală (contravântuire)',`travee ${fmt(mb)} m · lungime reală ≈ ${fmt(Math.hypot(mb,2))} m`,t.Nf*mult,KG.diag[mb],rule);
+      else { add('tdiag','Structură','Țeavă Ø48,3 ca diagonală (travee scurte)','3,00 m',t.Nf*mult,KG.teavaM*3,'în traveele sub 1,57 m, unde nu există diagonală de sistem');
+             add('cuplaR','Structură','Cuplă rotativă','Ø48,3',2*t.Nf*mult,1.4,'2 la fiecare diagonală din țeavă'); } } });
+    // pasaje: podina normală suprapusă peste traveea incompletă, prinsă cu țeavă de legătură
+    tr.forEach(t=>{ if(t.bays.ov){ add('tleg','Structură','Țeavă de legătură Ø48,3 (podine suprapuse)','2,00 m',t.Nd+EXT,KG.teavaM*2,'la fiecare pasaj cu podine suprapuse, pe fiecare nivel de lucru');
+      add('cuplaL','Structură','Cuplă ortogonală (țeavă de legătură)','Ø48,3',2*(t.Nd+EXT),KG.cupla,'2 la fiecare țeavă de legătură'); } });
     // acces: aceleași poziții ca în desen (pe traveele frontale)
     const fb=[]; fronts.forEach(t=>t.bays.forEach(b=>fb.push({b,t})));
     const a=Math.min(s.sc,fb.length); A+=a;
@@ -698,11 +763,11 @@ function compute(capN){
       const isAcc=front&&accSet.has(fi); if(front) fi++;
       if(isAcc){
         const tl=KG.trapa[b]?b:3.07;
-        add('trapa'+tl,'Platforme','Podină cu trapă și scară',`${fmt(tl)} × 0,64 m`,t.N,KG.trapa[tl],'pe fiecare nivel în coloana de acces');
-        if(nPod>2) add('pod'+b,'Platforme','Podină oțel',`${fmt(b)} × 0,32 m`,(nPod-2)*t.N,KG.podina[b]);
+        add('trapa'+tl,'Platforme','Podină cu trapă și scară',`${fmt(tl)} × ${PW<0.4?'0,64':fmt(PW)} m`,t.N,KG.trapa[tl],'pe fiecare nivel în coloana de acces');
+        if(nPod>trapRep) add('pod'+b,'Platforme','Podină oțel',pdim(b),(nPod-trapRep)*t.N,pkg(b));
         ladders+=t.N;
-      } else add('pod'+b,'Platforme','Podină oțel',`${fmt(b)} × 0,32 m`,nPod*t.Nd,KG.podina[b],`${nPod} pe travee, pe nivelurile cu podine`);
-      add('bal'+b,'Protecție','Balustradă (mână curentă + intermediară)',`${fmt(b)} m`,2*t.Nd,KG.balustrada[b],'2 pe travee pe fața exterioară, pe nivelurile de lucru');
+      } else add('pod'+b,'Platforme','Podină oțel',pdim(b),nPod*t.Nd,pkg(b),`${nPod} pe travee, pe nivelurile cu podine`);
+      add('bal'+b,'Protecție','Balustradă (mână curentă + intermediară)',`${fmt(b)} m`,2*t.Nd+2*EXT,KG.balustrada[b],EXT?'2 pe travee pe nivelurile de lucru + 2 pe nivelul de parapet':'2 pe travee pe fața exterioară, pe nivelurile de lucru');
       add('pl'+b,'Protecție','Plintă',`${fmt(b)} m`,t.Nd,KG.plinta[b],'1 pe travee pe nivelurile de lucru');
     });
     // distanțe
@@ -716,7 +781,7 @@ function compute(capN){
       if(cons){
         const pc=cons===0.36?1:2;
         tr.forEach(t=>{ if(!t.bays.length)return; add('cons'+cons,'Console','Consolă interioară',`${fmt(cons)} m`,(t.bays.length+1)*t.Nd,KG.consola[cons],'pe fiecare cadru, pe nivelurile de lucru (gol > 30 cm)');
-          t.bays.forEach(b=>add('pod'+b,'Platforme','Podină oțel',`${fmt(b)} × 0,32 m`,pc*t.Nd,KG.podina[b])); });
+          t.bays.forEach(b=>add('pod'+b,'Platforme','Podină oțel',pdim(b),pc*t.Nd,pkg(b))); });
       }
     } else if(workDist>0.30) alerts.push({t:`<b>${esc(s.n)}:</b> golul la perete e ${fmt(workDist)} m (peste 30 cm) și consolele sunt dezactivate. Spre perete trebuie balustradă sau consolă.`});
     if(s.bal && s.ancBal) alerts.push({cls:'info',t:`<b>${esc(s.n)}:</b> schela stă la ${fmt(P.gap)} m de fruntea balcoanelor. Peretele dintre balcoane se lucrează de pe balcon. Verifică dacă placa balconului ține șurubul de ancorare (beton, nu doar parapet).`});
@@ -732,27 +797,27 @@ function compute(capN){
     add('surub','Ancorare','Șurub cu ochi + diblu','Ø12 × 120–160 mm',nA,KG.surub,'1 la fiecare ancoră, verificat la smulgere');
     if(s.st>0&&!useParts){
       const t0=tr[0], ce=2*s.st, ci=2*s.st;
-      add('pod'+P.w,'Platforme','Podină oțel',`${fmt(P.w)} × 0,32 m`,ce*nPod*t0.Nd+ci*t0.Nd,KG.podina[P.w],'travee de colț la retrageri / rezalituri');
-      add('bal'+P.w,'Protecție','Balustradă (mână curentă + intermediară)',`${fmt(P.w)} m`,ce*2*t0.Nd,KG.balustrada[P.w]);
-      add('pl'+P.w,'Protecție','Plintă',`${fmt(P.w)} m`,ce*t0.Nd,KG.plinta[P.w]);
+      add('pod'+P.w,'Platforme','Podină oțel',pdim(CB),ce*nPod*t0.Nd+ci*t0.Nd,pkg(CB),'travee de colț la retrageri / rezalituri');
+      add('bal'+CB,'Protecție','Balustradă (mână curentă + intermediară)',`${fmt(CB)} m`,ce*(2*t0.Nd+2*EXT),KG.balustrada[CB]||KG.balustrada[3.07]);
+      add('pl'+CB,'Protecție','Plintă',`${fmt(CB)} m`,ce*t0.Nd,KG.plinta[CB]||KG.plinta[3.07]);
       add('t15','Colțuri','Țeavă Ø48,3 pentru legătura de colț','1,50 m',(ce+ci)*t0.N,KG.teavaM*1.5,'1 pe nivel la fiecare colț');
       add('cuplaC','Colțuri','Cuplă ortogonală','Ø48,3',(ce+ci)*t0.N*2,KG.cupla,'2 pe nivel la fiecare colț');
       add('t40','Colțuri','Țeavă Ø48,3 verticală de colț','4,00 m',(ce+ci)*Math.ceil(t0.top/4),KG.teavaM*4,'legătură verticală între tronsoane');
       area+=ce*P.w*(t0.top+1);
     }
     add('scara','Acces','Scară interioară aluminiu','2,15 m',ladders,KG.scara,'1 pe nivel în fiecare coloană de acces');
-    geo.push({bays,tr,F,a,N:Nmax,Nd:Math.max(...tr.map(t=>t.Nd)),nd,ndL,nA,ladders,frames,top:topMax,Hs:Math.max(...tr.map(t=>t.Hs)),wallDist,workDist,cons,al,s});
+    geo.push({bays,tr,F,a,Nf:Math.max(...tr.map(t=>t.Nf)),N:Nmax,Nd:Math.max(...tr.map(t=>t.Nd)),nd,ndL,nA,ladders,frames,top:topMax,Hs:Math.max(...tr.map(t=>t.Hs)),wallDist,workDist,cons,al,s});
   });
 
   // colțuri
   const cornerItems=(type,N,Nd,top,why)=>{
-    if(type==='ext'){ add('pod'+P.w,'Platforme','Podină oțel',`${fmt(P.w)} × 0,32 m`,nPod*Nd,KG.podina[P.w],'travee de colț exterior');
-      add('bal'+P.w,'Protecție','Balustradă (mână curentă + intermediară)',`${fmt(P.w)} m`,2*Nd,KG.balustrada[P.w]);
-      add('pl'+P.w,'Protecție','Plintă',`${fmt(P.w)} m`,Nd,KG.plinta[P.w]); area+=P.w*(top+1); }
-    else add('pod'+P.w,'Platforme','Podină oțel',`${fmt(P.w)} × 0,32 m`,Nd,KG.podina[P.w],'închidere colț interior');
-    add('t15','Colțuri','Țeavă Ø48,3 pentru legătura de colț','1,50 m',N,KG.teavaM*1.5,'1 pe nivel la fiecare colț');
-    add('cuplaC','Colțuri','Cuplă ortogonală','Ø48,3',N*2,KG.cupla,'2 pe nivel la fiecare colț');
-    add('t40','Colțuri','Țeavă Ø48,3 verticală de colț','4,00 m',Math.ceil(top/4),KG.teavaM*4,'legătură verticală între schele la colț');
+    if(type==='ext'){ add('pod'+CB,'Platforme','Podină oțel',pdim(CB),nPod*Nd,pkg(CB),P.pas==='overlap'?'pasaj de colț: podină normală suprapusă':'travee de colț exterior');
+      add('bal'+CB,'Protecție','Balustradă (mână curentă + intermediară)',`${fmt(CB)} m`,2*Nd+2*EXT,KG.balustrada[CB]||KG.balustrada[3.07]);
+      add('pl'+CB,'Protecție','Plintă',`${fmt(CB)} m`,Nd,KG.plinta[CB]||KG.plinta[3.07]); area+=P.w*(top+PG); }
+    else add('pod'+CB,'Platforme','Podină oțel',pdim(CB),Nd,pkg(CB),'închidere colț interior');
+    add('t15','Colțuri','Țeavă Ø48,3 pentru legătura de colț','1,50 m',N+EXT,KG.teavaM*1.5,'1 pe nivel la fiecare colț');
+    add('cuplaC','Colțuri','Cuplă ortogonală','Ø48,3',(N+EXT)*2,KG.cupla,'2 pe nivel la fiecare colț');
+    add('t40','Colțuri','Țeavă Ø48,3 verticală de colț','4,00 m',Math.ceil((top+EXT*2)/4),KG.teavaM*4,'legătură verticală între schele la colț');
   };
   let freeEnds=0, capEnd=capJ.n;
   const Nd0=P.decks==='alt'?Math.ceil(Nb/2):Nb;
@@ -804,7 +869,7 @@ function renderTiles(){
   const curse=planTrips().length;
   $('tiles').innerHTML=`
    <div class="tile"><div class="k">Suprafață schelată</div><div class="v">${fmt0(area)}<small>m²</small></div><div class="s">${fmt(totalL,1)} m traseu schelă</div></div>
-   <div class="tile"><div class="k">Niveluri</div><div class="v">${[...new Set(last.geo.filter(Boolean).flatMap(g=>g.tr.map(t=>t.N)))].sort((a,b)=>a-b).join(' / ')||Nb}<small>× 2 m</small></div><div class="s">ultimul nivel la ${fmt(maxTop,1)} m</div></div>
+   <div class="tile"><div class="k">Niveluri</div><div class="v">${[...new Set(last.geo.filter(Boolean).flatMap(g=>g.tr.map(t=>t.N)))].sort((a,b)=>a-b).join(' / ')||Nb}<small>× 2 m</small></div><div class="s">ultima podină la ${fmt(maxTop,1)} m · schelă până la ${fmt(maxTop+(P.par==='frame2'?2:1),1)} m${P.par==='frame2'?' (parapet 2 m)':''}</div></div>
    <div class="tile"><div class="k">Cadre</div><div class="v">${fmt0(cadre)}<small>buc</small></div><div class="s">${A} scări · ${fmt0(anchorsTotal)} ancore</div></div>
    <div class="tile hl"><div class="k">Greutate totală</div><div class="v">${fmt(totKg/1000,1)}<small>t</small></div><div class="s">≈ ${curse} curse cu camion de ${fmt(P.truck,1)} t</div></div>`;
 }
@@ -834,7 +899,7 @@ function dimGroups(bx){ const g=[]; bx.forEach(c=>{ const l=g[g.length-1]; if(l&
 function elevSVG(idx,opt){
   opt=opt||{};
   const g=last.geo[idx]; const {P}=last; if(!g) return '';
-  const s=g.s, topM=g.top;
+  const s=g.s, topM=g.top, PG=P.par==='frame2'?2:1, EXT=PG===2?1:0;
   const multiH=new Set(g.tr.map(t=>t.N)).size>1;
   const sx=26, sy=18, padL=46, padT=(opt.report?16:36)+((s.st||multiH)?14:0), padB=opt.report?44:30, padR=62;
   const fr=g.tr.filter(t=>t.front&&t.bays.length);
@@ -842,7 +907,7 @@ function elevSVG(idx,opt){
   const bx=[], spans=[]; let x=0;
   fr.forEach((t,ti)=>{ const x0=x; t.bays.forEach((b,j)=>{bx.push({x0:x,x1:x+b,b,t:ti,j}); x+=b;}); spans.push({a:x0,b:x,t,ti}); });
   const Lr=x;
-  const W=padL+Lr*sx+padR, Hh=padT+(topM+1)*sy+padB;
+  const W=padL+Lr*sx+padR, Hh=padT+(topM+PG)*sy+padB;
   const y=m=>padT+(topM+1-m)*sy, X=m=>padL+m*sx;
   const fit=opt.report||opt.fit;
   let o=`<svg ${fit?`style="width:100%;height:auto"`:`width="${W}" height="${Hh}"`} viewBox="0 0 ${W} ${Hh}" xmlns="http://www.w3.org/2000/svg" font-family="IBM Plex Mono, monospace" font-size="10">`;
@@ -858,7 +923,8 @@ function elevSVG(idx,opt){
   spans.forEach(({a,b,t})=>{
     const dl=new Set(); for(let k=t.N;k>=1;k-=(P.decks==='alt'?2:1)) dl.add(k);
     for(let k=0;k<=t.N;k++){ const h=0.2+2*k; o+=`<line x1="${X(a)}" x2="${X(b)}" y1="${y(h)}" y2="${y(h)}" stroke="var(--steel)" stroke-width="${dl.has(k)?2.2:1}"/>`; }
-    o+=`<line x1="${X(a)}" x2="${X(b)}" y1="${y(t.top+1)}" y2="${y(t.top+1)}" stroke="var(--steel)" stroke-width="1.4"/>`;
+    o+=`<line x1="${X(a)}" x2="${X(b)}" y1="${y(t.top+PG)}" y2="${y(t.top+PG)}" stroke="var(--steel)" stroke-width="1.4"/>`;
+    if(EXT) o+=`<line x1="${X(a)}" x2="${X(b)}" y1="${y(t.top+1)}" y2="${y(t.top+1)}" stroke="var(--steel)" stroke-width="1"/>`;
     o+=`<line x1="${X(a)}" x2="${X(b)}" y1="${y(t.top+0.5)}" y2="${y(t.top+0.5)}" stroke="var(--steel)" stroke-width=".8"/>`;
   });
   const Nm=Math.max(...fr.map(t=>t.N));
@@ -866,10 +932,10 @@ function elevSVG(idx,opt){
   // linii de cadre: la îmbinarea a două porțiuni, cadrul urcă până la cea mai înaltă
   const fl=[]; spans.forEach(({a,t},ti)=>{ const xs=[a]; t.bays.forEach(b=>xs.push(xs[xs.length-1]+b));
     xs.forEach((fx,k)=>{ const prev=fl.find(z=>Math.abs(z.x-fx)<1e-6); if(prev){prev.top=Math.max(prev.top,t.top);prev.joint=true;} else fl.push({x:fx,top:t.top,ti}); }); });
-  fl.forEach(f=>{ o+=`<line x1="${X(f.x)}" x2="${X(f.x)}" y1="${y(0.2)}" y2="${y(f.top+1)}" stroke="var(--steel)" stroke-width="${f.joint?3:1.6}"/><rect x="${X(f.x)-4}" y="${y(0.2)}" width="8" height="${0.2*sy}" fill="var(--muted)"/>`; });
+  fl.forEach(f=>{ o+=`<line x1="${X(f.x)}" x2="${X(f.x)}" y1="${y(0.2)}" y2="${y(f.top+PG)}" stroke="var(--steel)" stroke-width="${f.joint?3:1.6}"/><rect x="${X(f.x)-4}" y="${y(0.2)}" width="8" height="${0.2*sy}" fill="var(--muted)"/>`; });
   // îmbinări: treaptă sau schimbare de înălțime
   spans.slice(1).forEach(({a,t},k)=>{ const pv=spans[k].t; const lab=s.st&&!multiH?`▼ treaptă ${fmt(s.sd)}`:`▼ ${fmt(pv.Hs,2)} → ${fmt(t.Hs,2)}`;
-    o+=`<line x1="${X(a)}" x2="${X(a)}" y1="${y(0)}" y2="${y(topM+1)-6}" stroke="var(--warn)" stroke-width="1" stroke-dasharray="5 3"/><text x="${X(a)}" y="${y(topM+1)-9}" fill="var(--warn)" text-anchor="middle" font-size="9">${lab}</text>`; });
+    o+=`<line x1="${X(a)}" x2="${X(a)}" y1="${y(0)}" y2="${y(topM+PG)-6}" stroke="var(--warn)" stroke-width="1" stroke-dasharray="5 3"/><text x="${X(a)}" y="${y(topM+PG)-9}" fill="var(--warn)" text-anchor="middle" font-size="9">${lab}</text>`; });
   // diagonale
   const f=P.dfreq, mode=P.dmode, accB=new Set(accIdx);
   const dline=(c,h0,mir)=>{ const h1=h0+2; return mir?`<line x1="${X(c.x1)}" y1="${y(h0)}" x2="${X(c.x0)}" y2="${y(h1)}" stroke="var(--accent)" stroke-width="2.2"/>`:`<line x1="${X(c.x0)}" y1="${y(h0)}" x2="${X(c.x1)}" y2="${y(h1)}" stroke="var(--accent)" stroke-width="2.2"/>`; };
@@ -881,7 +947,7 @@ function elevSVG(idx,opt){
       const elig=all.filter(c=>c.b===mb), n=elig.length;
       const c=elig.find(c=>!accB.has(c.i))||elig[0];
       const flip=grp%2===1; grp++;
-      for(let k=0;k<t.N;k++){ const h0=0.2+2*k;
+      for(let k=0;k<t.N+EXT;k++){ const h0=0.2+2*k;
         if(mode==='same') o+=dline(c,h0,flip);
         else if(mode==='zig') o+=dline(c,h0,k%2===1);
         else if(mode==='x') o+=dline(c,h0,false)+dline(c,h0,true);
@@ -899,11 +965,11 @@ function elevSVG(idx,opt){
       xs.forEach((fx,k)=>{ if(P.ancMode==='all'||k===0||k===Ft-1||(k+r)%2===0) o+=`<circle cx="${X(fx)}" cy="${y(h)}" r="3.6" fill="var(--warn)"/>`; }); } });
   // cote verticale (porțiunea cea mai înaltă)
   const xr=X(Lr)+16;
-  o+=`<line x1="${xr}" x2="${xr}" y1="${y(0)}" y2="${y(topM+1)}" stroke="var(--muted)" stroke-width=".8"/>`;
-  const ticks=[0,0.2]; for(let k=1;k<=Nm;k++) ticks.push(0.2+2*k); ticks.push(topM+1);
+  o+=`<line x1="${xr}" x2="${xr}" y1="${y(0)}" y2="${y(topM+PG)}" stroke="var(--muted)" stroke-width=".8"/>`;
+  const ticks=[0,0.2]; for(let k=1;k<=Nm;k++) ticks.push(0.2+2*k); ticks.push(topM+PG);
   ticks.forEach(h=>o+=`<line x1="${xr-4}" x2="${xr+4}" y1="${y(h)+4}" y2="${y(h)-4}" stroke="var(--muted)" stroke-width="1"/>`);
   for(let k=0;k<Nm;k++) if(Nm<=16||k%2===0||k===Nm-1) o+=`<text x="${xr+6}" y="${y(1.2+2*k)+3}" fill="var(--muted)">2,00</text>`;
-  o+=`<text x="${xr+6}" y="${y(topM+0.5)+3}" fill="var(--muted)">1,00</text>`;
+  o+=`<text x="${xr+6}" y="${y(topM+PG/2)+3}" fill="var(--muted)">${EXT?'2,00 parapet':'1,00'}</text>`;
   // lanț de cote
   const yd=y(0)+18;
   o+=`<line x1="${X(0)}" x2="${X(Lr)}" y1="${yd}" y2="${yd}" stroke="var(--muted)" stroke-width=".8"/>`;
@@ -921,7 +987,7 @@ function renderElev(){
   renderCheck();
 }
 function renderCheck(){
-  const rows=last.geo.map((g,i)=>g?`<tr${i===active?' class="on"':''}><td>${esc(g.s.n)}</td><td class="n">${g.bays.length}</td><td class="n">${g.tr.filter(t=>t.bays.length).length}</td><td class="n">${g.F}</td><td class="n">${[...new Set(g.tr.map(t=>t.N))].join(" / ")}</td><td class="n">${fmt0(g.frames)}</td><td class="n">${g.tr.every(t=>t.N===g.N)?`${g.nd} × ${g.N} = `:''}${fmt0(g.ndL)}</td><td class="n">${g.tr.every(t=>t.N===g.N)?`${g.a} × ${g.N} = `:''}${fmt0(g.ladders)}</td><td class="n">${fmt0(g.nA)}</td></tr>`:'').join('');
+  const rows=last.geo.map((g,i)=>g?`<tr${i===active?' class="on"':''}><td>${esc(g.s.n)}</td><td class="n">${g.bays.length}</td><td class="n">${g.tr.filter(t=>t.bays.length).length}</td><td class="n">${g.F}</td><td class="n">${[...new Set(g.tr.map(t=>t.N))].join(" / ")}</td><td class="n">${fmt0(g.frames)}</td><td class="n">${g.tr.every(t=>t.Nf===g.Nf)?`${g.nd} × ${g.Nf} = `:''}${fmt0(g.ndL)}</td><td class="n">${g.tr.every(t=>t.N===g.N)?`${g.a} × ${g.N} = `:''}${fmt0(g.ladders)}</td><td class="n">${fmt0(g.nA)}</td></tr>`:'').join('');
   $('check').innerHTML=`<h3>Verificare pe fațadă <small>fără rezervă</small></h3><div class="tbl"><table><thead><tr><th>Fațadă</th><th class="n">Travee</th><th class="n">Tronsoane</th><th class="n">Cadre / nivel</th><th class="n">Niveluri</th><th class="n">Cadre</th><th class="n">Diagonale</th><th class="n">Scări</th><th class="n">Ancore</th></tr></thead><tbody>${rows}</tbody></table></div>
   <p class="note">Cadre pe nivel = travee + 1 pe fiecare tronson. Diagonale: pe fiecare nivel, în fiecare grup de travee ales, montate după modul ales în „Sistem schelă”, în traveele lungi (nu cea cu scara, nu cele de 0,73 / 1,09 m). Modurile încrucișate numără 2 diagonale pe nivel. La retrageri/rezalituri fațada se împarte în tronsoane egale. Scări: 1 pe nivel în fiecare coloană de acces.</p>`;
 }
@@ -1096,6 +1162,7 @@ function cartus(nr,tot){
     <div class="c-row"><span>Conținut</span><b>Schemă schelă de fațadă pe cadre prefabricate și necesar de materiale</b></div>
     <div class="c-grid"><div><span>Scara</span><b>schematic</b></div><div><span>Data</span><b>${esc(today)}</b></div><div class="c-nr"><span>Planșa</span><b>${nr}</b></div></div>
     <div class="c-grid2"><div><span>Întocmit</span><b>${esc($('rautor').value||'')}</b></div><div><span>Verificat schelar</span><b>${esc($('rschelar').value||'')}</b></div></div>
+    ${typeof sigHTML==='function'?sigHTML():''}
   </div>`;
 }
 function buildReport(){
@@ -1263,7 +1330,7 @@ Extrage conturul clădirii ca listă de laturi, în ordine, ocolind clădirea î
 Pentru fiecare latură dă:
 - "n": denumire scurtă (ex. "A–B Fațada lungă")
 - "L": lungimea în metri (număr)
-- "H": înălțimea totală de schelat în metri = H scris + parapet. Dacă parapetul apare fără înălțime, adaugă 1.0. Dacă scrie „parapet 3m”, adaugă 3.0.
+- "H": înălțimea scrisă pe schiță (H), în metri, fără să adaugi parapetul (parapetul de 2 m îl adaugă aplicația). Dacă nu e nicio înălțime, pune null.
 - "parts": dacă pe aceeași latură dreaptă înălțimea se schimbă, lista porțiunilor în ordine [{"L":..,"H":..}]; altfel [].
 - "ce": colțul de la capătul laturii, spre următoarea: "ext" dacă clădirea face colț în afară, "int" dacă intră (retragere), "free" doar dacă schela se oprește acolo.
 - "dedus": true dacă lungimea nu e scrisă și ai dedus-o (laturile opuse trebuie să însumeze aceeași lungime).
@@ -1539,7 +1606,7 @@ const SK_PROMPT=`Ești schelar cu experiență. Imaginea este schița de mână 
 Extrage conturul exterior ca listă de laturi, în ordine, ocolind clădirea în sensul acelor de ceasornic. Prima latură este latura de sus (cea mai de sus), parcursă de la stânga la dreapta, pornind din colțul ei din stânga.
 Pentru fiecare latură dă:
 - "L": lungimea în metri (număr), sau null dacă nu e scrisă pe schiță
-- "H": înălțimea totală de schelat în metri = H scris + parapet. Parapet fără înălțime: adaugă 1.0. „Parapet 3m”: adaugă 3.0. Dacă nu e nicio înălțime, pune null.
+- "H": înălțimea scrisă pe schiță (H), în metri, fără să adaugi parapetul; parapetul de 2 m îl adaugă aplicația. Dacă nu e nicio înălțime, pune null.
 - "ce": ce face conturul la capătul laturii: "ext" colț în afară (viraj la dreapta), "int" colț intrând (viraj la stânga), "drept" dacă latura continuă drept dar acolo se schimbă înălțimea (de ex. un punct marcat unde începe partea înaltă).
 Dacă pe schiță e scrisă o lungime totală a clădirii, pune-o în "W" (orizontal) sau "D" (vertical).
 Răspunde doar cu JSON: {"laturi":[{"L":0,"H":0,"ce":"ext"}],"W":null,"D":null,"note":"ce ai presupus sau n-ai putut citi"}`;
@@ -1582,6 +1649,129 @@ function openSketch(){ const fs=sketchFromSegs(); let init=fs;
 function closeSketch(){ $('skOv').hidden=true; document.body.classList.remove('rep-open'); }
 $('openSk').addEventListener('click',openSketch); $('skBack').addEventListener('click',closeSketch);
 
+/* ===================== CONTURI ȘI PROIECTE ONLINE (doar în pagina din Claude) ===================== */
+const ROLES={administrator:'Administrator',inginer:'Inginer',schelar:'Schelar',membru:'Membru'};
+const ON={db:null,user:null,me:null,role:null,isAdmin:false,canWrite:null,curId:null,curUpd:null,sig:null,sigUnsub:null,list:[],sigs:{},team:{}};
+function projSnapshot(){ readSegs(); const o={segs,cfg,ovr,sketch:sketchState}; FIELDS.forEach(f=>o[f]=$(f).value); CHK.forEach(f=>o[f]=$(f).checked); return o; }
+const fdt=ms=>ms?new Date(ms).toLocaleString('ro-RO',{day:'2-digit',month:'2-digit',year:'numeric',hour:'2-digit',minute:'2-digit'}):'';
+function sigValid(){ return ON.sig&&ON.curUpd&&ON.sig.pv===ON.curUpd; }
+function sigHTML(){ // pentru cartușul raportului
+  if(!ON.sig) return '';
+  return `<div class="c-sig"><span>Verificat și semnat inginer</span><div><img src="${ON.sig.img}" alt="semnătura inginerului"><b>${esc(ON.sig.nume||'')}</b><i>${fdt(ON.sig.at)}${sigValid()?'':' · semnat pe o versiune anterioară a proiectului'}</i></div></div>`;
+}
+async function onlineInit(){
+  const box=$('onBox');
+  let db=null,user=null;
+  try{ if(window.claude){ [db,user]=await Promise.all([window.claude.use('db'),window.claude.use('user')]); } }catch(e){}
+  if(!db||!user){ $('onState').innerHTML='Conturile și proiectele online merg în pagina deschisă în aplicația Claude. Aici proiectele se salvează doar pe acest dispozitiv.'; return; }
+  ON.db=db; ON.user=user;
+  const me=await user.me(); ON.me=me; ON.isAdmin=await user.canEdit(); ON.canWrite=await user.can('data.write');
+  let role=ON.isAdmin?'administrator':'membru';
+  try{ const td=await db.doc('echipa/'+me.id).get(); if(td.exists&&!ON.isAdmin){ const r=td.data().rol; if(ROLES[r]) role=r; } }catch(e){}
+  ON.role=role; box.dataset.role=role;
+  $('onState').innerHTML=`Conectat ca <b>${esc(me.name||'tu')}</b> · rol: <span class="rolepill r-${role}">${ROLES[role]}</span>`;
+  $('onAdmin').hidden=!ON.isAdmin;
+  // lista de proiecte, live
+  const timer=setTimeout(()=>{ if(!ON.list.length) $('onList').innerHTML='<p class="hint" style="margin:0">Proiectele nu se pot încărca acum. Verifică conexiunea.</p>'; },10000);
+  db.collection('proiecte').orderBy('updatedAt','desc').limit(300).onSnapshot(snap=>{ clearTimeout(timer); ON.list=snap.docs.map(d=>({id:d.id,...d.data()})); renderOnList(); },e=>{ clearTimeout(timer); $('onList').innerHTML='<p class="hint" style="margin:0">Lista de proiecte nu e disponibilă.</p>'; });
+  db.collection('semnaturi').onSnapshot(snap=>{ ON.sigs={}; snap.docs.forEach(d=>ON.sigs[d.id]=d.data()); if(ON.curId){ ON.sig=ON.sigs[ON.curId]||null; } renderOnList(); renderOnCur(); });
+  if(ON.isAdmin) db.collection('echipa').onSnapshot(async snap=>{ ON.team={}; snap.docs.forEach(d=>ON.team[d.id]=d.data().rol); renderTeam(); });
+  renderOnCur();
+}
+function renderOnList(){
+  const L=ON.list; if(!ON.db) return;
+  $('onList').innerHTML=L.length?`<div class="onl">${L.map(p=>{ const sg=ON.sigs[p.id]; const ok=sg&&sg.pv===p.updatedAt;
+    return `<div class="onr${p.id===ON.curId?' cur':''}"><div class="onr-t"><b>${esc(p.nume||'Proiect')}</b><span>${esc(p.client||'')}${p.client?' · ':''}${fdt(p.updatedAt)}</span>
+      <span class="sigb ${sg?(ok?'ok':'old'):'no'}">${sg?(ok?'✔ semnat inginer':'semnătură pe versiune veche'):'nesemnat'}</span></div>
+      <div class="row"><button type="button" class="mini" data-onopen="${esc(p.id)}">Deschide</button>${ON.isAdmin?`<button type="button" class="mini ghost" data-ondel="${esc(p.id)}">Șterge</button>`:''}</div>
+      <div class="ondel" id="ondel-${esc(p.id)}" hidden>Ștergi definitiv proiectul „${esc(p.nume||'')}” pentru toată echipa? <button type="button" class="mini" data-ondelok="${esc(p.id)}">Da, șterge</button><button type="button" class="mini ghost" data-ondelno="${esc(p.id)}">Nu</button></div></div>`; }).join('')}</div>`
+    :'<p class="hint" style="margin:0">Niciun proiect online încă.'+(ON.isAdmin?' Apasă „Salvează online”.':'')+'</p>';
+}
+function renderOnCur(){
+  if(!ON.db) return;
+  const p=ON.list.find(x=>x.id===ON.curId);
+  let h='';
+  if(p){ h+=`<div class="oncur">Proiect deschis: <b>${esc(p.nume||'')}</b> · salvat ${fdt(p.updatedAt)}</div>`;
+    if(ON.sig) h+=`<div class="oncur">${sigValid()?'✔ Semnat':'⚠ Semnat pe o versiune anterioară'} de <b>${esc(ON.sig.nume||'')}</b> la ${fdt(ON.sig.at)}</div>`;
+    if(ON.role==='inginer') h+= ON.canWrite===false?'<p class="hint" style="margin:0">Ca să semnezi, administratorul trebuie să-ți dea acces „Contributor” la pagină (meniul Share).</p>':`<button type="button" class="pri" id="onSign">${ON.sig&&sigValid()?'Semnează din nou':'Semnează ca inginer'}</button>`;
+  } else if(ON.role!=='administrator') h+='<p class="hint" style="margin:0">Deschide un proiect din listă. Poți vedea calculul, schița și raportul; modificările nu se salvează online.</p>';
+  $('onCur').innerHTML=h;
+  const b=$('onSign'); if(b) b.addEventListener('click',openSignPad);
+}
+async function saveOnline(){
+  if(!ON.isAdmin) return;
+  const o=projSnapshot(), now=Date.now(), nume=(o.nume||'Proiect').trim();
+  let id=ON.curId; const ex=ON.list.find(x=>x.id===id);
+  if(!ex){ const same=ON.list.find(x=>(x.nume||'').trim().toLowerCase()===nume.toLowerCase()); id=same?same.id:null; }
+  const ref=id?ON.db.doc('proiecte/'+id):ON.db.collection('proiecte').doc();
+  try{ await ref.set({nume,client:o.client||'',updatedAt:now,by:ON.me.id,data:JSON.stringify(o)}); ON.curId=ref.id; ON.curUpd=now; ON.sig=ON.sigs[ref.id]||null; toast('Proiect salvat online. Toată echipa îl vede.'); renderOnList(); renderOnCur(); }
+  catch(e){ toast(e&&e.code==='quota_exceeded'?'Spațiul online e plin. Șterge proiecte vechi.':'Nu am putut salva online. Încearcă din nou.'); }
+}
+function openOnline(id){ const p=ON.list.find(x=>x.id===id); if(!p) return; let o=null; try{ o=JSON.parse(p.data); }catch(e){}
+  if(!o){ toast('Proiectul nu a putut fi citit.'); return; }
+  ON.curId=id; ON.curUpd=p.updatedAt; ON.sig=ON.sigs[id]||null; load(o); renderOnList(); renderOnCur(); }
+/* ---------- semnătura inginerului ---------- */
+function openSignPad(){
+  $('sigOv').hidden=false; $('sigName').value=$('sigName').value||ON.me.name||''; const c=$('sigCanvas'), x=c.getContext('2d');
+  x.fillStyle='#ffffff'; x.fillRect(0,0,c.width,c.height); x.strokeStyle='#0d2a6b'; x.lineWidth=3; x.lineCap='round'; x.lineJoin='round'; c.dataset.drawn='';
+}
+(function(){ const c=$('sigCanvas'); if(!c) return; const x=c.getContext('2d'); let on=false;
+  const pt=e=>{ const r=c.getBoundingClientRect(); return [(e.clientX-r.left)*c.width/r.width,(e.clientY-r.top)*c.height/r.height]; };
+  c.addEventListener('pointerdown',e=>{ e.preventDefault(); on=true; c.setPointerCapture(e.pointerId); const [a,b]=pt(e); x.beginPath(); x.moveTo(a,b); });
+  c.addEventListener('pointermove',e=>{ if(!on) return; const [a,b]=pt(e); x.lineTo(a,b); x.stroke(); c.dataset.drawn='1'; });
+  c.addEventListener('pointerup',()=>{ on=false; });
+  $('sigClear').addEventListener('click',()=>{ x.fillStyle='#ffffff'; x.fillRect(0,0,c.width,c.height); c.dataset.drawn=''; });
+  $('sigCancel').addEventListener('click',()=>{ $('sigOv').hidden=true; });
+  $('sigSave').addEventListener('click',async()=>{ if(!c.dataset.drawn){ $('sigMsg').textContent='Semnează în chenar înainte să salvezi.'; return; }
+    const nume=$('sigName').value.trim(); if(!nume){ $('sigMsg').textContent='Scrie numele care apare sub semnătură.'; return; }
+    const img=c.toDataURL('image/png');
+    try{ await ON.db.doc('semnaturi/'+ON.curId).set({by:ON.me.id,nume,img,at:Date.now(),pv:ON.curUpd}); $('sigOv').hidden=true; toast('Proiectul a fost semnat.'); }
+    catch(e){ $('sigMsg').textContent='Semnătura nu s-a salvat. Ai nevoie de acces „Contributor” la pagină.'; } });
+})();
+/* ---------- echipa (administrator) ---------- */
+async function renderTeam(){
+  const ids=Object.keys(ON.team); const ps=ids.length?await ON.user.profiles(ids):{};
+  $('teamList').innerHTML=ids.length?ids.map(id=>`<div class="trow"><span>${esc((ps[id]&&ps[id].name)||'Persoană')}</span><select data-trole="${esc(id)}" aria-label="Rol">${['inginer','schelar','membru'].map(r=>`<option value="${r}" ${ON.team[id]===r?'selected':''}>${ROLES[r]}</option>`).join('')}</select><button type="button" class="mini ghost" data-tdel="${esc(id)}" aria-label="Scoate din echipă">✕</button></div>`).join(''):'<p class="hint" style="margin:0">Nimeni în echipă încă.</p>';
+}
+let teamPick=null;
+
+$('onSave').addEventListener('click',saveOnline);
+$('onNew').addEventListener('click',()=>{ ON.curId=null; ON.curUpd=null; ON.sig=null; $('nume').value='Proiect nou'; renderOnList(); renderOnCur(); toast('Proiect nou: completează datele, apoi „Salvează online”.'); });
+$('teamBtn').addEventListener('click',()=>{ $('teamBox').hidden=!$('teamBox').hidden; if(!$('teamBox').hidden) ON.user.search('').then(showTeamRes); });
+function showTeamRes(hits){ $('teamRes').innerHTML=(hits||[]).filter(h=>h.id!==ON.me.id).map(h=>`<button type="button" class="mini" data-tpick="${esc(h.id)}" data-tname="${esc(h.name)}">${esc(h.name)}</button>`).join(''); }
+$('teamQ').addEventListener('focus',()=>ON.user&&ON.user.search('').then(showTeamRes));
+$('teamQ').addEventListener('input',e=>ON.user&&ON.user.search(e.target.value).then(showTeamRes));
+$('teamRes').addEventListener('click',e=>{ const b=e.target.closest('[data-tpick]'); if(!b) return; teamPick=b.dataset.tpick; $('teamPicked').textContent=b.dataset.tname; $('teamAddRow').hidden=false; });
+$('teamAdd').addEventListener('click',async()=>{ if(!teamPick) return; try{ await ON.db.doc('echipa/'+teamPick).set({rol:$('teamRole').value}); $('teamAddRow').hidden=true; teamPick=null; $('teamQ').value=''; $('teamRes').innerHTML=''; toast('Persoana a fost adăugată în echipă.'); }catch(e){ toast('Nu am putut salva rolul.'); } });
+$('teamList').addEventListener('change',async e=>{ const s2=e.target.closest('[data-trole]'); if(!s2) return; try{ await ON.db.doc('echipa/'+s2.dataset.trole).set({rol:s2.value}); toast('Rol schimbat.'); }catch(x){ toast('Nu am putut schimba rolul.'); } });
+$('teamList').addEventListener('click',async e=>{ const b=e.target.closest('[data-tdel]'); if(!b) return; try{ await ON.db.doc('echipa/'+b.dataset.tdel).delete(); }catch(x){} });
+$('onList').addEventListener('click',async e=>{ const b=e.target.closest('button'); if(!b) return;
+  if(b.dataset.onopen){ openOnline(b.dataset.onopen); }
+  else if(b.dataset.ondel){ $('ondel-'+b.dataset.ondel).hidden=false; }
+  else if(b.dataset.ondelno){ $('ondel-'+b.dataset.ondelno).hidden=true; }
+  else if(b.dataset.ondelok){ const id=b.dataset.ondelok; try{ await ON.db.doc('proiecte/'+id).delete(); await ON.db.doc('semnaturi/'+id).delete().catch(()=>{}); if(ON.curId===id){ ON.curId=null; ON.sig=null; } toast('Proiectul a fost șters.'); }catch(x){ toast('Nu am putut șterge proiectul.'); } } });
+onlineInit();
+
+/* PDF direct din pagina din Claude (capabilitatea downloads) */
+(async function(){ let dl=null; try{ dl=window.claude?await window.claude.use('downloads'):null; }catch(e){}
+  if(!dl||(window.AndroidApp&&AndroidApp.print)) return;
+  $('repPdf').hidden=false; $('repHint').hidden=true;
+  const load=src=>new Promise((ok,no)=>{ const sc=document.createElement('script'); sc.src=src; sc.onload=ok; sc.onerror=no; document.head.appendChild(sc); });
+  $('repPdf').addEventListener('click',async()=>{ const b=$('repPdf'); b.disabled=true; b.textContent='Se pregătește PDF-ul…';
+    try{
+      if(!window.html2canvas) await load('https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js');
+      if(!window.jspdf) await load('https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js');
+      const pdf=new window.jspdf.jsPDF({orientation:'landscape',unit:'mm',format:'a3'}); const PWm=420, PHm=297, M=8;
+      const sheets=[...document.querySelectorAll('#rbody .sheet')];
+      for(let i=0;i<sheets.length;i++){ const cv=await window.html2canvas(sheets[i],{scale:2,backgroundColor:'#ffffff',useCORS:true});
+        const r=Math.min((PWm-2*M)/cv.width,(PHm-2*M)/cv.height), w=cv.width*r, h=cv.height*r;
+        if(i) pdf.addPage('a3','landscape'); pdf.addImage(cv.toDataURL('image/jpeg',0.92),'JPEG',(PWm-w)/2,M,w,h); }
+      const name=('Raport schela - '+(last.P.nume||'proiect')).replace(/[\\/:*?"<>|]+/g,'-')+'.pdf';
+      await dl.save({filename:name,data:pdf.output('blob')}); toast('PDF-ul a fost salvat.');
+    }catch(e){ toast(e&&e.code==='cancelled'?'Salvarea a fost anulată.':'PDF-ul nu s-a putut face. Încearcă din nou.'); }
+    finally{ b.disabled=false; b.textContent='Descarcă PDF'; } });
+})();
+
 $('copy').addEventListener('click',()=>{
   const {P,list,totKg}=last;
   const rows=[['Giovani Construct – necesar schelă'],[`Proiect: ${P.nume}`],[`Client: ${P.client}`],[],['Categorie','Element','Dimensiune','Buc','kg/buc','Total kg']];
@@ -1604,7 +1794,7 @@ $('autoSc').addEventListener('click',()=>{readSegs();segs.forEach(s=>s.sc=autoSc
 ['Lb','lb'].forEach(id=>$(id).addEventListener('change',()=>{ if(!CFG[cfg].mk)return; readSegs(); const L=+$('Lb').value||0,l=+$('lb').value||0;
   segs.forEach(s=>{ if(/principal|spate/i.test(s.n)) {s.L=L;} else if(/lateral/i.test(s.n)) {s.L=l;} }); renderSegs(); calc(); }));
 
-const FIELDS=['nume','client','rautor','rschelar','rdata','stageN','ofMont','ofChirie','ofLuni','ofTransp','ofTva','ofOameni','ofProd','H','hEt','Lb','lb','cExt','cInt','w','bay','gap','decks','dfreq','dmode','ancMode','rez','truck'];
+const FIELDS=['nume','client','rautor','rschelar','rdata','stageN','ofMont','ofChirie','ofLuni','ofTransp','ofTva','ofOameni','ofProd','H','hEt','Lb','lb','cExt','cInt','w','bay','pw','par','pas','gap','decks','dfreq','dmode','ancMode','rez','truck'];
 const CHK=['plasa','cons'];
 function getStore(){try{return JSON.parse(localStorage.getItem('schela_proiecte')||'{}')}catch(e){return {}}}
 function setStore(o){try{localStorage.setItem('schela_proiecte',JSON.stringify(o));return true}catch(e){return false}}
@@ -1615,18 +1805,18 @@ function renderSaved(){
 }
 function load(o){ if(!o)return; FIELDS.forEach(f=>{if(o[f]!==undefined)$(f).value=o[f];}); CHK.forEach(f=>$(f).checked=!!o[f]);
   if(!DMODES[$('dmode').value]) $('dmode').value='zig'; renderDmodes(); ovr=o.ovr||{}; sketchState=o.sketch||null; cfg=o.cfg||'man'; segs=(o.segs||[]).map(x=>Object.assign(S('',0),x)); active=0; renderFaces(); renderSegs(); calc(); toast('Proiect încărcat: '+o.nume); }
-const EXAMPLES={fundeni:{nume:'Remiză pompieri Fundeni – schiță 13.11',client:'Com. Fundeni, jud. Călărași',rautor:'',rschelar:'',rdata:'',H:'5.5',hEt:'3',Lb:'25.8',lb:'13',w:'0.73',bay:'3.07',gap:'0.25',decks:'all',dfreq:'5',dmode:'zig',ancMode:'min',rez:'5',truck:'3',
+const EXAMPLES={fundeni:{nume:'Remiză pompieri Fundeni – schiță 13.11',client:'Com. Fundeni, jud. Călărași',rautor:'',rschelar:'',rdata:'',H:'4.5',hEt:'3',Lb:'25.8',lb:'13',w:'1.05',bay:'1.8',gap:'0.25',decks:'all',dfreq:'5',dmode:'zig',ancMode:'min',pw:'0.5',par:'frame2',pas:'overlap',rez:'5',truck:'3',
   plasa:false,cons:true,cfg:'man',ovr:{},
-  sketch:{totals:{W:25.80,D:''},Hdef:5.5,sides:[{L:14.50,H:5.50,ce:'drept',auto:false},{L:11.30,H:9.50,ce:'ext',auto:true},{L:12.30,H:9.50,ce:'ext',auto:true},{L:11.50,H:9.50,ce:'ext',auto:true},{L:1.30,H:9.50,ce:'int',auto:false},{L:3.10,H:5.50,ce:'int',auto:false},{L:2.00,H:5.50,ce:'ext',auto:false},{L:11.20,H:5.50,ce:'ext',auto:false},{L:13.00,H:5.50,ce:'ext',auto:false}]},
+  sketch:{totals:{W:25.80,D:''},Hdef:4.5,sides:[{L:14.50,H:4.50,ce:'drept',auto:false},{L:11.30,H:6.50,ce:'ext',auto:true},{L:12.30,H:6.50,ce:'ext',auto:true},{L:11.50,H:6.50,ce:'ext',auto:true},{L:1.30,H:6.50,ce:'int',auto:false},{L:3.10,H:4.50,ce:'int',auto:false},{L:2.00,H:4.50,ce:'ext',auto:false},{L:11.20,H:4.50,ce:'ext',auto:false},{L:13.00,H:4.50,ce:'ext',auto:false}]},
   segs:[
-  {n:'A–B Fațada principală',L:25.8,H:'',sc:2,ce:'ext',parts:[{L:14.5,H:5.5},{L:11.3,H:9.5}]},
-  {n:'B–C Capăt parte înaltă',L:12.3,H:9.5,sc:1,ce:'ext'},
-  {n:'C–D Latura lungă, parte înaltă',L:11.5,H:9.5,sc:1,ce:'ext'},
-  {n:'D–E Retur parte înaltă',L:1.3,H:9.5,sc:0,ce:'int'},
-  {n:'E–F Intrare retrasă',L:3.1,H:5.5,sc:0,ce:'int'},
-  {n:'F–G Retur intrare',L:2.0,H:5.5,sc:0,ce:'ext'},
-  {n:'G–H Latura lungă, parte joasă',L:11.2,H:5.5,sc:1,ce:'ext'},
-  {n:'H–A Capăt parte joasă',L:13.0,H:5.5,sc:1,ce:'ext'}]}};
+  {n:'A–B Fațada principală',L:25.8,H:'',sc:2,ce:'ext',parts:[{L:14.5,H:4.5},{L:11.3,H:6.5}]},
+  {n:'B–C Capăt parte înaltă',L:12.3,H:6.5,sc:1,ce:'ext'},
+  {n:'C–D Latura lungă, parte înaltă',L:11.5,H:6.5,sc:1,ce:'ext'},
+  {n:'D–E Retur parte înaltă',L:1.3,H:6.5,sc:0,ce:'int'},
+  {n:'E–F Intrare retrasă',L:3.1,H:4.5,sc:0,ce:'int'},
+  {n:'F–G Retur intrare',L:2.0,H:4.5,sc:0,ce:'ext'},
+  {n:'G–H Latura lungă, parte joasă',L:11.2,H:4.5,sc:1,ce:'ext'},
+  {n:'H–A Capăt parte joasă',L:13.0,H:4.5,sc:1,ce:'ext'}]}};
 document.querySelectorAll('[data-ex]').forEach(b=>b.addEventListener('click',()=>{ $('exTag').hidden=true; load(JSON.parse(JSON.stringify(EXAMPLES[b.dataset.ex]))); }));
 $('save').addEventListener('click',()=>{ readSegs(); const o={segs,cfg,ovr,sketch:sketchState}; FIELDS.forEach(f=>o[f]=$(f).value); CHK.forEach(f=>o[f]=$(f).checked);
   const st=getStore(); st[o.nume||'Proiect']=o; toast(setStore(st)?'Proiect salvat pe acest dispozitiv.':'Browserul nu permite salvarea aici.'); renderSaved(); });
