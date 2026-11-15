@@ -1,0 +1,11 @@
+{
+  "name": "Calcul Schelă – Giovani Construct",
+  "short_name": "Calcul Schelă",
+  "start_url": "./",
+  "scope": "./",
+  "display": "standalone",
+  "background_color": "#151718",
+  "theme_color": "#151718",
+  "lang": "ro",
+  "icons": [{ "src": "icon-192.png", "sizes": "192x192", "type": "image/png", "purpose": "any" }]
+}

@@ -55,6 +55,8 @@ jobs:
         run: |
           cp app/src/main/assets/index.html desktop/index.html
           node desktop/offline-libs.js
+          node web/build.js
+          cd web-dist && 7z a -tzip ../desktop/CalculSchela-Web.zip . > /dev/null
       - name: Instalează și construiește
         working-directory: desktop
         shell: bash
@@ -68,6 +70,7 @@ jobs:
           path: |
             desktop/dist/CalculSchela-Setup.exe
             desktop/dist/CalculSchela-Portable.exe
+            desktop/CalculSchela-Web.zip
       - name: Adaugă în release
         uses: softprops/action-gh-release@v2
         with:
@@ -75,3 +78,30 @@ jobs:
           files: |
             desktop/dist/CalculSchela-Setup.exe
             desktop/dist/CalculSchela-Portable.exe
+            desktop/CalculSchela-Web.zip
+
+  rar:
+    needs: [build, exe]
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/download-artifact@v4
+        with:
+          name: CalculSchela-exe
+          path: f
+      - name: Arhive RAR
+        run: |
+          sudo apt-get update -qq && sudo apt-get install -y -qq rar
+          ls -R f
+          cd f
+          SETUP=$(find . -name CalculSchela-Setup.exe | head -1); PORT=$(find . -name CalculSchela-Portable.exe | head -1); WEB=$(find . -name CalculSchela-Web.zip | head -1)
+          rar a -ep -m5 ../CalculSchela-Setup.rar "$SETUP"
+          rar a -ep -m5 ../CalculSchela-Portable.rar "$PORT"
+          mkdir -p ../web && cd ../web && unzip -q "../f/$WEB" && rar a -r -m5 ../CalculSchela-Web.rar .
+      - name: Adaugă în release
+        uses: softprops/action-gh-release@v2
+        with:
+          tag_name: v1.0.${{ github.run_number }}
+          files: |
+            CalculSchela-Setup.rar
+            CalculSchela-Portable.rar
+            CalculSchela-Web.rar
