@@ -286,6 +286,7 @@ table.reg td{height:30px}
 .st-b>div{padding:5px 10px;border-bottom:1px solid var(--line)}.st-b span{display:block;font-size:10px;text-transform:uppercase;color:var(--muted)}
 .st-g{display:grid;grid-template-columns:1fr 1fr;padding:0!important}.st-g>div{padding:5px 10px;min-height:38px}.st-g>div:first-child{border-right:1px solid var(--line)}
 .st-f{font-size:11px;padding:6px 10px;background:var(--steel-soft)}
+.tbl tr.tot td,table.rt tr.tot td{border-top:2px solid var(--ink);font-weight:600}
 .sfoot1{display:flex;justify-content:flex-end}.sfoot1 .cartus{width:420px}
 .sfoot{display:grid;grid-template-columns:minmax(0,1fr) minmax(280px,420px);gap:14px;align-items:end}
 .notes{border:1px solid var(--line);padding:8px 12px;font-size:12.5px}
@@ -785,7 +786,7 @@ function compute(capN){
   const Nb=Math.min(decksFor(P.H),CAP);
   const stepExt=segs.reduce((a,s)=>a+(s.L>0?2*s.st:0),0), stepInt=stepExt;
   const cExt=P.baseExt+stepExt, cInt=P.baseInt+stepInt;
-  let area=0, anchorsTotal=0, A=0, maxTop=0, totalL=0;
+  let area=0, areaC=0, anchorsTotal=0, A=0, maxTop=0, totalL=0;
   const geo=[];
 
   // colțurile pe fiecare capăt (doar la „altă formă”): ext / int / liber
@@ -821,7 +822,7 @@ function compute(capN){
     let lines=0, frames=0, F=0, stl=0, bal3=0;
     tr.forEach((t,ti)=>{ if(!t.bays.length)return; const nl=t.bays.length+1; lines+=nl; frames+=nl*t.Nf; F+=nl; if(t.par!=='frame2') stl+=nl;
       if(t.join){ const pv=tr[ti-1]; lines--; F--; frames-=Math.min(pv.Nf,t.Nf); if(t.par!=='frame2'&&pv.par!=='frame2') stl--; capJ.n+=Math.abs(pv.Nd-t.Nd); } });
-    tr.forEach(t=>{ const len=t.bays.reduce((a,b)=>a+b,0); area+=len*(t.top+t.pg); });
+    let fa=0; tr.forEach(t=>{ const len=t.bays.reduce((a,b)=>a+b,0); fa+=len*(t.top+t.pg); }); area+=fa;
     add('cadru','Structură','Cadru vertical oțel',`${fmt(P.w)} × 2,00 m`,frames,KG.cadru[P.w],'pe fiecare nivel, la fiecare linie de cadre');
     if(stl) add('stalp','Structură','Stâlp balustradă 1 m (parapet)','1,00 m',stl,KG.stalp,'deasupra ultimului nivel de cadre, unde parapetul e de 1 m sau 2 + 1 m');
     add('picior','Bază','Bazetă – picior reglabil cu filet',`${fmt(P.jack)} m`,2*lines,+(1.2+3.6*P.jack).toFixed(1),`2 la fiecare linie de cadre · reglaj max. ≈ ${Math.round((P.jack-0.1)*100)} cm`);
@@ -886,10 +887,10 @@ function compute(capN){
       add('bal'+CB,'Protecție','Balustradă (mână curentă + intermediară)',`${fmt(CB)} m`,ce*(2*t0.Nd+2*t0.ext+(t0.par==='frame3'?2:0)),KG.balustrada[CB]||KG.balustrada[3.07]);
       add('pl'+CB,'Protecție','Plintă',`${fmt(CB)} m`,ce*t0.Nd,KG.plinta[CB]||KG.plinta[3.07]);
       cornerJoint(ce+ci,t0.N,t0.top,t0.ext);
-      area+=ce*P.w*(t0.top+1);
+      { const x=ce*P.w*(t0.top+1); area+=x; fa+=x; }
     }
     add('scara','Acces','Scară interioară aluminiu','2,15 m',ladders,KG.scara,'1 pe nivel în fiecare coloană de acces');
-    geo.push({bays,tr,F,a,Nf:Math.max(...tr.map(t=>t.Nf)),N:Nmax,Nd:Math.max(...tr.map(t=>t.Nd)),nd,ndL,nA,ladders,frames,top:topMax,Hs:Math.max(...tr.map(t=>t.Hs)),wallDist,workDist,cons,al,s});
+    geo.push({ar:fa,bays,tr,F,a,Nf:Math.max(...tr.map(t=>t.Nf)),N:Nmax,Nd:Math.max(...tr.map(t=>t.Nd)),nd,ndL,nA,ladders,frames,top:topMax,Hs:Math.max(...tr.map(t=>t.Hs)),wallDist,workDist,cons,al,s});
   });
 
   // colțuri
@@ -897,7 +898,7 @@ function compute(capN){
     if(type==='ext'){ add('pod'+CB,'Platforme','Podină oțel',pdim(CB),nPod*Nd,pkg(CB),P.pas==='overlap'?'pasaj de colț: podină normală suprapusă':'travee de colț exterior');
       add('bal'+CB,'Protecție','Balustradă (mână curentă + intermediară)',`${fmt(CB)} m`,2*Nd+2*pi.ext+(pi.pg===3?2:0),KG.balustrada[CB]||KG.balustrada[3.07]);
       if(pi.par!=='frame2') add('stalp','Structură','Stâlp balustradă 1 m (parapet)','1,00 m',1,KG.stalp);
-      add('pl'+CB,'Protecție','Plintă',`${fmt(CB)} m`,Nd,KG.plinta[CB]||KG.plinta[3.07]); area+=P.w*(top+pi.pg); }
+      add('pl'+CB,'Protecție','Plintă',`${fmt(CB)} m`,Nd,KG.plinta[CB]||KG.plinta[3.07]); { const x=P.w*(top+pi.pg); area+=x; areaC+=x; } }
     else add('pod'+CB,'Platforme','Podină oțel',pdim(CB),Nd,pkg(CB),'închidere colț interior');
     cornerJoint(1,N,top,pi.ext);
   };
@@ -937,7 +938,7 @@ function compute(capN){
   if(P.plasa&&P.ancMode==='min') alerts.push({t:'<b>Plasă pe toată fața + ancorare 1 da – 1 nu.</b> Cu plasă sau prelată vântul încarcă mult mai tare schela; fișele producătorilor cer de obicei ancorare mai deasă. Verifică în fișa sistemului sau alege „la fiecare cadru”.'});
   alerts.push({cls:'info',t:'Nu sunt incluse: grinzi cu zăbrele pentru treceri pe sub schelă, copertine la intrări, împământare/paratrăsnet, troliu sau lift de material.'});
 
-  return {P,list,totKg,Nb,maxTop,area,A,anchorsTotal,geo,totalL,cExt,cInt,freeEnds,alerts};
+  return {P,list,totKg,Nb,maxTop,area,areaC,A,anchorsTotal,geo,totalL,cExt,cInt,freeEnds,alerts};
 }
 function calc(){ last=compute(); applyOvr(); try{ $('planBox').innerHTML=planSVG(); }catch(e){ $('planBox').innerHTML=''; } renderCorners(); renderTiles(); renderAlerts(last.alerts); renderTable(); renderTabs(); renderElev(); renderTools(); }
 
@@ -1062,7 +1063,7 @@ function elevSVG(idx,opt){
   dimGroups(bx).forEach(d=>{ o+=`<text x="${X((d.x0+d.x1)/2)}" y="${yd-4}" fill="var(--ink)" text-anchor="middle">${d.n>1?d.n+' × ':''}${fmt(d.b)}</text>`; });
   o+=`<text x="${X(Lr/2)}" y="${yd+16}" fill="var(--muted)" text-anchor="middle">fațadă ${fmt(s.L,2)} m${s.parts&&s.parts.length?' · '+s.parts.map(pp=>fmt(+pp.L,2)+' m la H '+fmt(+pp.H||P.H,2)).join(' + '):''}${s.st?` · ${s.st} ${s.st===1?'treaptă':'trepte'} de ${fmt(s.sd)} m`:''}</text>`;
   if(!opt.report){ const retB=g.tr.filter(t=>!t.front).reduce((a,t)=>a+t.bays.length,0);
-    o+=`<text x="${padL}" y="16" fill="var(--ink)" font-size="12" font-family="Barlow, sans-serif">${bx.length} travee pe față${retB?` + ${retB} pe întoarceri`:''} · ${g.nd} diagonale pe nivel · ${g.a} ${g.a===1?'scară':'scări'} · gol de lucru ${fmt(g.workDist)} m${g.cons?` → consolă ${fmt(g.cons)} m`:''} · ancore ${fmt(g.al)} m</text>`; }
+    o+=`<text x="${padL}" y="16" fill="var(--ink)" font-size="12" font-family="Barlow, sans-serif">${bx.length} travee pe față${retB?` + ${retB} pe întoarceri`:''} · ${fmt0(g.ar)} m² · ${g.nd} diagonale pe nivel · ${g.a} ${g.a===1?'scară':'scări'} · gol de lucru ${fmt(g.workDist)} m${g.cons?` → consolă ${fmt(g.cons)} m`:''} · ancore ${fmt(g.al)} m</text>`; }
   return o+'</svg>';
 }
 function renderElev(){
@@ -1072,9 +1073,11 @@ function renderElev(){
   renderCheck();
 }
 function renderCheck(){
-  const rows=last.geo.map((g,i)=>g?`<tr${i===active?' class="on"':''}><td>${esc(g.s.n)}</td><td class="n">${g.bays.length}</td><td class="n">${g.tr.filter(t=>t.bays.length).length}</td><td class="n">${g.F}</td><td class="n">${[...new Set(g.tr.map(t=>t.N))].join(" / ")}</td><td class="n">${fmt0(g.frames)}</td><td class="n">${g.tr.every(t=>t.Nf===g.Nf)?`${g.nd} × ${g.Nf} = `:''}${fmt0(g.ndL)}</td><td class="n">${g.tr.every(t=>t.N===g.N)?`${g.a} × ${g.N} = `:''}${fmt0(g.ladders)}</td><td class="n">${fmt0(g.nA)}</td></tr>`:'').join('');
-  $('check').innerHTML=`<h3>Verificare pe fațadă <small>fără rezervă</small></h3><div class="tbl"><table><thead><tr><th>Fațadă</th><th class="n">Travee</th><th class="n">Tronsoane</th><th class="n">Cadre / nivel</th><th class="n">Niveluri</th><th class="n">Cadre</th><th class="n">Diagonale</th><th class="n">Scări</th><th class="n">Ancore</th></tr></thead><tbody>${rows}</tbody></table></div>
-  <p class="note">Cadre pe nivel = travee + 1 pe fiecare tronson. Diagonale: pe fiecare nivel, în fiecare grup de travee ales, montate după modul ales în „Sistem schelă”, în traveele lungi (nu cea cu scara, nu cele de 0,73 / 1,09 m). Modurile încrucișate numără 2 diagonale pe nivel. La retrageri/rezalituri fațada se împarte în tronsoane egale. Scări: 1 pe nivel în fiecare coloană de acces.</p>`;
+  const rows=last.geo.map((g,i)=>g?`<tr${i===active?' class="on"':''}><td>${esc(g.s.n)}</td><td class="n">${g.bays.length}</td><td class="n">${g.tr.filter(t=>t.bays.length).length}</td><td class="n">${g.F}</td><td class="n">${[...new Set(g.tr.map(t=>t.N))].join(" / ")}</td><td class="n">${fmt0(g.frames)}</td><td class="n">${g.tr.every(t=>t.Nf===g.Nf)?`${g.nd} × ${g.Nf} = `:''}${fmt0(g.ndL)}</td><td class="n">${g.tr.every(t=>t.N===g.N)?`${g.a} × ${g.N} = `:''}${fmt0(g.ladders)}</td><td class="n">${fmt0(g.nA)}</td><td class="n b">${fmt(g.ar,1)}</td></tr>`:'').join('')
+    +(last.areaC>0?`<tr><td>Colțuri exterioare (travee de colț)</td><td colspan="8"></td><td class="n b">${fmt(last.areaC,1)}</td></tr>`:'')
+    +`<tr class="tot"><td><b>Total</b></td><td colspan="8"></td><td class="n b">${fmt(last.area,1)}</td></tr>`;
+  $('check').innerHTML=`<h3>Verificare pe fațadă <small>fără rezervă</small></h3><div class="tbl"><table><thead><tr><th>Fațadă</th><th class="n">Travee</th><th class="n">Tronsoane</th><th class="n">Cadre / nivel</th><th class="n">Niveluri</th><th class="n">Cadre</th><th class="n">Diagonale</th><th class="n">Scări</th><th class="n">Ancore</th><th class="n">m² schelă</th></tr></thead><tbody>${rows}</tbody></table></div>
+  <p class="note">m² schelă = lungimea traveelor × înălțimea până la vârful parapetului, pe fiecare porțiune (inclusiv retragerile). Traveele de colț exterior sunt trecute separat. Cadre pe nivel = travee + 1 pe fiecare tronson. Diagonale: pe fiecare nivel, în fiecare grup de travee ales, montate după modul ales în „Sistem schelă”, în traveele lungi (nu cea cu scara, nu cele de 0,73 / 1,09 m). Modurile încrucișate numără 2 diagonale pe nivel. La retrageri/rezalituri fațada se împarte în tronsoane egale. Scări: 1 pe nivel în fiecare coloană de acces.</p>`;
 }
 
 /* ===================== RAPORT PENTRU SCHELAR ===================== */
@@ -1371,7 +1374,7 @@ function dosarSheets(cartus){
     <p><b>Obiectiv:</b> ${esc(P.nume||'—')}. <b>Beneficiar:</b> ${esc(P.client||'—')}. <b>Amplasament:</b> ${esc(D.adr||'—')}. <b>Executant:</b> ${esc(F.nume||'—')}${F.cui?', CUI '+esc(F.cui):''}.</p>
     <p>Lucrarea constă în montarea unei schele provizorii de fațadă, folosită pentru lucrările la fațadele clădirii${D.luni?`, pe o durată estimată de ${f2(D.luni,1)} luni`:''}. Schela nu este o construcție definitivă și se demontează la terminarea lucrărilor.</p>
     <h3>2. Clădirea și zona schelată</h3>
-    <p>Se schelează ${nFac} ${nFac===1?'fațadă':'fațade'} cu lungimea desfășurată de ${f2(Ltot,1)} m. Înălțimea la cornișă este de ${f2(P.H,1)} m${items.some(({g})=>new Set(g.tr.map(t=>t.N)).size>1)?', cu porțiuni de înălțimi diferite (vezi elevațiile)':''}. Suprafața schelată este de aproximativ ${fmt0(area)} m².</p>
+    <p>Se schelează ${nFac} ${nFac===1?'fațadă':'fațade'} cu lungimea desfășurată de ${f2(Ltot,1)} m. Înălțimea la cornișă este de ${f2(P.H,1)} m${items.some(({g})=>new Set(g.tr.map(t=>t.N)).size>1)?', cu porțiuni de înălțimi diferite (vezi elevațiile)':''}. Suprafața schelată este de aproximativ ${fmt0(area)} m²: ${items.map(({g,i})=>`${LET[i]} ${esc(segs[i].n)} – ${fmt0(g.ar)} m²`).join('; ')}${last.areaC>0?`; colțuri – ${fmt0(last.areaC)} m²`:''}.</p>
     <p>Ultimul nivel de lucru este la ${f2(maxTop,1)} m, iar schela se termină la ${f2(T.Htop,1)} m deasupra terenului. Parapetul de protecție peste înălțimea dată este: ${esc(pars)}.</p>
     <h3>3. Sistemul de schelă</h3>
     <p>Schelă de fațadă din componente prefabricate conform SR EN 12810-1, cu cadre verticale de oțel ${f2(P.w)} × 2,00 m, travee de ${f2(P.bay)} m și podine metalice de ${f2(P.pw)} m lățime. Desemnare: <b>${esc(T.desig)}</b>.</p>
@@ -1542,7 +1545,7 @@ function buildReport(){
     <div class="sfoot">${notes}${cartus(1+off,tot,'Dispunerea în plan și detalii')}</div>
   </section>`;
   h+=`<section class="sheet"><div class="shead"><h1>Elevații pe tronsoane</h1><span>diagonale: ${esc(DM.toLowerCase())}, ${P.dfreq===1?'în fiecare travee':'1 la '+P.dfreq+' travee'} · cadru ${fmt(P.w)} m · niveluri de 2,00 m</span></div>
-    <div class="elevs ${items.length>6?'e4':items.length>4?'e3':''}">${items.map(({g,i})=>`<figure class="fig"><figcaption><b>TRONSON ${LET[i]}</b> · ${esc(segs[i].n)} · ${g.bays.length} travee · ${g.F} cadre pe nivel · ${[...new Set(g.tr.map(t=>t.N))].join(" / ")} niveluri · ${g.nd} diagonale pe nivel · ${g.a} ${g.a===1?'scară':'scări'}</figcaption>${elevSVG(i,{report:true})}</figure>`).join('')}</div>
+    <div class="elevs ${items.length>6?'e4':items.length>4?'e3':''}">${items.map(({g,i})=>`<figure class="fig"><figcaption><b>TRONSON ${LET[i]}</b> · ${esc(segs[i].n)} · ${g.bays.length} travee · ${g.F} cadre pe nivel · ${[...new Set(g.tr.map(t=>t.N))].join(" / ")} niveluri · ${g.nd} diagonale pe nivel · ${g.a} ${g.a===1?'scară':'scări'} · <b>${fmt0(g.ar)} m²</b></figcaption>${elevSVG(i,{report:true})}</figure>`).join('')}</div>
     <div class="legend r-leg"><span><i style="background:var(--steel)"></i>cadre și niveluri (linie groasă = nivel cu podine)</span><span><i style="background:var(--accent)"></i>diagonale</span><span><i style="background:var(--ok)"></i>scară</span><span><i style="background:var(--warn);height:8px;width:8px;border-radius:50%"></i>ancoraj</span></div>
     <div class="sfoot"><div class="notes"><b>Date de calcul</b><ul>
       <li>Înălțime la cornișă ${fmt(P.H,1)} m · ultimul nivel de lucru la ${fmt(maxTop,1)} m · balustradă finală +1,00 m.</li>
@@ -1552,13 +1555,15 @@ function buildReport(){
   let cat='', n=0;
   const rows=list.map(x=>{ let r=''; if(x.cat!==cat){cat=x.cat; r+=`<tr class="cat"><td colspan="7">${cat}</td></tr>`;} n++;
     return r+`<tr><td class="n">${n}</td><td>${x.name}</td><td>${x.dim}</td><td class="n b">${fmt0(x.qr)}</td><td class="wr"></td><td class="wr n">${x.qf!==x.qr?fmt0(x.qf):''}</td><td class="wr w2"></td></tr>`; }).join('');
-  const chk=items.map(({g,i})=>`<tr><td><b>${LET[i]}</b> ${esc(segs[i].n)}</td><td class="n">${fmt(segs[i].L)}</td><td class="n">${g.bays.length}</td><td class="n">${g.F}</td><td class="n">${[...new Set(g.tr.map(t=>t.N))].join(" / ")}</td><td class="n">${fmt0(g.frames)}</td><td class="n">${fmt0(g.ndL)}</td><td class="n">${fmt0(g.ladders)}</td><td class="n">${fmt0(g.nA)}</td></tr>`).join('');
+  const chk=items.map(({g,i})=>`<tr><td><b>${LET[i]}</b> ${esc(segs[i].n)}</td><td class="n">${fmt(segs[i].L)}</td><td class="n">${g.bays.length}</td><td class="n">${g.F}</td><td class="n">${[...new Set(g.tr.map(t=>t.N))].join(" / ")}</td><td class="n">${fmt0(g.frames)}</td><td class="n">${fmt0(g.ndL)}</td><td class="n">${fmt0(g.ladders)}</td><td class="n">${fmt0(g.nA)}</td><td class="n b">${fmt0(g.ar)}</td></tr>`).join('')
+    +(last.areaC>0?`<tr><td>Colțuri exterioare</td><td colspan="8"></td><td class="n b">${fmt0(last.areaC)}</td></tr>`:'')
+    +`<tr><td><b>Total</b></td><td colspan="8"></td><td class="n b">${fmt0(last.area)}</td></tr>`;
   h+=`<section class="sheet"><div class="shead"><h1>Necesar materiale – de verificat de schelar</h1><span>cantitățile includ rezerva de ${fmt(P.rez,0)}%</span></div>
     <div class="cols">
       <div><table class="rt"><thead><tr><th class="n">Nr.</th><th>Element</th><th>Dimensiune</th><th class="n">Calculat</th><th>Verificat</th><th>Corectat</th><th>Observații</th></tr></thead><tbody>${rows}</tbody>
         <tfoot><tr><td colspan="3">Greutate totală estimată</td><td class="n b">${fmt(totKg/1000,2)} t</td><td colspan="3"></td></tr></tfoot></table></div>
       <div class="side">
-        <table class="rt"><thead><tr><th>Tronson</th><th class="n">m</th><th class="n">Travee</th><th class="n">Cadre/niv.</th><th class="n">Niv.</th><th class="n">Cadre</th><th class="n">Diag.</th><th class="n">Scări</th><th class="n">Ancore</th></tr></thead><tbody>${chk}</tbody></table>
+        <table class="rt"><thead><tr><th>Tronson</th><th class="n">m</th><th class="n">Travee</th><th class="n">Cadre/niv.</th><th class="n">Niv.</th><th class="n">Cadre</th><th class="n">Diag.</th><th class="n">Scări</th><th class="n">Ancore</th><th class="n">m²</th></tr></thead><tbody>${chk}</tbody></table>
         <p class="rnote">Verificare rapidă (fără rezervă): cadre = cadre pe nivel × niveluri; cadre pe nivel = travee + 1 pe fiecare tronson. Diagonale = diagonale pe nivel × niveluri.</p>
         <div class="sign"><div><span>Întocmit</span><b>${esc($('rautor').value||'')}</b><i>semnătura</i></div><div><span>Verificat schelar</span><b>${esc($('rschelar').value||'')}</b><i>semnătura</i></div></div>
         ${cartus(3+off,tot,'Necesar de materiale')}
