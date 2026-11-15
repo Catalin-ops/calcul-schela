@@ -704,7 +704,7 @@ function segHTML(s,i){
     ${cfg==='man'?`<label class="c6 cornsel">Colț la capătul fațadei (spre următoarea)
       <select id="sce${i}"><option value="ext" ${(s.ce||'ext')==='ext'?'selected':''}>colț exterior (clădirea face colț în afară)</option><option value="int" ${s.ce==='int'?'selected':''}>colț interior (intrând, retragere)</option><option value="free" ${s.ce==='free'?'selected':''}>capăt liber (schela se oprește)</option></select></label>`:''}
     <div class="sub">Înălțimi diferite pe aceeași fațadă <button type="button" class="mini" data-padd="${i}">+ porțiune</button></div>
-    ${(s.parts||[]).map((pp,j)=>`<label class="c3">Porțiunea ${j+1}: lungime (m)<input id="pl${i}_${j}" type="number" step="0.01" min="0" value="${pp.L}"></label><label class="c2">înălțime (m)<input id="ph${i}_${j}" type="number" step="0.1" min="0" value="${pp.H}"></label><button type="button" class="del mini" data-pdel="${i}_${j}" aria-label="Șterge porțiunea">✕</button><label class="c3">parapet porțiunea ${j+1}<select id="ppar${i}_${j}"><option value="">ca fațada</option>${PAROPT.replace(`value="${pp.par}"`,`value="${pp.par}" selected`)}</select></label><span class="c3"></span>`).join('')}
+    ${(s.parts||[]).map((pp,j)=>`<label class="c3">${pp.n?`Porțiunea ${esc(pp.n)}`:`Porțiunea ${j+1}`}: lungime (m)<input id="pl${i}_${j}" type="number" step="0.01" min="0" value="${pp.L}"></label><label class="c2">înălțime (m)<input id="ph${i}_${j}" type="number" step="0.1" min="0" value="${pp.H}"></label><button type="button" class="del mini" data-pdel="${i}_${j}" aria-label="Șterge porțiunea">✕</button><label class="c3">parapet ${pp.n?esc(pp.n):"porțiunea "+(j+1)}<select id="ppar${i}_${j}"><option value="">ca fațada</option>${PAROPT.replace(`value="${pp.par}"`,`value="${pp.par}" selected`)}</select></label><span class="c3"></span>`).join('')}
     ${(s.parts||[]).length?'':'<p class="hint c6" style="margin:0">Dacă o parte din fațadă e mai înaltă (ex. 14,50 m la 5,50 și 11,30 m la 9,50), apasă „+ porțiune” și scrie porțiunile în ordine.</p>'}
     <div class="sub"><label class="chk"><input id="sb${i}" type="checkbox" ${s.bal?'checked':''}> Are balcoane</label></div>
     <label class="c2">Adâncime balcon (m)<input id="sbd${i}" type="number" step="0.05" min="0" value="${s.bd}" ${s.bal?'':'disabled'}></label>
@@ -729,7 +729,7 @@ function renderSegs(){
 }
 function syncDisabled(){ segs.forEach((s,i)=>{ $('sbd'+i).disabled=!s.bal; $('sba'+i).disabled=!s.bal; }); }
 function readSegs(){
-  segs=segs.map((s,i)=>{ const parts=(s.parts||[]).map((pp,j)=>({L:$('pl'+i+'_'+j)?$('pl'+i+'_'+j).value:pp.L,H:$('ph'+i+'_'+j)?$('ph'+i+'_'+j).value:pp.H,par:$('ppar'+i+'_'+j)?$('ppar'+i+'_'+j).value:(pp.par||'')}));
+  segs=segs.map((s,i)=>{ const parts=(s.parts||[]).map((pp,j)=>({L:$('pl'+i+'_'+j)?$('pl'+i+'_'+j).value:pp.L,H:$('ph'+i+'_'+j)?$('ph'+i+'_'+j).value:pp.H,par:$('ppar'+i+'_'+j)?$('ppar'+i+'_'+j).value:(pp.par||''),n:pp.n||''}));
     const Lp=parts.reduce((a,pp)=>a+(+pp.L||0),0);
     return {parts, par:$('spar'+i)?$('spar'+i).value:(s.par||''), ce:$('sce'+i)?$('sce'+i).value:(s.ce||'ext'), n:$('sn'+i).value||('Fațada '+(i+1)),L:parts.length?Math.round(Lp*100)/100:Math.max(0,+$('sl'+i).value||0),H:$('sh'+i).value,
     sc:Math.max(0,Math.round(+$('ss'+i).value||0)),bal:$('sb'+i).checked,bd:Math.max(0,+$('sbd'+i).value||0),ancBal:$('sba'+i).checked,
@@ -1763,7 +1763,7 @@ function mountSketch(root, opts){
           </div>
           <p class="sk-hint sk-tothint"></p>
           <div class="sk-tbl"><table>
-            <thead><tr><th>Latura</th><th>Lungime</th><th title="calculată din celelalte și din total">auto</th><th>H</th><th>La capăt</th><th></th></tr></thead>
+            <thead><tr><th>Latura</th><th>Lungime</th><th title="calculată din celelalte și din total">auto</th><th>H</th><th title="parapetul de deasupra ultimului nivel pe această latură">Parapet</th><th>La capăt</th><th></th></tr></thead>
             <tbody class="sk-tb"></tbody></table></div>
           <div class="sk-row" style="margin-top:8px">
             <button type="button" class="sk-add">+ Latură</button>
@@ -1815,6 +1815,7 @@ function mountSketch(root, opts){
       <td><input type="number" step="0.01" min="0" data-k="L" data-i="${i}" value="${s.auto?(Math.round(Ls[i]*100)/100):s.L}" ${s.auto?'disabled':''} aria-label="Lungime ${lab(i)}"></td>
       <td><input type="checkbox" data-k="auto" data-i="${i}" ${s.auto?'checked':''} aria-label="${lab(i)} calculată automat"></td>
       <td><input type="number" step="0.1" min="0" data-k="H" data-i="${i}" value="${s.H}" class="sk-h" aria-label="Înălțime ${lab(i)}"></td>
+      <td><select data-k="par" data-i="${i}" aria-label="Parapet ${lab(i)}"><option value="" ${!s.par?'selected':''}>implicit</option><option value="frame2" ${s.par==='frame2'?'selected':''}>2 m</option><option value="frame3" ${s.par==='frame3'?'selected':''}>2+1 m</option><option value="post1" ${s.par==='post1'?'selected':''}>1 m</option></select></td>
       <td><select data-k="ce" data-i="${i}" aria-label="Colț la ${LET[(i+1)%st.sides.length]}"><option value="ext" ${s.ce==='ext'?'selected':''}>exterior</option><option value="int" ${s.ce==='int'?'selected':''}>interior</option><option value="drept" ${s.ce==='drept'?'selected':''}>drept</option></select></td>
       <td class="sk-act"><button type="button" class="sk-del" data-split="${i}" title="Împarte latura în două (punct unde se schimbă înălțimea)" aria-label="Împarte latura ${lab(i)}">✂</button><button type="button" class="sk-del" data-del="${i}" aria-label="Șterge latura ${lab(i)}">✕</button></td></tr>`).join('');
   }
@@ -1944,11 +1945,12 @@ function mountSketch(root, opts){
     else if(k==='H'){ st.sides[i].H=Math.max(0,+t.value||0); update(false); } });
   root.addEventListener('change',e=>{ const t=e.target, i=+t.dataset.i, k=t.dataset.k; if(!k||isNaN(i)) return;
     if(k==='auto'){ if(!t.checked){ const {Ls}=solve(); st.sides[i].L=Math.round(Ls[i]*100)/100; } st.sides[i].auto=t.checked; update(true); }
-    else if(k==='ce'){ st.sides[i].ce=t.value; update(true); } });
+    else if(k==='ce'){ st.sides[i].ce=t.value; update(true); }
+    else if(k==='par'){ st.sides[i].par=t.value; update(false); } });
   root.addEventListener('click',e=>{ const t=e.target.closest('button'); if(!t||!root.contains(t)) return;
     if(t.dataset.del!==undefined){ st.sides.splice(+t.dataset.del,1); update(true); }
     else if(t.dataset.split!==undefined){ const i=+t.dataset.split, {Ls}=solve(), sd=st.sides[i], half=Math.round(Ls[i]/2*100)/100;
-      st.sides.splice(i,1,{L:half,H:sd.H,ce:'drept',auto:false},{L:Math.round((Ls[i]-half)*100)/100,H:sd.H,ce:sd.ce,auto:sd.auto}); update(true); }
+      st.sides.splice(i,1,{L:half,H:sd.H,par:sd.par||'',ce:'drept',auto:false},{L:Math.round((Ls[i]-half)*100)/100,H:sd.H,par:sd.par||'',ce:sd.ce,auto:sd.auto}); update(true); }
     else if(t.classList.contains('sk-pstop')){ pctl&&pctl.abort(); }
     else if(t.classList.contains('sk-add')){ st.sides.push({L:3,H:st.Hdef,ce:'ext',auto:false}); update(true); }
     else if(t.classList.contains('sk-new')){ drawMode=true; pts=[]; hover=null; q('.sk-drawbar').hidden=false; drawCanvas(); }
@@ -2023,8 +2025,8 @@ let sketchState=null, skApi=null, skPhoto;
 const LETS='ABCDEFGHIJKLMNOPQRSTUVWXYZ';
 function sketchFromSegs(){ readSegs(); const Hd=+$('H').value||5.5; const sides=[];
   segs.forEach(sg=>{ const ce=cfg==='man'?(sg.ce||'ext'):'ext';
-    if(sg.parts&&sg.parts.length) sg.parts.forEach((pp,j)=>sides.push({L:+pp.L||0,H:+pp.H||Hd,ce:j<sg.parts.length-1?'drept':ce,auto:false}));
-    else sides.push({L:+sg.L||0,H:+sg.H||Hd,ce,auto:false}); });
+    if(sg.parts&&sg.parts.length) sg.parts.forEach((pp,j)=>sides.push({L:+pp.L||0,H:+pp.H||Hd,par:pp.par||sg.par||'',ce:j<sg.parts.length-1?'drept':ce,auto:false}));
+    else sides.push({L:+sg.L||0,H:+sg.H||Hd,par:sg.par||'',ce,auto:false}); });
   return {sides,totals:{W:'',D:''},Hdef:Hd}; }
 function segsFromSketch(v){ const out=[]; let grp=[], start=0;
   v.sides.forEach((sd,i)=>{ grp.push(sd); if(sd.ce!=='drept'||i===v.sides.length-1){
@@ -2033,7 +2035,7 @@ function segsFromSketch(v){ const out=[]; let grp=[], start=0;
       const o0=segs[out.length]||null, old=o0&&Math.abs((+o0.L||0)-grp.reduce((a2,z)=>a2+(+z.L||0),0))<0.6?o0:null, desc=old&&old.n?old.n.replace(/^[A-Z]–[A-Z]\s*/,''):'Fațadă';
       const sg=S(name+' '+(desc||'Fațadă'),L); if(old){ ['sc','bal','bd','ancBal','p'].forEach(k=>sg[k]=old[k]); } else sg.sc=grp.some(z=>z.sc!==undefined)?Math.max(...grp.map(z=>+z.sc||0)):autoSc(L);
       const hs=[...new Set(grp.map(z=>+z.H))];
-      if(grp.length>1) sg.parts=grp.map(z=>({L:+z.L,H:+z.H})); else sg.H=hs[0]||'';
+      if(grp.length>1){ sg.parts=grp.map((z,k)=>({L:+z.L,H:+z.H,par:z.par||'',n:`${LETS[(start+k)%26]}–${LETS[(start+k+1)%v.sides.length%26]}`})); const ps=[...new Set(grp.map(z=>z.par||''))]; if(ps.length===1){ sg.par=ps[0]; sg.parts.forEach(pp=>pp.par=''); } } else { sg.H=hs[0]||''; sg.par=grp[0].par||''; }
       sg.ce=sd.ce==='drept'?'ext':sd.ce; out.push(sg); grp=[]; start=end; } });
   return out; }
 function openSketch(){ const fs=sketchFromSegs(); let init=fs;
