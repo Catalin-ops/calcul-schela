@@ -335,8 +335,8 @@ table.rt tr.cat td{background:var(--steel-soft);font-size:11px}
   .sheet:last-child{page-break-after:auto}
   .elevs{grid-template-columns:repeat(2,minmax(0,1fr))}.cols{grid-template-columns:minmax(0,1.5fr) minmax(0,1fr)}.sfoot{grid-template-columns:minmax(0,1fr) 420px}.dets{grid-template-columns:repeat(5,minmax(0,1fr))}.doc{columns:3;font-size:10.5px;line-height:1.38}.doc h3{font-size:12.5px;margin:5px 0 3px}.fhead img{height:30px}.fh-n b{font-size:15px}.fhead{padding-bottom:3px}
   .plan svg{width:auto!important;max-width:100%;max-height:112mm}
-  .elevs.e3{grid-template-columns:repeat(3,minmax(0,1fr))}.elevs.e4{grid-template-columns:repeat(4,minmax(0,1fr))}.elevs.e3 .fig svg,.elevs.e4 .fig svg{max-height:64mm}.elevs.e4 .fig figcaption{font-size:10.5px}
-  .fig svg{width:auto!important;max-width:100%;max-height:72mm}
+  .elevs.e3{grid-template-columns:repeat(3,minmax(0,1fr))}.elevs.e4{grid-template-columns:repeat(4,minmax(0,1fr))}.elevs.e3 .fig svg{max-height:64mm}.elevs.e4 .fig svg{max-height:44mm}.elevs.e4 .fig figcaption{font-size:10.5px}
+  .fig svg{max-width:100%;max-height:72mm}
   .det svg{max-height:40mm}
   .sheet{gap:8px}
   .notes{font-size:11px}
@@ -987,16 +987,16 @@ function elevSVG(idx,opt){
   const s=g.s, topM=g.top, PG=parInfo0(P.par).pg, EXT=P.par==='post1'?0:1;
   const trB=g.tr.filter(t=>t.bays.length), HT=Math.max(...trB.map(t=>t.top+(t.pg||PG))), tHi=trB.reduce((a,t)=>(t.top+(t.pg||PG)>a.top+(a.pg||PG)?t:a),trB[0]);
   const multiH=new Set(g.tr.map(t=>t.N)).size>1;
-  const sx=26, sy=18, padL=46, padT=(opt.report?16:36)+((s.st||multiH)?14:0), padB=opt.report?44:30, padR=62;
+  const sx=26, sy=18, padL=46, padT=(opt.report?16:36)+((s.st||multiH)?14:0), padB=opt.report?44:30, padR=106;
   const fr=g.tr.filter(t=>t.front&&t.bays.length);
   // poziții: tronsoanele frontale unul după altul, fără gol
   const bx=[], spans=[]; let x=0;
   fr.forEach((t,ti)=>{ const x0=x; t.bays.forEach((b,j)=>{bx.push({x0:x,x1:x+b,b,t:ti,j}); x+=b;}); spans.push({a:x0,b:x,t,ti}); });
   const Lr=x;
   const W=padL+Lr*sx+padR, Hh=padT+HT*sy+padB;
-  const y=m=>padT+(topM+1-m)*sy, X=m=>padL+m*sx;
+  const y=m=>padT+(HT-m)*sy, X=m=>padL+m*sx;
   const fit=opt.report||opt.fit;
-  let o=`<svg ${fit?`style="width:100%;height:auto"`:`width="${W}" height="${Hh}"`} viewBox="0 0 ${W} ${Hh}" xmlns="http://www.w3.org/2000/svg" font-family="IBM Plex Mono, monospace" font-size="10">`;
+  let o=`<svg ${opt.report?`style="width:${Math.round(W*0.85)}px;max-width:100%;height:auto"`:fit?`style="width:100%;height:auto"`:`width="${W}" height="${Hh}"`} viewBox="0 0 ${W} ${Hh}" xmlns="http://www.w3.org/2000/svg" font-family="IBM Plex Mono, monospace" font-size="${opt.report?12:10}">`;
   // clădirea, pe porțiuni, fiecare cu înălțimea ei
   spans.forEach(({a,b,t},ti)=>{ o+=`<rect x="${X(a)}" y="${y(t.Hs)}" width="${(b-a)*sx}" height="${t.Hs*sy}" fill="${s.st&&ti%2?'var(--line)':'var(--steel-soft)'}"/>`;
     o+=`<line x1="${X(a)}" x2="${X(b)}" y1="${y(t.Hs)}" y2="${y(t.Hs)}" stroke="var(--muted)" stroke-dasharray="4 3"/>`;
@@ -1527,6 +1527,10 @@ function cartus(nr,tot,cont){ const F=firma();
     ${typeof sigHTML==='function'?sigHTML():''}
   </div>`;
 }
+/* tronsoanele lungi ocupă 2 coloane, ca să nu iasă mici; restul câte una; totul în 2 rânduri când se poate */
+function elevSpan(g,items){ return items.length>2&&g.bays.length>=12?2:1; }
+function elevGrid(items){ if(items.length<=2) return ''; const S=items.reduce((a,{g})=>a+elevSpan(g,items),0); const cols=Math.min(6,Math.max(2,Math.ceil(S/(items.length>6?3:2))));
+  return `grid-template-columns:repeat(${cols},minmax(0,1fr));grid-auto-flow:dense`; }
 function buildReport(){
   const {P,list,totKg,geo,maxTop,area}=last;
   const DM=DMODES[P.dmode]?DMODES[P.dmode].t:'';
@@ -1549,10 +1553,10 @@ function buildReport(){
     <div class="sfoot">${notes}${cartus(1+off,tot,'Dispunerea în plan și detalii')}</div>
   </section>`;
   h+=`<section class="sheet"><div class="shead"><h1>Elevații pe tronsoane</h1><span>diagonale: ${esc(DM.toLowerCase())}, ${P.dfreq===1?'în fiecare travee':'1 la '+P.dfreq+' travee'} · cadru ${fmt(P.w)} m · niveluri de 2,00 m</span></div>
-    <div class="elevs ${items.length>6?'e4':items.length>4?'e3':''}">${items.map(({g,i})=>`<figure class="fig"><figcaption><b>TRONSON ${LET[i]}</b> · ${esc(segs[i].n)} · ${g.bays.length} travee · ${g.F} cadre pe nivel · ${[...new Set(g.tr.map(t=>t.N))].join(" / ")} niveluri · ${g.nd} diagonale pe nivel · ${g.a} ${g.a===1?'scară':'scări'} · <b>${fmt0(g.ar)} m²</b></figcaption>${elevSVG(i,{report:true})}</figure>`).join('')}</div>
+    <div class="elevs ${items.length>6?'e4':items.length>4?'e3':''}" style="${elevGrid(items)}">${items.map(({g,i})=>`<figure class="fig" style="grid-column:span ${elevSpan(g,items)}"><figcaption><b>TRONSON ${LET[i]}</b> · ${esc(segs[i].n)} · ${g.bays.length} travee · ${g.F} cadre pe nivel · ${[...new Set(g.tr.map(t=>t.N))].join(" / ")} niveluri · ${g.nd} diagonale pe nivel · ${g.a} ${g.a===1?'scară':'scări'} · <b>${fmt0(g.ar)} m²</b></figcaption>${elevSVG(i,{report:true})}</figure>`).join('')}</div>
     <div class="legend r-leg"><span><i style="background:var(--steel)"></i>cadre și niveluri (linie groasă = nivel cu podine)</span><span><i style="background:var(--accent)"></i>diagonale</span><span><i style="background:var(--ok)"></i>scară</span><span><i style="background:var(--warn);height:8px;width:8px;border-radius:50%"></i>ancoraj</span></div>
     <div class="sfoot"><div class="notes"><b>Date de calcul</b><ul>
-      <li>Înălțime la cornișă ${fmt(P.H,1)} m · ultimul nivel de lucru la ${fmt(maxTop,1)} m · balustradă finală +1,00 m.</li>
+      <li>Înălțime la cornișă ${fmt(P.H,1)} m · ultimul nivel de lucru la ${fmt(maxTop,1)} m · schela până la ${fmt(Math.max(...items.flatMap(({g})=>g.tr.filter(t=>t.bays.length).map(t=>t.top+t.pg))),1)} m.</li>
       <li>Distanța schelă–perete ${fmt(P.gap)} m · podine ${P.decks==='alt'?'din 2 în 2 niveluri':'pe toate nivelurile'} · plasă ${P.plasa?'da':'nu'} · rezervă ${fmt(P.rez,0)}%.</li>
       <li>Suprafață schelată ≈ ${fmt0(area)} m² · greutate totală ≈ ${fmt(totKg/1000,1)} t.</li></ul></div>${cartus(2+off,tot,'Elevații pe tronsoane')}</div>
   </section>`;
