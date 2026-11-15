@@ -251,6 +251,42 @@ body.rep-open{overflow:hidden}
 .det{margin:0;border:1px solid var(--line);padding:6px}
 .det svg{width:100%;height:auto;display:block}
 .det figcaption{font-family:var(--f-display);text-transform:uppercase;letter-spacing:.05em;font-size:13px;text-align:center;font-weight:600}
+.sheet{position:relative;overflow:hidden}
+.sheet>*:not(.wm){position:relative}
+.wm{position:absolute;left:50%;top:52%;width:55%;max-height:75%;object-fit:contain;transform:translate(-50%,-50%);pointer-events:none;z-index:0}
+.fhead{display:grid;grid-template-columns:auto auto 1fr;gap:12px;align-items:center;border-bottom:1px solid var(--line);padding-bottom:6px}
+.fhead img{height:44px;width:auto;max-width:120px;object-fit:contain}
+.fh-n b{display:block;font-family:var(--f-display);font-size:18px;letter-spacing:.05em}
+.fh-n span{font-size:11px;color:var(--muted)}
+.fh-d{text-align:right;font-size:11px;color:var(--muted);line-height:1.5}
+.flogo{align-items:center}.flogo img{height:44px;max-width:120px;object-fit:contain;border:1px solid var(--line);border-radius:4px;background:#fff;padding:2px}
+.cover{display:grid;grid-template-columns:minmax(0,1.4fr) minmax(0,1fr);gap:22px;align-items:start}
+.cv-k{font-size:12px;text-transform:uppercase;letter-spacing:.08em;color:var(--muted)}
+.cv-t{font-family:var(--f-display);font-size:34px;font-weight:700;line-height:1.1;margin:4px 0 16px}
+.cv-grid{display:grid;grid-template-columns:1fr 1fr;border:1px solid var(--ink)}
+.cv-grid>div{padding:7px 10px;border-bottom:1px solid var(--line);border-right:1px solid var(--line)}
+.cv-grid span,.cv-sys span{display:block;font-size:10px;text-transform:uppercase;letter-spacing:.06em;color:var(--muted)}
+.cv-grid b{font-size:14px}
+.cv-sys{margin-top:14px;border:2px solid var(--ink);padding:10px 12px}.cv-sys b{display:block;font-family:var(--f-mono);font-size:16px;margin:2px 0}.cv-sys i{font-size:12px;color:var(--muted)}
+.cv-bord h3,.doc h3{font-family:var(--f-display);text-transform:uppercase;letter-spacing:.05em;font-size:14px;margin:8px 0 4px;break-after:avoid}
+.cv-bord{display:flex;flex-direction:column;gap:12px}
+.doc{columns:3;column-gap:26px;font-size:12px;line-height:1.45}
+.doc p,.doc ul,.doc ol{margin:0 0 6px}.doc ul,.doc ol{padding-left:18px}
+.doc table{break-inside:avoid;margin-bottom:6px}
+.doc .small,.small{font-size:11px;color:var(--muted)}
+.disc{font-size:11px;border:1px dashed var(--muted);padding:6px 8px;color:var(--muted)}
+table.calc td.n{white-space:nowrap}
+td.ok{color:var(--ok);font-weight:600}td.bad{color:var(--warn);font-weight:600}
+.doc1{font-size:12.5px;line-height:1.5}.doc1 p{margin:0 0 6px}
+.sign.s3{grid-template-columns:1fr 1fr 1fr}
+table.rt td.w3{min-width:200px}
+table.reg td{height:30px}
+.stag{border:3px solid #1f7a3a;border-radius:8px;overflow:hidden;font-size:12px}
+.st-h{background:#1f7a3a;color:#fff;font-family:var(--f-display);font-size:30px;font-weight:700;text-align:center;letter-spacing:.08em;padding:8px}
+.st-b>div{padding:5px 10px;border-bottom:1px solid var(--line)}.st-b span{display:block;font-size:10px;text-transform:uppercase;color:var(--muted)}
+.st-g{display:grid;grid-template-columns:1fr 1fr;padding:0!important}.st-g>div{padding:5px 10px;min-height:38px}.st-g>div:first-child{border-right:1px solid var(--line)}
+.st-f{font-size:11px;padding:6px 10px;background:var(--steel-soft)}
+.sfoot1{display:flex;justify-content:flex-end}.sfoot1 .cartus{width:420px}
 .sfoot{display:grid;grid-template-columns:minmax(0,1fr) minmax(280px,420px);gap:14px;align-items:end}
 .notes{border:1px solid var(--line);padding:8px 12px;font-size:12.5px}
 .notes ul{margin:4px 0 0;padding-left:18px;display:flex;flex-direction:column;gap:2px}
@@ -286,7 +322,7 @@ table.rt tr.cat td{background:var(--steel-soft);font-size:11px}
 .sign>div{border:1px solid var(--ink);padding:6px 8px;min-height:90px;display:flex;flex-direction:column;gap:2px}
 .sign span{font-size:10px;text-transform:uppercase;letter-spacing:.06em;color:var(--muted)}
 .sign i{margin-top:auto;font-size:10px;color:var(--muted);border-top:1px dotted var(--muted);padding-top:2px}
-@media (max-width:900px){.dets{grid-template-columns:repeat(2,minmax(0,1fr))}.elevs,.cols,.sfoot{grid-template-columns:minmax(0,1fr)}.sheet{padding:14px}}
+@media (max-width:900px){.doc{columns:1}.cover{grid-template-columns:minmax(0,1fr)}.dets{grid-template-columns:repeat(2,minmax(0,1fr))}.elevs,.cols,.sfoot{grid-template-columns:minmax(0,1fr)}.sheet{padding:14px}}
 @media print{
   @page{size:A3 landscape;margin:8mm}
   body{padding:0!important;background:#fff!important}
@@ -296,9 +332,10 @@ table.rt tr.cat td{background:var(--steel-soft);font-size:11px}
   .rtool{display:none!important}
   .sheet{box-shadow:none;border:0;margin:0;max-width:none;page-break-after:always;break-after:page;padding:0}
   .sheet:last-child{page-break-after:auto}
-  .elevs{grid-template-columns:repeat(2,minmax(0,1fr))}.cols{grid-template-columns:minmax(0,1.5fr) minmax(0,1fr)}.sfoot{grid-template-columns:minmax(0,1fr) 420px}.dets{grid-template-columns:repeat(4,minmax(0,1fr))}
-  .plan svg{width:auto!important;max-width:100%;max-height:128mm}
-  .fig svg{width:auto!important;max-width:100%;max-height:80mm}
+  .elevs{grid-template-columns:repeat(2,minmax(0,1fr))}.cols{grid-template-columns:minmax(0,1.5fr) minmax(0,1fr)}.sfoot{grid-template-columns:minmax(0,1fr) 420px}.dets{grid-template-columns:repeat(5,minmax(0,1fr))}.doc{columns:3;font-size:10.5px;line-height:1.38}.doc h3{font-size:12.5px;margin:5px 0 3px}.fhead img{height:30px}.fh-n b{font-size:15px}.fhead{padding-bottom:3px}
+  .plan svg{width:auto!important;max-width:100%;max-height:112mm}
+  .elevs.e3{grid-template-columns:repeat(3,minmax(0,1fr))}.elevs.e4{grid-template-columns:repeat(4,minmax(0,1fr))}.elevs.e3 .fig svg,.elevs.e4 .fig svg{max-height:64mm}.elevs.e4 .fig figcaption{font-size:10.5px}
+  .fig svg{width:auto!important;max-width:100%;max-height:72mm}
   .det svg{max-height:40mm}
   .sheet{gap:8px}
   .notes{font-size:11px}
@@ -385,6 +422,37 @@ table.of tr.tot td{border-top:2px solid var(--ink);font-size:16px}
         <label>Întocmit de<input id="rautor" type="text" value=""></label>
         <label>Schelar (verifică)<input id="rschelar" type="text" value=""></label>
         <label>Data raportului<input id="rdata" type="text" placeholder="azi"></label>
+      </fieldset>
+
+      <fieldset>
+        <legend>Firma (antet și logo pe raport)</legend>
+        <div class="row full"><select id="fSel" aria-label="Firma folosită pe raport" style="flex:1"></select><button type="button" class="ghost" id="fAdd">+ Firmă</button><button type="button" class="ghost" id="fDel">Șterge</button></div>
+        <label class="full">Denumire firmă<input id="f_nume" type="text"></label>
+        <label class="full">Slogan<input id="f_motto" type="text"></label>
+        <label>CUI<input id="f_cui" type="text"></label>
+        <label>Nr. Reg. Com.<input id="f_rc" type="text" placeholder="J27/…/…"></label>
+        <label class="full">Adresa sediului<input id="f_adr" type="text"></label>
+        <label>Telefon<input id="f_tel" type="text"></label>
+        <label>E-mail<input id="f_mail" type="text"></label>
+        <label class="full">Site<input id="f_web" type="text"></label>
+        <div class="row full flogo"><img id="fLogoImg" alt="Logo firmă"><label class="filebtn">Alege logo<input type="file" id="fLogo" accept="image/png,image/jpeg,image/webp,image/svg+xml"></label><button type="button" class="ghost" id="fLogoReset">Logo implicit</button></div>
+        <label class="chk"><input id="f_wm" type="checkbox" checked> Logo transparent pe fundalul paginii</label>
+        <label>Transparență logo (%)<input id="f_wmOp" type="number" min="2" max="30" value="8"></label>
+        <p class="hint" style="margin:0">Datele firmei rămân pe acest dispozitiv, pentru toate proiectele. Poți avea mai multe firme și alegi din listă pe care o folosești.</p>
+      </fieldset>
+
+      <fieldset>
+        <legend>Dosar tehnic (date de proiectare)</legend>
+        <label>Nr. proiect<input id="dNr" type="text"></label>
+        <label>Amplasament (adresa lucrării)<input id="dAdr" type="text"></label>
+        <label>Proiectant / întocmit<input id="dProi" type="text" placeholder="nume, firmă"></label>
+        <label>Verificator / resp. tehnic<input id="dVer" type="text"></label>
+        <label class="full">Responsabil schelă (montaj)<input id="dRte" type="text"></label>
+        <label class="full">Clasa de încărcare (SR EN 12811-1)<select id="dCls"><option value="2">2 – 1,50 kN/m² (inspecție, lucrări ușoare)</option><option value="3" selected>3 – 2,00 kN/m² (tencuieli, zugrăveli, termoizolații)</option><option value="4">4 – 3,00 kN/m² (zidărie, depozitare ușoară)</option></select></label>
+        <label>Vânt q<sub>b</sub> (kPa)<input id="dQb" type="number" step="0.05" min="0.2" max="1.2" value="0.4" title="din CR 1-1-4/2012, harta de zonare"></label>
+        <label>Teren (vânt)<select id="dTer"><option value="II">II – câmp deschis</option><option value="III" selected>III – localitate</option><option value="IV">IV – oraș dens</option></select></label>
+        <label>Teren – presiune admisă (kPa)<input id="dSol" type="number" step="10" min="20" value="100"></label>
+        <p class="hint" style="margin:0">q<sub>b</sub> se ia din harta de zonare CR 1-1-4/2012 (în Neamț și în majoritatea țării 0,40–0,60 kPa). Presiunea admisă pe teren: 100 kPa e o valoare prudentă pentru pământ compactat; pe beton / asfalt e mult mai mare.</p>
       </fieldset>
 
       <fieldset>
@@ -518,6 +586,7 @@ table.of tr.tot td{border-top:2px solid var(--ink);font-size:16px}
 <div class="report" id="report" hidden>
   <div class="rtool">
     <button type="button" id="repBack">← Înapoi la calcul</button>
+    <label class="chk" style="font-size:14px;color:#f3f3f0;display:inline-flex;gap:6px;align-items:center"><input type="checkbox" id="repFull" checked> Dosar tehnic complet (9 planșe)</label>
     <button type="button" class="pri" id="repPrint" hidden>Salvează PDF / Printează</button>
     <button type="button" class="pri" id="repPdf" hidden>Descarcă PDF</button>
     <span class="rhint" id="repHint">PDF-ul se face din aplicația Android (butonul „Salvează PDF”). Aici poți arăta raportul pe ecran sau copia lista.</span>
@@ -1178,14 +1247,275 @@ function detailsSVG(){
      <text x="152" y="60">traversele</text><text x="152" y="72">se prind între</text><text x="152" y="84">ele pe fiecare</text><text x="152" y="96">nivel de cadre</text>`);
   return a+b+c+d+e;
 }
-function cartus(nr,tot){
+/* ===================== FIRMA (antet + logo în fundal) ===================== */
+const FIRMA_DEF={nume:'GIOVANI CONSTRUCT',motto:'împreună susținem viitorul',cui:'',rc:'',adr:'',tel:'',mail:'',web:'giovaniconstruct.ro',logo:'',wm:true,wmOp:8};
+const FIRMA_F=['nume','motto','cui','rc','adr','tel','mail','web'];
+function getFirme(){ try{ const o=JSON.parse(localStorage.getItem('schela_firme')||'null'); if(o&&o.list&&o.list.length) return o; }catch(e){} return {cur:0,list:[{...FIRMA_DEF}]}; }
+function setFirme(o){ try{ localStorage.setItem('schela_firme',JSON.stringify(o)); return true; }catch(e){ return false; } }
+let FIRME=getFirme();
+function firma(){ return Object.assign({},FIRMA_DEF,FIRME.list[FIRME.cur]||{}); }
+function firmaLogo(){ const f=firma(); return f.logo||document.querySelector('header.top img').src; }
+function renderFirma(){
+  const f=firma();
+  $('fSel').innerHTML=FIRME.list.map((x,i)=>`<option value="${i}" ${i===FIRME.cur?'selected':''}>${esc(x.nume||'Firmă '+(i+1))}</option>`).join('');
+  FIRMA_F.forEach(k=>{ $('f_'+k).value=f[k]||''; });
+  $('f_wm').checked=f.wm!==false; $('f_wmOp').value=f.wmOp||8; $('fLogoImg').src=firmaLogo();
+  $('fDel').disabled=FIRME.list.length<2; prepWm();
+}
+function readFirma(){ const f=FIRME.list[FIRME.cur]||(FIRME.list[FIRME.cur]={...FIRMA_DEF});
+  FIRMA_F.forEach(k=>f[k]=$('f_'+k).value.trim()); f.wm=$('f_wm').checked; f.wmOp=Math.min(30,Math.max(2,+$('f_wmOp').value||8));
+  if(!setFirme(FIRME)) toast('Logo-ul e prea mare pentru memoria browserului. Alege o imagine mai mică.');
+  $('fSel').options[FIRME.cur]&&($('fSel').options[FIRME.cur].textContent=f.nume||'Firmă'); }
+function initFirma(){
+  renderFirma();
+  FIRMA_F.concat(['wm','wmOp']).forEach(k=>$('f_'+k).addEventListener(k==='wm'?'change':'input',readFirma));
+  $('fSel').addEventListener('change',()=>{ FIRME.cur=+$('fSel').value; setFirme(FIRME); renderFirma(); });
+  $('fAdd').addEventListener('click',()=>{ FIRME.list.push({...FIRMA_DEF,nume:'Firmă nouă',motto:'',web:''}); FIRME.cur=FIRME.list.length-1; setFirme(FIRME); renderFirma(); $('f_nume').focus(); $('f_nume').select(); });
+  $('fDel').addEventListener('click',()=>{ if(FIRME.list.length<2) return; FIRME.list.splice(FIRME.cur,1); FIRME.cur=0; setFirme(FIRME); renderFirma(); });
+  $('fLogoReset').addEventListener('click',()=>{ const f=FIRME.list[FIRME.cur]; f.logo=''; setFirme(FIRME); renderFirma(); });
+  $('fLogo').addEventListener('change',e=>{ const file=e.target.files[0]; if(!file) return;
+    const img=new Image(), url=URL.createObjectURL(file);
+    img.onload=()=>{ const m=600, k=Math.min(1,m/Math.max(img.width,img.height)), c=document.createElement('canvas'); c.width=Math.round(img.width*k); c.height=Math.round(img.height*k);
+      c.getContext('2d').drawImage(img,0,0,c.width,c.height); URL.revokeObjectURL(url);
+      FIRME.list[FIRME.cur].logo=c.toDataURL('image/png'); if(!setFirme(FIRME)){ FIRME.list[FIRME.cur].logo=c.toDataURL('image/jpeg',0.8); setFirme(FIRME); }
+      renderFirma(); toast('Logo încărcat'); e.target.value=''; };
+    img.onerror=()=>{ toast('Nu am putut citi imaginea'); URL.revokeObjectURL(url); };
+    img.src=url; });
+}
+function firmaHead(){ const f=firma();
+  const d=[f.cui&&'CUI '+esc(f.cui), f.rc&&'Reg. Com. '+esc(f.rc), f.adr&&esc(f.adr)].filter(Boolean).join(' · ');
+  const c=[f.tel&&'Tel. '+esc(f.tel), f.mail&&esc(f.mail), f.web&&esc(f.web)].filter(Boolean).join(' · ');
+  return `<div class="fhead"><img src="${firmaLogo()}" alt=""><div class="fh-n"><b>${esc(f.nume||'')}</b>${f.motto?`<span>${esc(f.motto)}</span>`:''}</div><div class="fh-d">${d?`<div>${d}</div>`:''}${c?`<div>${c}</div>`:''}</div></div>`; }
+/* pentru fundal: fundalul uniform al logo-ului (culoarea din colțuri) devine transparent */
+const WMC={src:'',url:''};
+function prepWm(){ const src=firmaLogo(); if(WMC.src===src) return; WMC.src=src; WMC.url=src;
+  const img=new Image(); img.onload=()=>{ try{ const k=Math.min(1,700/Math.max(img.width,img.height)), c=document.createElement('canvas'); c.width=Math.max(1,Math.round(img.width*k)); c.height=Math.max(1,Math.round(img.height*k));
+    const x=c.getContext('2d'); x.drawImage(img,0,0,c.width,c.height); const D=x.getImageData(0,0,c.width,c.height), d=D.data, W=c.width, H=c.height;
+    const at=(i,j)=>{ const o=(j*W+i)*4; return [d[o],d[o+1],d[o+2],d[o+3]]; }, cs=[at(1,1),at(W-2,1),at(1,H-2),at(W-2,H-2)];
+    if(cs.some(q=>q[3]<128)){ if(WMC.src===src) WMC.url=src; return; }
+    const bg=[0,1,2].map(k=>cs.reduce((a,q)=>a+q[k],0)/4);
+    for(let o=0;o<d.length;o+=4){ const dd=Math.hypot(d[o]-bg[0],d[o+1]-bg[1],d[o+2]-bg[2]); if(dd<50) d[o+3]=0; else if(dd<110) d[o+3]=Math.round(d[o+3]*(dd-50)/60); }
+    x.putImageData(D,0,0); if(WMC.src===src) WMC.url=c.toDataURL('image/png'); }catch(e){} };
+  img.src=src; }
+function firmaWm(){ const f=firma(); if(f.wm===false) return ''; prepWm(); return `<img class="wm" src="${WMC.url||firmaLogo()}" alt="" style="opacity:${(f.wmOp||8)/100}">`; }
+
+/* ===================== DOSAR TEHNIC ===================== */
+const TEREN={II:{z0:0.05,zmin:2,t:'II – câmp deschis, vegetație joasă'},III:{z0:0.3,zmin:5,t:'III – localitate, zonă cu clădiri / copaci'},IV:{z0:1.0,zmin:10,t:'IV – oraș, minim 15% clădiri peste 15 m'}};
+const CLASE={2:{q:1.5,F1:1.5,F2:1.0,t:'clasa 2 – 1,50 kN/m² (inspecție, lucrări ușoare)'},3:{q:2.0,F1:1.5,F2:1.0,t:'clasa 3 – 2,00 kN/m² (tencuieli, zugrăveli, termoizolații)'},4:{q:3.0,F1:3.0,F2:1.0,t:'clasa 4 – 3,00 kN/m² (zidărie, depozitare ușoară)'}};
+function qpz(qb,cat,z){ const T=TEREN[cat]||TEREN.III, kr=0.19*Math.pow(T.z0/0.05,0.07), zz=Math.max(z,T.zmin), cr=kr*Math.log(zz/T.z0), Iv=1/Math.log(zz/T.z0); return {qp:qb*cr*cr*(1+7*Iv),ce:cr*cr*(1+7*Iv)}; }
+function techCalc(){
+  const {P,list,area,maxTop,geo}=last; const D=dosarVals();
+  const kN=kg=>kg*9.81/1000;
+  const G=kN(list.reduce((a,x)=>a+x.qty*x.kg,0)), nJ=(list.find(x=>x.key==='picior')||{qty:0}).qty||1;
+  const g=G/Math.max(1,area);                                        // kN/m² de fațadă
+  const b=P.bay, w=P.w, cl=CLASE[D.cls]||CLASE[3];
+  const Htop=Math.max(...geo.filter(Boolean).flatMap(x=>x.tr.filter(t=>t.bays.length).map(t=>t.top+t.pg)));
+  const Gp=g*b*Htop/2, Qp=cl.q*b*w/2*1.5, Nk=Gp+Qp, Nd=1.35*Gp+1.5*Qp;
+  const Atalpa=0.40*0.25, ps=Nk/Atalpa;
+  const cfphi=P.plasa?0.70:0.35;
+  const w1=qpz(D.qb,D.teren,Htop), hs=P.ancMode==='all'?b:2*b, Aanc=4*hs;
+  const Fk=w1.qp*cfphi*Aanc, Fd=1.5*Fk, Ftest=1.2*Fd;
+  const Wtot=w1.qp*cfphi*geo.filter(Boolean).reduce((a,x)=>a+x.tr.reduce((s,t)=>s+t.bays.reduce((u,v)=>u+v,0)*(t.top+t.pg),0),0);
+  const anc=geo.map((x,i)=>x?{i,n:segs[i].n,top:x.top,nA:x.nA,al:x.al,q:qpz(D.qb,D.teren,x.top+2).qp}:null).filter(Boolean)
+    .map(a=>({...a,Fd:1.5*a.q*cfphi*Aanc}));
+  const Wcls=w<0.9?'W06':'W09';
+  const desig=`EN 12810 – ${D.cls}D – SW${Wcls.slice(1)}/${Math.round(b*100)} – H2 – ${P.plasa?'B':'A'} – LA`;
+  return {D,G,g,nJ,Htop,Gp,Qp,Nk,Nd,ps,cfphi,w1,hs,Aanc,Fk,Fd,Ftest,Wtot,anc,cl,Wcls,desig,Atalpa};
+}
+function dosarVals(){ return {nr:$('dNr').value.trim(),adr:$('dAdr').value.trim(),proi:$('dProi').value.trim(),ver:$('dVer').value.trim(),rte:$('dRte').value.trim(),
+  cls:+$('dCls').value||3,qb:Math.max(0.2,+$('dQb').value||0.4),teren:$('dTer').value||'III',sol:Math.max(20,+$('dSol').value||100),luni:+$('ofLuni').value||0}; }
+const f2=(n,d=2)=>fmt(n,d);
+function dosarSheets(cartus){
+  const {P,list,totKg,area,maxTop,geo,anchorsTotal}=last; const T=techCalc(), D=T.D, F=firma();
+  const today=$('rdata').value||new Date().toLocaleDateString('ro-RO');
+  const items=geo.map((g,i)=>g?{g,i}:null).filter(Boolean);
+  const nFac=items.length, Ltot=items.reduce((a,{i})=>a+(+segs[i].L||0),0);
+  const pars=[...new Set(items.flatMap(({g})=>g.tr.filter(t=>t.bays.length).map(t=>({frame2:'2 m (un nivel de cadre)',frame3:'2 + 1 m (nivel de cadre + stâlpi 1 m)',post1:'1 m (stâlpi)'})[t.par])))].join('; ');
+  const ladders=(list.find(x=>x.key==='scara')||{qty:0}).qty;
+  const sheet=(title,sub,body,cont)=>({title,sub,body,cont});
+  const S=[];
+  // 1. COPERTĂ + BORDEROU
+  S.push(sheet('Dosar tehnic – schelă de fațadă',D.nr?'Proiect nr. '+esc(D.nr):'',
+   `<div class="cover"><div class="cv-main">
+      <div class="cv-k">Obiectiv</div><div class="cv-t">${esc(P.nume||'—')}</div>
+      <div class="cv-grid">
+        <div><span>Beneficiar</span><b>${esc(P.client||'—')}</b></div>
+        <div><span>Amplasament</span><b>${esc(D.adr||'—')}</b></div>
+        <div><span>Executant schelă</span><b>${esc(F.nume||'—')}</b></div>
+        <div><span>Proiectant / întocmit</span><b>${esc(D.proi||$('rautor').value||'—')}</b></div>
+        <div><span>Verificator / responsabil tehnic</span><b>${esc(D.ver||'—')}</b></div>
+        <div><span>Responsabil schelă (montaj)</span><b>${esc(D.rte||$('rschelar').value||'—')}</b></div>
+        <div><span>Faza</span><b>Proiect tehnic de execuție – schelă provizorie</b></div>
+        <div><span>Data</span><b>${esc(today)}</b></div>
+      </div>
+      <div class="cv-sys"><span>Sistem</span><b>${esc(T.desig)}</b><i>schelă de fațadă din cadre prefabricate de oțel ${f2(P.w)} × 2,00 m, travee ${f2(P.bay)} m, ancorată de clădire</i></div>
+    </div>
+    <div class="cv-bord"><h3>Borderou</h3><table class="rt"><thead><tr><th class="n">Nr.</th><th>Piesa</th><th class="n">Planșa</th></tr></thead><tbody>
+      <tr class="cat"><td colspan="3">A. Piese scrise</td></tr>
+      <tr><td class="n">1</td><td>Copertă și borderou</td><td class="n">1</td></tr>
+      <tr><td class="n">2</td><td>Memoriu tehnic</td><td class="n">2</td></tr>
+      <tr><td class="n">3</td><td>Breviar de calcul (încărcări, rezemare, vânt, ancorare)</td><td class="n">3</td></tr>
+      <tr><td class="n">4</td><td>Caiet de sarcini – montaj, utilizare, demontaj; măsuri SSM și PSI</td><td class="n">4</td></tr>
+      <tr class="cat"><td colspan="3">B. Piese desenate</td></tr>
+      <tr><td class="n">5</td><td>Dispunerea în plan și detalii de execuție</td><td class="n">5</td></tr>
+      <tr><td class="n">6</td><td>Elevații pe tronsoane (diagonale, scări, ancoraje)</td><td class="n">6</td></tr>
+      <tr class="cat"><td colspan="3">C. Liste și formulare</td></tr>
+      <tr><td class="n">7</td><td>Necesar de materiale (de verificat de schelar)</td><td class="n">7</td></tr>
+      <tr><td class="n">8</td><td>Proces-verbal de recepție și etichetă de identificare</td><td class="n">8</td></tr>
+      <tr><td class="n">9</td><td>Registru de verificări periodice și PV de predare-primire</td><td class="n">9</td></tr>
+    </tbody></table>
+    <div class="sign"><div><span>Întocmit</span><b>${esc(D.proi||$('rautor').value||'')}</b><i>semnătura și ștampila</i></div><div><span>Verificat</span><b>${esc(D.ver||'')}</b><i>semnătura și ștampila</i></div></div></div></div>`,'Copertă și borderou'));
+  // 2. MEMORIU TEHNIC
+  S.push(sheet('Memoriu tehnic','',`<div class="doc">
+    <h3>1. Date generale</h3>
+    <p><b>Obiectiv:</b> ${esc(P.nume||'—')}. <b>Beneficiar:</b> ${esc(P.client||'—')}. <b>Amplasament:</b> ${esc(D.adr||'—')}. <b>Executant:</b> ${esc(F.nume||'—')}${F.cui?', CUI '+esc(F.cui):''}.</p>
+    <p>Lucrarea constă în montarea unei schele provizorii de fațadă, folosită pentru lucrările la fațadele clădirii${D.luni?`, pe o durată estimată de ${f2(D.luni,1)} luni`:''}. Schela nu este o construcție definitivă și se demontează la terminarea lucrărilor.</p>
+    <h3>2. Clădirea și zona schelată</h3>
+    <p>Se schelează ${nFac} ${nFac===1?'fațadă':'fațade'} cu lungimea desfășurată de ${f2(Ltot,1)} m. Înălțimea la cornișă este de ${f2(P.H,1)} m${items.some(({g})=>new Set(g.tr.map(t=>t.N)).size>1)?', cu porțiuni de înălțimi diferite (vezi elevațiile)':''}. Suprafața schelată este de aproximativ ${fmt0(area)} m².</p>
+    <p>Ultimul nivel de lucru este la ${f2(maxTop,1)} m, iar schela se termină la ${f2(T.Htop,1)} m deasupra terenului. Parapetul de protecție peste înălțimea dată este: ${esc(pars)}.</p>
+    <h3>3. Sistemul de schelă</h3>
+    <p>Schelă de fațadă din componente prefabricate conform SR EN 12810-1, cu cadre verticale de oțel ${f2(P.w)} × 2,00 m, travee de ${f2(P.bay)} m și podine metalice de ${f2(P.pw)} m lățime. Desemnare: <b>${esc(T.desig)}</b>.</p>
+    <ul><li>Clasa de încărcare: ${esc(T.cl.t)} – SR EN 12811-1.</li>
+      <li>Clasa de lățime ${T.Wcls}; înălțime liberă clasa H2 (minim 1,90 m între niveluri).</li>
+      <li>Podine pe ${P.decks==='alt'?'niveluri alternative (din 2 în 2)':'toate nivelurile'}; balustradă dublă (mână curentă la 1,00 m și intermediară la 0,50 m) și plintă pe fața exterioară.</li>
+      <li>Distanța schelă–perete ${f2(P.gap)} m; golul de lucru spre perete maxim 30 cm, altfel console sau balustradă interioară.</li>
+      <li>Acces: ${ladders?`scări interioare cu podine-trapă (${fmt0(ladders)} bucăți în total)`:'scări interioare cu trapă'}, cel puțin o coloană de acces pe fațadă.</li>
+      <li>Diagonale de fațadă: ${esc((DMODES[P.dmode]||{t:''}).t.toLowerCase())}, ${P.dfreq===1?'în fiecare travee':'1 la '+P.dfreq+' travee'}.</li>
+      <li>Colțuri: ${P.cj==='tube'?'legătură cu țeavă Ø48,3 și cuple ortogonale':'traversele celor două fațade se îmbină între ele cu cuple rotative la ~3 cm, pe fiecare nivel de cadre'}; schela lucrează ca un ansamblu continuu.</li>
+      <li>Protecție: ${P.plasa?'plasă de protecție pe toată fața exterioară':'fără plasă de protecție'}.</li></ul>
+    <h3>4. Rezemare</h3>
+    <p>Cadrele reazemă pe bazete (picioare reglabile) de ${f2(P.jack)} m, cu reglaj de cel mult ${Math.round((P.jack-0.1)*100)} cm, așezate pe tălpi de repartiție din lemn de minim 40 × 25 × 5 cm. Terenul se nivelează și se compactează; nu se reazemă pe pământ înghețat, umplutură necompactată, capace de cămin sau marginea șanțurilor. Presiunea pe teren rezultată din breviar este de ${f2(T.ps,0)} kPa.</p>
+    <h3>5. Ancorare</h3>
+    <p>Schela se ancorează de structura clădirii cu țevi de ancorare cu cârlig și șuruburi cu ochi Ø12 cu diblu, din 4 în 4 m pe înălțime, ${P.ancMode==='all'?'la fiecare cadru':'1 da – 1 nu, decalat de la un rând la altul, cu capetele de tronson ancorate întotdeauna'}. Total ${fmt0(anchorsTotal)} ancore. Ancorele se fixează numai în elemente portante (beton, zidărie plină), nu în termoizolație sau parapeți subțiri.</p>
+    <h3>6. Normative de referință</h3>
+    <ul class="small"><li>SR EN 12810-1, -2 – Schele de fațadă din componente prefabricate.</li><li>SR EN 12811-1, -3 – Echipamente provizorii pentru lucrări. Schele.</li>
+      <li>SR EN 74-1 – Cuple pentru țevi de schelă.</li><li>CR 1-1-4/2012 și SR EN 1991-1-4 – Acțiunea vântului.</li>
+      <li>Legea 10/1995 – Calitatea în construcții.</li><li>Legea 319/2006 și HG 1425/2006 – Securitatea și sănătatea în muncă.</li>
+      <li>HG 300/2006 – Cerințe minime SSM pentru șantiere temporare sau mobile.</li><li>HG 1146/2006 – Utilizarea echipamentelor de muncă (lucrul la înălțime, schele).</li>
+      <li>HG 1048/2006 – Echipamente individuale de protecție.</li><li>Legea 307/2006 – Apărarea împotriva incendiilor.</li>
+      <li>Instrucțiunile de montaj și utilizare ale producătorului sistemului de schelă.</li></ul>
+    <p class="disc">Documentația este întocmită pe baza datelor introduse în aplicație și a configurațiilor uzuale. Înainte de execuție se verifică și se semnează de un inginer cu drept de semnătură, iar capacitățile elementelor se confirmă din agrementul tehnic / instrucțiunile producătorului.</p>
+  </div>`,'Memoriu tehnic'));
+  // 3. BREVIAR DE CALCUL
+  const ancRows=T.anc.map(a=>`<tr><td><b>${LET[a.i]}</b> ${esc(a.n)}</td><td class="n">${f2(a.top+2,1)}</td><td class="n">${fmt0(a.nA)}</td><td class="n">${f2(T.hs)} × 4,00</td><td class="n">${f2(a.al)}</td><td class="n b">${f2(a.Fd,1)}</td><td class="n">${f2(1.2*a.Fd,1)}</td></tr>`).join('');
+  const okP=T.ps<=D.sol, okH=maxTop<=24;
+  S.push(sheet('Breviar de calcul','valori estimative – de verificat de proiectant',`<div class="doc">
+    <h3>1. Ipoteze</h3>
+    <ul><li>Încărcare utilă: ${esc(T.cl.t)}; forță concentrată ${f2(T.cl.F1,1)} kN pe 50 × 50 cm și ${f2(T.cl.F2,1)} kN pe 20 × 20 cm (SR EN 12811-1).</li>
+      <li>Încărcarea utilă integrală pe un nivel și 50% pe nivelul vecin; coeficienți parțiali 1,35 (permanente) și 1,50 (variabile).</li>
+      <li>Vânt: q<sub>b</sub> = ${f2(D.qb)} kPa (CR 1-1-4/2012), teren categoria ${esc(TEREN[D.teren].t)}.</li>
+      <li>Coeficient aerodinamic × grad de umplere c<sub>f</sub>·φ = ${f2(T.cfphi)} (${P.plasa?'schelă cu plasă':'schelă fără plasă'}).</li></ul>
+    <h3>2. Greutate proprie</h3>
+    <table class="rt calc"><tbody>
+      <tr><td>Greutatea totală a schelei (fără rezervă)</td><td class="n b">${f2(T.G,1)} kN</td><td class="n">≈ ${f2(T.G/9.81,2)} t</td></tr>
+      <tr><td>Greutate pe m² de fațadă schelată, g</td><td class="n b">${f2(T.g,3)} kN/m²</td><td class="n">${fmt0(area)} m²</td></tr>
+      <tr><td>Numărul de bazete (montanți la sol)</td><td class="n b">${fmt0(T.nJ)}</td><td></td></tr></tbody></table>
+    <h3>3. Forța pe montantul cel mai încărcat</h3>
+    <p>Montant la baza tronsonului cel mai înalt (H = ${f2(T.Htop,1)} m), suprafață aferentă travee/2.</p>
+    <table class="rt calc"><tbody>
+      <tr><td>G<sub>k</sub> = g · L<sub>travee</sub> · H / 2 = ${f2(T.g,3)} · ${f2(P.bay)} · ${f2(T.Htop,1)} / 2</td><td class="n b">${f2(T.Gp,2)} kN</td></tr>
+      <tr><td>Q<sub>k</sub> = q · L · B / 2 · 1,5 = ${f2(T.cl.q)} · ${f2(P.bay)} · ${f2(P.w)} / 2 · 1,5</td><td class="n b">${f2(T.Qp,2)} kN</td></tr>
+      <tr><td>N<sub>k</sub> = G<sub>k</sub> + Q<sub>k</sub> (valoare caracteristică)</td><td class="n b">${f2(T.Nk,2)} kN</td></tr>
+      <tr><td>N<sub>d</sub> = 1,35 · G<sub>k</sub> + 1,50 · Q<sub>k</sub> (valoare de calcul)</td><td class="n b">${f2(T.Nd,2)} kN</td></tr></tbody></table>
+    <p class="small">N<sub>d</sub> se compară cu capacitatea montantului / bazetei din tabelele producătorului, pentru lungimea de reglaj folosită (${Math.round((P.jack-0.1)*100)} cm).</p>
+    <h3>4. Presiunea pe teren</h3>
+    <table class="rt calc"><tbody>
+      <tr><td>Talpă de lemn 0,40 × 0,25 m, A = ${f2(T.Atalpa)} m²</td><td class="n b">p = N<sub>k</sub> / A = ${f2(T.ps,0)} kPa</td></tr>
+      <tr><td>Presiune admisă pe teren (introdusă)</td><td class="n b">${f2(D.sol,0)} kPa</td></tr>
+      <tr><td colspan="2" class="${okP?'ok':'bad'}">${okP?'✓ Talpa de 40 × 25 cm este suficientă.':`✗ Presiunea depășește terenul: talpă mai mare (min. ${f2(T.Nk/D.sol,2)} m²), dulapi continui sub 2 montanți sau placă de repartiție.`}</td></tr></tbody></table>
+    <h3>5. Vânt și ancorare</h3>
+    <table class="rt calc"><tbody>
+      <tr><td>Factor de expunere la ${f2(T.Htop,1)} m, c<sub>e</sub>(z)</td><td class="n b">${f2(T.w1.ce,2)}</td></tr>
+      <tr><td>Presiunea de vârf q<sub>p</sub>(z) = q<sub>b</sub> · c<sub>e</sub>(z)</td><td class="n b">${f2(T.w1.qp,2)} kPa</td></tr>
+      <tr><td>Suprafață aferentă unei ancore ${f2(T.hs)} × 4,00 m</td><td class="n b">${f2(T.Aanc,2)} m²</td></tr>
+      <tr><td>F<sub>k</sub> = q<sub>p</sub> · c<sub>f</sub>φ · A (perpendicular pe fațadă)</td><td class="n b">${f2(T.Fk,2)} kN</td></tr>
+      <tr><td>F<sub>d</sub> = 1,50 · F<sub>k</sub> (valoare de calcul pe ancoră)</td><td class="n b">${f2(T.Fd,2)} kN</td></tr>
+      <tr><td>Forța totală de vânt pe schelă</td><td class="n">${f2(T.Wtot,0)} kN</td></tr></tbody></table>
+    <table class="rt"><thead><tr><th>Tronson</th><th class="n">H vârf (m)</th><th class="n">Ancore</th><th class="n">Grilă (m)</th><th class="n">Lung. ancoră (m)</th><th class="n">F<sub>d</sub> (kN)</th><th class="n">Probă (kN)</th></tr></thead><tbody>${ancRows}</tbody></table>
+    <p class="small">Proba la smulgere: 1,2 × F<sub>d</sub>, pe cel puțin 10% din ancore (minim 5 bucăți pe obiectiv), pe fiecare tip de suport (beton, zidărie). Componenta paralelă cu fațada se preia prin diagonalele de fațadă.</p>
+    <h3>6. Concluzii</h3>
+    <ul><li>${okH?`Ultimul nivel de lucru (${f2(maxTop,1)} m) este sub 24 m, în domeniul configurațiilor standard SR EN 12810.`:`Ultimul nivel de lucru (${f2(maxTop,1)} m) depășește 24 m: este obligatoriu calcul static complet al proiectantului.`}</li>
+      <li>${okP?'Rezemarea pe tălpi de lemn este corespunzătoare pentru presiunea admisă introdusă.':'Rezemarea trebuie îmbunătățită (vezi pct. 4).'}</li>
+      <li>Ancorele se verifică prin probă la smulgere la minim ${f2(T.Ftest,1)} kN înainte de punerea în folosință.</li>
+      ${P.plasa&&P.ancMode==='min'?'<li><b>Cu plasă pe toată fața, producătorii cer de regulă ancorare la fiecare cadru – de confirmat de proiectant.</b></li>':''}</ul>
+    <p class="disc">Calcul simplificat, generat automat. Nu înlocuiește calculul static al proiectantului. Capacitățile montanților, bazetelor, podinelor și ancorelor se iau din agrementul tehnic al producătorului.</p>
+  </div>`,'Breviar de calcul'));
+  // 4. CAIET DE SARCINI
+  S.push(sheet('Caiet de sarcini – montaj, utilizare, demontaj','măsuri de securitate și sănătate în muncă',`<div class="doc">
+    <h3>1. Personal și echipament</h3>
+    <ul><li>Montajul și demontajul se fac numai de personal instruit pentru lucrul la înălțime, sub conducerea unui responsabil de schelă desemnat.</li>
+      <li>Echipament individual: cască cu bridă, ham de siguranță cu dublă lonjă, încălțăminte de protecție, mănuși, vestă reflectorizantă.</li>
+      <li>Instructajul SSM se face și se consemnează înainte de începerea lucrului.</li></ul>
+    <h3>2. Pregătirea</h3>
+    <ul><li>Verificarea vizuală a tuturor elementelor: nu se montează elemente deformate, fisurate, ruginite puternic sau cu sudurile rupte.</li>
+      <li>Delimitarea și semnalizarea zonei de lucru; protecția trecătorilor și a accesurilor în clădire (copertine).</li>
+      <li>Nivelarea și compactarea terenului; trasarea liniilor de cadre la ${f2(P.gap)} m de perete.</li>
+      <li>Verificarea rețelelor electrice aeriene: distanța minimă față de liniile sub tensiune conform furnizorului de energie.</li></ul>
+    <h3>3. Montajul</h3>
+    <ol><li>Se așază tălpile de lemn și bazetele de ${f2(P.jack)} m; se reglează primul nivel cu nivela.</li>
+      <li>Se montează cadrele primului nivel, balustradele / diagonalele și podinele; se verifică verticalitatea și orizontalitatea.</li>
+      <li>Se urcă nivel cu nivel; montatorul lucrează numai de pe un nivel complet podit, asigurat cu hamul.</li>
+      <li>Diagonalele se montează pe măsura înălțării: ${esc((DMODES[P.dmode]||{t:''}).t.toLowerCase())}, ${P.dfreq===1?'în fiecare travee':'1 la '+P.dfreq+' travee'}.</li>
+      <li>Ancorele se montează imediat ce nivelul respectiv e atins (din 4 în 4 m), înainte de a urca mai sus.</li>
+      <li>${P.cj==='tube'?'La colțuri: țeavă de legătură și cuple ortogonale pe fiecare nivel.':'La colțuri: traversele celor două fațade se prind între ele cu cuple rotative la ~3 cm, pe fiecare nivel de cadre.'}</li>
+      <li>Se montează scările de acces, balustradele, plintele și parapetul final; ${P.plasa?'se montează plasa de protecție;':''} se fixează eticheta de identificare.</li></ol>
+    <h3>4. Recepția și darea în folosință</h3>
+    <p>După montaj, responsabilul de schelă, reprezentantul executantului lucrării și beneficiarul verifică schela după PV de recepție (planșa 8) și fac proba ancorelor. Schela se folosește numai după semnarea PV și afișarea etichetei verzi „SCHELĂ APTĂ”.</p>
+    <h3>5. Utilizarea</h3>
+    <ul><li>Încărcare maximă: ${f2(T.cl.q)} kN/m² pe un singur nivel; nu se depozitează materiale grele sau moloz pe podine.</li>
+      <li>Nu se scot ancore, diagonale sau balustrade; dacă e necesar temporar, numai cu acordul responsabilului și cu refacerea imediată.</li>
+      <li>Nu se sare pe podine, nu se lucrează pe scări sau pe balustrade, nu se urcă pe exteriorul schelei.</li>
+      <li>Se întrerupe lucrul la vânt puternic (peste ~ 50 km/h), furtună, polei, ninsoare sau ceață densă.</li>
+      <li>Verificări: zilnic vizual de echipa care lucrează; săptămânal de responsabil; obligatoriu după vânt puternic, ploi abundente, cutremur sau întrerupere mai lungă de o lună – consemnate în registru (planșa 9).</li></ul>
+    <h3>6. Demontajul</h3>
+    <ul><li>Se face în ordinea inversă montajului, de sus în jos, nivel cu nivel.</li>
+      <li>Ancorele unui nivel se scot numai după ce nivelurile de deasupra au fost demontate.</li>
+      <li>Elementele se coboară, nu se aruncă; se sortează și se depozitează pe paleți.</li></ul>
+    <h3>7. Prevenirea incendiilor</h3>
+    <ul><li>Lucrările cu foc deschis (sudură, flex) se fac numai cu permis de lucru cu foc și stingător lângă locul de muncă.</li>
+      <li>Plasa și prelatele se țin departe de surse de căldură; deșeurile inflamabile se evacuează zilnic.</li></ul>
+  </div>`,'Caiet de sarcini, SSM, PSI'));
+  return S;
+}
+function formsSheets(){
+  const {P}=last; const T=techCalc(), D=T.D, F=firma(); const today=$('rdata').value||new Date().toLocaleDateString('ro-RO');
+  const chk=['Terenul de rezemare nivelat, compactat; tălpi de lemn sub toate bazetele','Bazete reglate, reglaj sub limita maximă, cadre verticale','Cadre complete pe toate nivelurile, fără elemente deteriorate','Diagonale montate conform schemei, siguranțele închise','Ancore montate din 4 în 4 m conform schemei; proba la smulgere efectuată',P.cj==='tube'?'Colțuri legate cu țeavă și cuple ortogonale':'Colțuri îmbinate cu cuple rotative pe fiecare nivel de cadre','Podine complete, fixate, fără goluri; trape închise','Balustrade (1,00 m și 0,50 m) și plinte pe toate nivelurile de lucru','Parapetul final montat conform proiectului','Golul spre perete max. 30 cm sau console / balustradă interioară','Scări de acces montate, trapele funcționează',P.plasa?'Plasa de protecție fixată pe toată suprafața':'Protecția trecătorilor / zona delimitată','Distanța față de liniile electrice respectată','Eticheta de identificare afișată la fiecare acces'];
+  const rows=chk.map((t,i)=>`<tr><td class="n">${i+1}</td><td>${esc(t)}</td><td class="wr"></td><td class="wr"></td><td class="wr w2"></td></tr>`).join('');
+  const tag=`<div class="stag"><div class="st-h">SCHELĂ APTĂ</div><div class="st-b">
+    <div><span>Obiectiv</span><b>${esc(P.nume||'')}</b></div><div><span>Sistem</span><b>${esc(T.desig)}</b></div>
+    <div><span>Încărcare maximă</span><b>${f2(T.cl.q)} kN/m² · clasa ${D.cls} · pe un singur nivel</b></div>
+    <div><span>Executant</span><b>${esc(F.nume||'')}${F.tel?' · '+esc(F.tel):''}</b></div>
+    <div class="st-g"><div><span>Recepționat la</span><b>&nbsp;</b></div><div><span>Responsabil</span><b>&nbsp;</b></div></div>
+    <div class="st-g"><div><span>Ultima verificare</span><b>&nbsp;</b></div><div><span>Semnătura</span><b>&nbsp;</b></div></div></div>
+    <div class="st-f">Se taie și se afișează la fiecare acces. Etichetă roșie / scoasă = schela NU se folosește.</div></div>`;
+  const pv=`<div class="cols"><div class="doc1">
+    <p><b>Proces-verbal de recepție a schelei nr. ______ din ______________</b></p>
+    <p>Obiectiv: <b>${esc(P.nume||'')}</b> · Beneficiar: ${esc(P.client||'')} · Amplasament: ${esc(D.adr||'')}</p>
+    <p>Comisia formată din responsabilul de schelă, reprezentantul executantului lucrărilor și reprezentantul beneficiarului a verificat schela montată conform dosarului tehnic${D.nr?' nr. '+esc(D.nr):''} și a constatat:</p>
+    <table class="rt"><thead><tr><th class="n">Nr.</th><th>Punct de verificare</th><th>Da</th><th>Nu</th><th>Observații</th></tr></thead><tbody>${rows}</tbody></table>
+    <p>Proba ancorelor: ______ ancore încercate la ${f2(T.Ftest,1)} kN, rezultat ______________________.</p>
+    <p>Concluzie: schela <b>☐ se admite</b> / <b>☐ nu se admite</b> în folosință. Încărcare maximă admisă ${f2(T.cl.q)} kN/m² pe un singur nivel.</p>
+    <div class="sign s3"><div><span>Responsabil schelă</span><b>${esc(D.rte||$('rschelar').value||'')}</b><i>semnătura</i></div><div><span>Executant lucrări</span><b></b><i>semnătura</i></div><div><span>Beneficiar</span><b></b><i>semnătura</i></div></div>
+  </div><div class="side">${tag}</div></div>`;
+  const reg=Array.from({length:14},()=>`<tr><td class="wr"></td><td class="wr"></td><td class="wr w3"></td><td class="wr w3"></td><td class="wr"></td><td class="wr"></td></tr>`).join('');
+  const pp=`<div class="cols"><div><p><b>Registru de verificări periodice ale schelei</b> · zilnic (vizual), săptămânal, după vânt puternic / ploi / cutremur / întrerupere peste o lună</p>
+    <table class="rt reg"><thead><tr><th>Data</th><th>Motivul verificării</th><th>Constatări</th><th>Măsuri luate</th><th>Nume</th><th>Semnătura</th></tr></thead><tbody>${reg}</tbody></table></div>
+    <div class="side doc1"><p><b>Proces-verbal de predare-primire a schelei</b></p>
+    <p>Astăzi, ______________, ${esc(F.nume||'executantul schelei')} predă, iar ______________________________ primește în folosință schela de fațadă de la obiectivul <b>${esc(P.nume||'')}</b>, montată conform dosarului tehnic și recepționată prin PV nr. ______.</p>
+    <p>Utilizatorul se obligă să folosească schela conform caietului de sarcini (planșa 4), să nu o modifice, să nu scoată ancore, diagonale sau balustrade și să anunțe imediat orice deteriorare. Modificările se fac numai de executantul schelei.</p>
+    <p>La predare s-au constatat: ________________________________________________</p>
+    <div class="sign"><div><span>Am predat</span><b>${esc(F.nume||'')}</b><i>semnătura</i></div><div><span>Am primit</span><b></b><i>semnătura</i></div></div></div></div>`;
+  return [{title:'Proces-verbal de recepție',sub:'și etichetă de identificare',body:pv,cont:'PV de recepție'},{title:'Registru de verificări',sub:'și proces-verbal de predare-primire',body:pp,cont:'Registru verificări, PV predare'}];
+}
+
+function cartus(nr,tot,cont){ const F=firma();
   const P=last.P, today=$('rdata').value||new Date().toLocaleDateString('ro-RO');
   return `<div class="cartus">
-    <div class="c-logo"><img src="${document.querySelector('header.top img').src}" alt=""><div><b>GIOVANI CONSTRUCT</b><span>împreună susținem viitorul</span></div></div>
+    <div class="c-logo"><img src="${firmaLogo()}" alt=""><div><b>${esc(F.nume||'')}</b><span>${esc(F.motto||'')}</span></div></div>
     <div class="c-row"><span>Proiect</span><b>${esc(P.nume||'—')}</b></div>
     <div class="c-row"><span>Client / adresă</span><b>${esc(P.client||'—')}</b></div>
-    <div class="c-row"><span>Conținut</span><b>Schemă schelă de fațadă pe cadre prefabricate și necesar de materiale</b></div>
-    <div class="c-grid"><div><span>Scara</span><b>schematic</b></div><div><span>Data</span><b>${esc(today)}</b></div><div class="c-nr"><span>Planșa</span><b>${nr}</b></div></div>
+    <div class="c-row"><span>Conținut</span><b>${esc(cont||'Schemă schelă de fațadă pe cadre prefabricate și necesar de materiale')}</b></div>
+    <div class="c-grid"><div><span>Scara</span><b>schematic</b></div><div><span>Data</span><b>${esc(today)}</b></div><div class="c-nr"><span>Planșa</span><b>${nr}${tot?'/'+tot:''}</b></div></div>
     <div class="c-grid2"><div><span>Întocmit</span><b>${esc($('rautor').value||'')}</b></div><div><span>Verificat schelar</span><b>${esc($('rschelar').value||'')}</b></div></div>
     ${typeof sigHTML==='function'?sigHTML():''}
   </div>`;
@@ -1194,7 +1524,7 @@ function buildReport(){
   const {P,list,totKg,geo,maxTop,area}=last;
   const DM=DMODES[P.dmode]?DMODES[P.dmode].t:'';
   const items=geo.map((g,i)=>g?{g,i}:null).filter(Boolean);
-  const tot=3;
+  const full=$('repFull')?$('repFull').checked:true, off=full?4:0, tot=full?9:3;
   const notes=`<div class="notes"><b>Note pentru montaj</b><ul>
     <li>Înainte și în timpul montajului se verifică terenul de rezemare. Sub fiecare picior reglabil se pune talpă de lemn de cel puțin 4 cm sau placă de repartiție.</li>
     <li>Schela se montează după instrucțiunile producătorului sistemului.${maxTop>24?` Ultimul nivel este la ${fmt(maxTop,1)} m, peste 24 m: este necesar calcul de rezistență.`:''}</li>
@@ -1209,15 +1539,15 @@ function buildReport(){
     <div class="plan">${planSVG()}</div>
     <div class="legend r-leg"><span><i style="background:var(--ink)"></i>cadru (H)</span><span><i style="background:var(--ok)"></i>S = coloană cu scară</span><span><i style="background:var(--accent)"></i>travee de colț</span><span><i style="background:var(--bal);height:8px"></i>balcoane</span><span>cote în metri; „11 × 3,07” = 11 travee de 3,07 m</span></div>
     <div class="dets">${detailsSVG()}</div>
-    <div class="sfoot">${notes}${cartus(1,tot)}</div>
+    <div class="sfoot">${notes}${cartus(1+off,tot,'Dispunerea în plan și detalii')}</div>
   </section>`;
   h+=`<section class="sheet"><div class="shead"><h1>Elevații pe tronsoane</h1><span>diagonale: ${esc(DM.toLowerCase())}, ${P.dfreq===1?'în fiecare travee':'1 la '+P.dfreq+' travee'} · cadru ${fmt(P.w)} m · niveluri de 2,00 m</span></div>
-    <div class="elevs">${items.map(({g,i})=>`<figure class="fig"><figcaption><b>TRONSON ${LET[i]}</b> · ${esc(segs[i].n)} · ${g.bays.length} travee · ${g.F} cadre pe nivel · ${[...new Set(g.tr.map(t=>t.N))].join(" / ")} niveluri · ${g.nd} diagonale pe nivel · ${g.a} ${g.a===1?'scară':'scări'}</figcaption>${elevSVG(i,{report:true})}</figure>`).join('')}</div>
+    <div class="elevs ${items.length>6?'e4':items.length>4?'e3':''}">${items.map(({g,i})=>`<figure class="fig"><figcaption><b>TRONSON ${LET[i]}</b> · ${esc(segs[i].n)} · ${g.bays.length} travee · ${g.F} cadre pe nivel · ${[...new Set(g.tr.map(t=>t.N))].join(" / ")} niveluri · ${g.nd} diagonale pe nivel · ${g.a} ${g.a===1?'scară':'scări'}</figcaption>${elevSVG(i,{report:true})}</figure>`).join('')}</div>
     <div class="legend r-leg"><span><i style="background:var(--steel)"></i>cadre și niveluri (linie groasă = nivel cu podine)</span><span><i style="background:var(--accent)"></i>diagonale</span><span><i style="background:var(--ok)"></i>scară</span><span><i style="background:var(--warn);height:8px;width:8px;border-radius:50%"></i>ancoraj</span></div>
     <div class="sfoot"><div class="notes"><b>Date de calcul</b><ul>
       <li>Înălțime la cornișă ${fmt(P.H,1)} m · ultimul nivel de lucru la ${fmt(maxTop,1)} m · balustradă finală +1,00 m.</li>
       <li>Distanța schelă–perete ${fmt(P.gap)} m · podine ${P.decks==='alt'?'din 2 în 2 niveluri':'pe toate nivelurile'} · plasă ${P.plasa?'da':'nu'} · rezervă ${fmt(P.rez,0)}%.</li>
-      <li>Suprafață schelată ≈ ${fmt0(area)} m² · greutate totală ≈ ${fmt(totKg/1000,1)} t.</li></ul></div>${cartus(2,tot)}</div>
+      <li>Suprafață schelată ≈ ${fmt0(area)} m² · greutate totală ≈ ${fmt(totKg/1000,1)} t.</li></ul></div>${cartus(2+off,tot,'Elevații pe tronsoane')}</div>
   </section>`;
   let cat='', n=0;
   const rows=list.map(x=>{ let r=''; if(x.cat!==cat){cat=x.cat; r+=`<tr class="cat"><td colspan="7">${cat}</td></tr>`;} n++;
@@ -1231,10 +1561,13 @@ function buildReport(){
         <table class="rt"><thead><tr><th>Tronson</th><th class="n">m</th><th class="n">Travee</th><th class="n">Cadre/niv.</th><th class="n">Niv.</th><th class="n">Cadre</th><th class="n">Diag.</th><th class="n">Scări</th><th class="n">Ancore</th></tr></thead><tbody>${chk}</tbody></table>
         <p class="rnote">Verificare rapidă (fără rezervă): cadre = cadre pe nivel × niveluri; cadre pe nivel = travee + 1 pe fiecare tronson. Diagonale = diagonale pe nivel × niveluri.</p>
         <div class="sign"><div><span>Întocmit</span><b>${esc($('rautor').value||'')}</b><i>semnătura</i></div><div><span>Verificat schelar</span><b>${esc($('rschelar').value||'')}</b><i>semnătura</i></div></div>
-        ${cartus(3,tot)}
+        ${cartus(3+off,tot,'Necesar de materiale')}
       </div>
     </div>
   </section>`;
+  const wrap=x=>`<section class="sheet">${firmaWm()}${firmaHead()}<div class="shead"><h1>${x.title}</h1><span>${x.sub||''}</span></div>${x.body}<div class="sfoot1">${cartus(x.n,tot,x.cont)}</div></section>`;
+  h=h.replace(/<section class="sheet">/g,()=>`<section class="sheet">${firmaWm()}${firmaHead()}`);
+  if(full){ const pre=dosarSheets().map((x,k)=>wrap({...x,n:k+1})).join(''); const post=formsSheets().map((x,k)=>wrap({...x,n:8+k})).join(''); h=pre+h+post; }
   { const pb=projB64(); h=h.replace(/<\/section>\s*$/,`<a class="pmeta" aria-hidden="true" tabindex="-1" href="https://giovaniconstruct.ro/#GCPROJ:${pb}:END">GCPROJ:${pb}:END</a></section>`); }
   $('rbody').innerHTML=h;
 }
@@ -1880,7 +2213,7 @@ $('autoSc').addEventListener('click',()=>{readSegs();segs.forEach(s=>s.sc=autoSc
 ['Lb','lb'].forEach(id=>$(id).addEventListener('change',()=>{ if(!CFG[cfg].mk)return; readSegs(); const L=+$('Lb').value||0,l=+$('lb').value||0;
   segs.forEach(s=>{ if(/principal|spate/i.test(s.n)) {s.L=L;} else if(/lateral/i.test(s.n)) {s.L=l;} }); renderSegs(); calc(); }));
 
-const FIELDS=['nume','client','rautor','rschelar','rdata','stageN','ofMont','ofChirie','ofLuni','ofTransp','ofTva','ofOameni','ofProd','H','hEt','Lb','lb','cExt','cInt','w','bay','pw','jack','cj','par','pas','gap','decks','dfreq','dmode','ancMode','rez','truck'];
+const FIELDS=['nume','client','rautor','rschelar','rdata','stageN','ofMont','ofChirie','ofLuni','ofTransp','ofTva','ofOameni','ofProd','dNr','dAdr','dProi','dVer','dRte','dCls','dQb','dTer','dSol','H','hEt','Lb','lb','cExt','cInt','w','bay','pw','jack','cj','par','pas','gap','decks','dfreq','dmode','ancMode','rez','truck'];
 const CHK=['plasa','cons'];
 function getStore(){try{return JSON.parse(localStorage.getItem('schela_proiecte')||'{}')}catch(e){return {}}}
 function setStore(o){try{localStorage.setItem('schela_proiecte',JSON.stringify(o));return true}catch(e){return false}}
@@ -1914,7 +2247,7 @@ $('tbl').addEventListener('change',e=>{ const i=e.target.closest('[data-ovr]'); 
   const v=i.value===''?x.qr:Math.max(0,Math.round(+i.value)); if(v===x.qr) delete ovr[k]; else ovr[k]=v; calc(); });
 document.querySelectorAll('#ttabs button').forEach(b=>b.addEventListener('click',()=>{ toolTab=b.dataset.tt; renderTools(); }));
 $('openRep').addEventListener('click',openReport); $('mRep').addEventListener('click',openReport);
-$('repBack').addEventListener('click',closeReport);
+$('repBack').addEventListener('click',closeReport); $('repFull').addEventListener('change',()=>{ buildReport(); }); initFirma();
 $('repCopy').addEventListener('click',()=>$('copy').click());
 (function(){ const canPrint=!!(window.AndroidApp&&AndroidApp.print)||window.self===window.top;
   $('repPrint').hidden=!canPrint; $('repHint').hidden=canPrint;
