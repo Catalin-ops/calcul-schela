@@ -223,6 +223,7 @@ table.pr td,table.pr th{padding:4px 6px}
 .c-sig>div{display:flex;align-items:center;gap:10px;flex-wrap:wrap}
 .c-sig img{height:46px;width:auto;background:#fff}
 .c-sig i{font-size:10px;color:var(--muted)}
+.pmeta{font-size:1px;line-height:1px;color:#fff;word-break:break-all;height:2px;overflow:hidden;opacity:.01}
 .mini{font-size:12px;padding:3px 8px;font-weight:600}
 .seg .c3{grid-column:span 3}
 .seg .del.mini{align-self:end;padding:7px 0}
@@ -442,6 +443,8 @@ table.of tr.tot td{border-top:2px solid var(--ink);font-size:16px}
         <div class="row full"><button type="button" class="pri" id="save">Salvează proiectul</button></div>
         <div class="row full"><span class="hint" style="margin:0">Exemple:</span><button type="button" class="ghost mini" data-ex="fundeni">Remiză Fundeni (schița din 13.11)</button></div>
         <div class="saved full" id="saved"></div>
+        <div class="row full"><label class="filebtn">📄 Deschide proiect din PDF<input type="file" id="pdfIn" accept="application/pdf,.pdf"></label></div>
+        <p class="hint" id="pdfMsg" style="margin:0">Raportul PDF făcut cu aplicația conține și datele proiectului: îl trimiți cuiva, iar el îl deschide aici și are proiectul complet.</p>
       </fieldset>
     </form>
 
@@ -545,7 +548,7 @@ const fmt0=n=>Math.round(n).toLocaleString('ro-RO');
 const esc=s=>String(s).replace(/&/g,'&amp;').replace(/"/g,'&quot;').replace(/</g,'&lt;');
 
 const KG={
-  cadru:{1.05:20.0,0.73:18.5,1.09:22.0}, capat:{1.05:10.5,0.73:9.5,1.09:11.5}, stalp:4.0, picior:3.6, talpa:2.5,
+  cadru:{1.05:20.0,0.73:18.5,1.09:22.0}, capat:{1.05:10.5,0.73:9.5,1.09:11.5}, stalp:4.0, picior:3.0, talpa:2.5,
   podina:{2:14.2,0.73:6.5,1.09:8.5,1.57:11.5,2.07:14.5,2.57:18.5,3.07:22.0},
   trapa:{1.8:20,2:19,2.07:19,2.57:22,3.07:25}, scara:7.4,
   balustrada:{1.8:3.8,2:4.4,0.73:2.2,1.09:3.0,1.57:3.6,2.07:4.5,2.57:5.3,3.07:6.3},
@@ -587,7 +590,7 @@ const DMODES={
 };
 
 function S(n,L){return {n,L,H:'',sc:autoSc(L),bal:false,bd:1.2,ancBal:true,st:0,sd:0.6,p:0,parts:[],ce:'ext'};}
-function autoSc(L){return L<=0?0:L<=25?1:Math.ceil(L/30);}
+function autoSc(L){return L>0?1:0;}  // o scară de acces pe fiecare fațadă
 
 let segs=[];
 let active=0;
@@ -739,7 +742,7 @@ function compute(capN){
     tr.forEach(t=>{ const len=t.bays.reduce((a,b)=>a+b,0); area+=len*(t.top+PG); });
     add('cadru','Structură','Cadru vertical oțel',`${fmt(P.w)} × 2,00 m`,frames,KG.cadru[P.w],'pe fiecare nivel, la fiecare linie de cadre');
     if(!EXT) add('stalp','Structură','Stâlp balustradă nivel final','1,00 m',lines,KG.stalp,'deasupra ultimului nivel');
-    add('picior','Bază','Picior reglabil (bază cu filet)','0,60 m',2*lines,KG.picior,'2 la fiecare linie de cadre');
+    add('picior','Bază','Picior reglabil (bază cu filet)','0,50 m',2*lines,KG.picior,'2 la fiecare linie de cadre');
     add('talpa','Bază','Talpă de repartiție lemn','40 × 25 × 5 cm',2*lines,KG.talpa,'sub fiecare picior');
     // diagonale
     let nd=0, ndL=0; const f=P.dfreq, mult=DMODES[P.dmode].mult;
@@ -1209,6 +1212,7 @@ function buildReport(){
       </div>
     </div>
   </section>`;
+  h=h.replace(/<\/section>\s*$/,`<div class="pmeta" aria-hidden="true">GCPROJ:${projB64()}:END</div></section>`);
   $('rbody').innerHTML=h;
 }
 function openReport(){ calc(); buildReport(); $('report').hidden=false; document.body.classList.add('rep-open'); $('report').scrollTop=0; }
@@ -1370,6 +1374,9 @@ Răspunde doar cu JSON: {"fatade":[{"n":"","L":0,"H":0,"parts":[],"ce":"ext","de
 /* ===== Editor schiță contur (comun: pagina schiței + aplicația de calcul) =====
    sides: [{L, H, ce:'ext'|'int'|'drept', auto:bool}]  – ocolire în sensul acelor de ceasornic, prima latură spre dreapta
    totals: {W, D} – lungimea și lățimea totală (folosite când pe o direcție sunt 2 laturi „auto”) */
+/* ===== Editor schiță contur (comun: pagina schiței + aplicația de calcul) =====
+   sides: [{L, H, ce:'ext'|'int'|'drept', auto:bool}]  – ocolire în sensul acelor de ceasornic, prima latură spre dreapta
+   totals: {W, D} – lungimea și lățimea totală (folosite când pe o direcție sunt 2 laturi „auto”) */
 function mountSketch(root, opts){
   opts=opts||{};
   const LET='ABCDEFGHIJKLMNOPQRSTUVWXYZ';
@@ -1387,10 +1394,6 @@ function mountSketch(root, opts){
       </div>
       <div class="sk-side">
         <div class="sk-status"></div>
-        <div class="sk-card sk-photo" hidden>
-          <div class="sk-row"><label class="sk-file">📷 Poza schiței<input type="file" class="sk-pfile" accept="image/jpeg,image/png,image/webp"></label><button type="button" class="sk-pri sk-pgo" disabled>Detectează forma</button><button type="button" class="sk-pstop" hidden>Oprește</button></div>
-          <p class="sk-hint sk-pmsg">Claude citește conturul, cotele și înălțimile. Apoi corectezi doar ce e nevoie.</p>
-        </div>
         <div class="sk-card">
           <div class="sk-row sk-tot">
             <label>Lungime totală (m)<input type="number" step="0.01" min="0" class="sk-W"></label>
@@ -1406,6 +1409,14 @@ function mountSketch(root, opts){
             <button type="button" class="sk-new">✎ Desenează din nou</button>
             ${opts.applyLabel?`<button type="button" class="sk-pri sk-apply">${opts.applyLabel}</button>`:''}
             ${opts.extraButtons||''}
+          </div>
+          <div class="sk-photo">
+            <div class="sk-row">
+              <label class="sk-file">📷 Încarcă poza schiței<input type="file" class="sk-pfile" accept="image/jpeg,image/png,image/webp" disabled></label>
+              <label class="sk-file">📷 Poze cu schela montată<input type="file" class="sk-sfile" accept="image/jpeg,image/png,image/webp" multiple disabled></label>
+              <button type="button" class="sk-pstop" hidden>Oprește</button>
+            </div>
+            <p class="sk-hint sk-pmsg">Se verifică dacă se pot citi poze aici…</p>
           </div>
         </div>
       </div>
@@ -1577,7 +1588,6 @@ function mountSketch(root, opts){
     if(t.dataset.del!==undefined){ st.sides.splice(+t.dataset.del,1); update(true); }
     else if(t.dataset.split!==undefined){ const i=+t.dataset.split, {Ls}=solve(), sd=st.sides[i], half=Math.round(Ls[i]/2*100)/100;
       st.sides.splice(i,1,{L:half,H:sd.H,ce:'drept',auto:false},{L:Math.round((Ls[i]-half)*100)/100,H:sd.H,ce:sd.ce,auto:sd.auto}); update(true); }
-    else if(t.classList.contains('sk-pgo')){ runPhoto(); }
     else if(t.classList.contains('sk-pstop')){ pctl&&pctl.abort(); }
     else if(t.classList.contains('sk-add')){ st.sides.push({L:3,H:st.Hdef,ce:'ext',auto:false}); update(true); }
     else if(t.classList.contains('sk-new')){ drawMode=true; pts=[]; hover=null; q('.sk-drawbar').hidden=false; drawCanvas(); }
@@ -1587,18 +1597,23 @@ function mountSketch(root, opts){
       if(Math.hypot(w.ex,w.ey)>0.02||msg.length){ const s=q('.sk-status'); s.className='sk-status bad'; s.insertAdjacentHTML('afterbegin','<b>Nu pot aplica: conturul trebuie să se închidă.</b> '); s.scrollIntoView({block:'nearest'}); return; }
       opts.onApply&&opts.onApply(get()); } });
 
-  /* ---------- poză ---------- */
-  let pfile=null, pctl=null;
-  q('.sk-pfile').addEventListener('change',e=>{ pfile=e.target.files&&e.target.files[0]; q('.sk-pgo').disabled=!pfile; q('.sk-pmsg').textContent=pfile?pfile.name:''; });
-  async function runPhoto(){ if(!pfile||!opts.photo) return; pctl=new AbortController(); q('.sk-pgo').disabled=true; q('.sk-pstop').hidden=false; q('.sk-pmsg').textContent='Claude citește schița… (poate dura un minut)';
-    try{ const r=await opts.photo(pfile,pctl.signal); if(!r||!r.sides||r.sides.length<3) throw {code:'empty'};
+  /* ---------- poze: schița cu cote sau schela montată ---------- */
+  let pctl=null; const pm=t=>{ q('.sk-pmsg').textContent=t; };
+  const errMsg=e=>{ const c=e&&e.code; return c==='cancelled'?'Oprit.': c==='not_granted'?'Claude nu are voie să citească poze în această pagină.': c==='rate_limited'?'Prea multe cereri. Încearcă peste câteva minute.': c==='image_rejected'?'O poză nu a putut fi citită. Încearcă JPG sau PNG.':'Nu am putut citi pozele. Încearcă poze mai clare, drepte și luminate.'; };
+  async function runP(kind,files){ const fn=kind==='sketch'?opts.photo:opts.photoScaffold; if(!fn||!files.length) return;
+    pctl=new AbortController(); q('.sk-pstop').hidden=false; q('.sk-pfile').disabled=q('.sk-sfile').disabled=true;
+    pm(kind==='sketch'?'Claude citește schița… (poate dura un minut)':`Claude numără traveele și nivelurile din ${files.length} ${files.length===1?'poză':'poze'}… (poate dura 1–2 minute)`);
+    try{ const r=await fn(kind==='sketch'?files[0]:files,pctl.signal); if(!r||!r.sides||!r.sides.length) throw {code:'empty'};
       st.sides=r.sides; if(r.totals) st.totals=Object.assign(st.totals,r.totals); update(true);
-      q('.sk-pmsg').textContent='Gata. Verifică cotele (cele cu * sunt calculate) și trage punctul galben dacă limita dintre înălțimi nu e la locul ei.'+(r.note?' Notă: '+r.note:''); }
-    catch(e){ const c=e&&e.code; q('.sk-pmsg').textContent= c==='cancelled'?'Oprit.': c==='not_granted'?'Claude nu are voie să citească poze în această pagină.': c==='rate_limited'?'Prea multe cereri. Încearcă peste câteva minute.': c==='image_rejected'?'Poza nu a putut fi citită. Încearcă JPG sau PNG.':'Nu am putut citi conturul. Încearcă o poză mai clară, dreaptă și luminată.'; }
-    finally{ q('.sk-pstop').hidden=true; q('.sk-pgo').disabled=!pfile; } }
+      pm((kind==='sketch'?'Gata. Verifică cotele (cele cu * sunt calculate) și trage punctul galben dacă limita dintre înălțimi nu e la locul ei.':'Gata. Lungimile vin din numărul de travee, înălțimile din numărul de niveluri. Verifică fiecare latură și colțurile.')+(r.note?' '+r.note:'')); }
+    catch(e){ pm(errMsg(e)); }
+    finally{ q('.sk-pstop').hidden=true; q('.sk-pfile').disabled=q('.sk-sfile').disabled=false; q('.sk-pfile').value=''; q('.sk-sfile').value=''; } }
+  q('.sk-pfile').addEventListener('change',e=>runP('sketch',[...(e.target.files||[])]));
+  q('.sk-sfile').addEventListener('change',e=>runP('scaffold',[...(e.target.files||[])]));
 
   update(true);
-  return { enablePhoto(on){ q('.sk-photo').hidden=!on; }, get, set(v){ st={sides:JSON.parse(JSON.stringify(v.sides||[])),totals:Object.assign({W:'',D:''},v.totals||{}),Hdef:v.Hdef||st.Hdef}; drawMode=false; q('.sk-drawbar').hidden=true; update(true); } };
+  return { enablePhoto(on){ q('.sk-pfile').disabled=q('.sk-sfile').disabled=!on;
+      pm(on?'Poza schiței: Claude citește conturul, cotele și înălțimile. Poze cu schela montată: câte o poză pe fiecare fațadă, în ordinea ocolirii clădirii; Claude numără traveele și nivelurile.':'Citirea din poze merge doar în pagina deschisă în aplicația Claude. Aici poți desena conturul sau scrie cotele.'); }, get, set(v){ st={sides:JSON.parse(JSON.stringify(v.sides||[])),totals:Object.assign({W:'',D:''},v.totals||{}),Hdef:v.Hdef||st.Hdef}; drawMode=false; q('.sk-drawbar').hidden=true; update(true); } };
 }
 
 /* citire contur din poză (doar în Claude): întoarce {sides, totals, note} pentru editorul de schiță */
@@ -1606,18 +1621,41 @@ const SK_PROMPT=`Ești schelar cu experiență. Imaginea este schița de mână 
 Extrage conturul exterior ca listă de laturi, în ordine, ocolind clădirea în sensul acelor de ceasornic. Prima latură este latura de sus (cea mai de sus), parcursă de la stânga la dreapta, pornind din colțul ei din stânga.
 Pentru fiecare latură dă:
 - "L": lungimea în metri (număr), sau null dacă nu e scrisă pe schiță
-- "H": înălțimea scrisă pe schiță (H), în metri, fără să adaugi parapetul; parapetul de 2 m îl adaugă aplicația. Dacă nu e nicio înălțime, pune null.
+- "H": înălțimea scrisă pe schiță (H), în metri, fără să adaugi parapetul (parapetul de 2 m îl adaugă aplicația). Dacă nu e nicio înălțime, pune null.
 - "ce": ce face conturul la capătul laturii: "ext" colț în afară (viraj la dreapta), "int" colț intrând (viraj la stânga), "drept" dacă latura continuă drept dar acolo se schimbă înălțimea (de ex. un punct marcat unde începe partea înaltă).
 Dacă pe schiță e scrisă o lungime totală a clădirii, pune-o în "W" (orizontal) sau "D" (vertical).
 Răspunde doar cu JSON: {"laturi":[{"L":0,"H":0,"ce":"ext"}],"W":null,"D":null,"note":"ce ai presupus sau n-ai putut citi"}`;
-async function skPhotoReader(){
+const SK_SCAF=(n,bay)=>`Ești schelar cu experiență. Primești ${n} ${n===1?'poză':'poze'} cu schelă de fațadă pe cadre deja montată, câte una pentru fiecare fațadă a aceleiași clădiri, în ordinea în care se ocolește clădirea în sensul acelor de ceasornic.
+Sistemul: cadre de 2,00 m înălțime, travee (distanța dintre două cadre vecine) de ${String(bay).replace('.',',')} m.
+Pentru FIECARE poză, în ordine, numără cu atenție pe fața exterioară a schelei:
+- "travee": câte travee are schela pe toată lungimea fațadei (numără cadrele verticale de pe rândul de jos și scade 1).
+- "niveluri": câte niveluri de cadre de 2 m are, de la sol până sus, inclusiv ultimul nivel (parapetul).
+- "portiuni": dacă pe aceeași fațadă schela are înălțimi diferite, porțiunile de la stânga la dreapta [{"travee":0,"niveluri":0}]; altfel [].
+- "scari": câte coloane cu scări de acces se văd.
+- "colt_final": ce face clădirea la capătul din dreapta al fațadei din poză: "ext" colț în afară, "int" colț intrând.
+- "incredere": "mare", "medie" sau "mica" (mică dacă fațada nu se vede toată, e fotografiată din unghi mare sau e acoperită).
+- "note": ce nu s-a văzut bine sau ce ai estimat din ritmul cadrelor.
+Răspunde doar cu JSON: {"fatade":[{"travee":0,"niveluri":0,"portiuni":[],"scari":0,"colt_final":"ext","incredere":"medie","note":""}]}`;
+async function skPhotoReader(getBay){
   let sample=null; try{ sample=window.claude?await window.claude.use('sample'):null; }catch(e){}
   if(!sample) return null; let lim=null; try{ lim=await sample.limits(); }catch(e){} if(!lim||!lim.images) return null;
-  return async (file,signal)=>{ const r=await sample.json(SK_PROMPT,{images:[file],modelTier:'complex',signal});
+  const maxN=lim.images.maxCount||5;
+  const scaffold=async (files,signal)=>{ const bay=(getBay&&getBay())||1.8, fs=files.slice(0,maxN);
+    const r=await sample.json(SK_SCAF(fs.length,bay),{images:fs,modelTier:'complex',signal});
+    const F=(r&&Array.isArray(r.fatade))?r.fatade:[]; const sides=[], notes=[];
+    F.forEach((f,i)=>{ const parts=Array.isArray(f.portiuni)&&f.portiuni.length>1?f.portiuni:[{travee:f.travee,niveluri:f.niveluri}];
+      parts.forEach((pp,j)=>{ const tv=Math.max(1,Math.round(+pp.travee||1)), nv=Math.max(2,Math.round(+pp.niveluri||2));
+        sides.push({L:Math.round(tv*bay*100)/100,H:2*(nv-1),ce:j<parts.length-1?'drept':(f.colt_final==='int'?'int':'ext'),auto:false,sc:j===0?Math.max(0,Math.round(+f.scari||1)):0}); });
+      notes.push(`Fațada ${i+1}: ${f.travee} travee × ${f.niveluri} niveluri, încredere ${f.incredere||'?'}${f.note?' – '+f.note:''}.`); });
+    if(files.length>maxN) notes.push(`Am citit doar primele ${maxN} poze.`);
+    return {sides,note:notes.join(' ')}; };
+  const photo=async (file,signal)=>{ const r=await sample.json(SK_PROMPT,{images:[file],modelTier:'complex',signal});
     const ls=(r&&Array.isArray(r.laturi))?r.laturi:[]; const Hs=ls.map(x=>+x.H).filter(h=>h>0); const Hd=Hs.length?Math.min(...Hs):5.5;
     return {sides:ls.map(x=>({L:+x.L>0?+x.L:3,H:+x.H>0?+x.H:Hd,ce:['ext','int','drept'].includes(x.ce)?x.ce:'ext',auto:!(+x.L>0)})),
       totals:{W:+r.W>0?+r.W:'',D:+r.D>0?+r.D:''},note:String(r.note||'')}; };
+  return {photo,scaffold};
 }
+
 
 /* ===== schița în aplicație ===== */
 let sketchState=null, skApi=null, skPhoto;
@@ -1632,7 +1670,7 @@ function segsFromSketch(v){ const out=[]; let grp=[], start=0;
       const end=i+1, name=`${LETS[start%26]}–${LETS[end%v.sides.length%26]}`;
       const L=Math.round(grp.reduce((a,z)=>a+(+z.L||0),0)*100)/100;
       const o0=segs[out.length]||null, old=o0&&Math.abs((+o0.L||0)-grp.reduce((a2,z)=>a2+(+z.L||0),0))<0.6?o0:null, desc=old&&old.n?old.n.replace(/^[A-Z]–[A-Z]\s*/,''):'Fațadă';
-      const sg=S(name+' '+(desc||'Fațadă'),L); if(old){ ['sc','bal','bd','ancBal','p'].forEach(k=>sg[k]=old[k]); } else sg.sc=L>=5?autoSc(L):0;
+      const sg=S(name+' '+(desc||'Fațadă'),L); if(old){ ['sc','bal','bd','ancBal','p'].forEach(k=>sg[k]=old[k]); } else sg.sc=grp.some(z=>z.sc!==undefined)?Math.max(...grp.map(z=>+z.sc||0)):autoSc(L);
       const hs=[...new Set(grp.map(z=>+z.H))];
       if(grp.length>1) sg.parts=grp.map(z=>({L:+z.L,H:+z.H})); else sg.H=hs[0]||'';
       sg.ce=sd.ce==='drept'?'ext':sd.ce; out.push(sg); grp=[]; start=end; } });
@@ -1644,7 +1682,8 @@ function openSketch(){ const fs=sketchFromSegs(); let init=fs;
       sketchState=v; segs=segsFromSketch(v); cfg='man'; const hs=v.sides.map(z=>+z.H).filter(h=>h>0); if(hs.length) $('H').value=Math.max(...hs);
       active=0; $('exTag').hidden=true; renderFaces(); renderSegs(); calc(); closeSketch(); toast('Fațadele au fost completate din schiță.'); }}); skApi=mountSketch($('skRoot'),o); skApi._o=o; }
   else skApi.set(init);
-  if(skPhoto===undefined){ skPhoto=null; skPhotoReader().then(fn=>{ skPhoto=fn; if(fn&&skApi){ skApi._o.photo=fn; skApi.enablePhoto(true); } }); }
+  if(skPhoto===undefined){ skPhoto=null; skPhotoReader(()=>+$('bay').value||1.8).then(pr=>{ skPhoto=pr; if(skApi){ if(pr){ skApi._o.photo=pr.photo; skApi._o.photoScaffold=pr.scaffold; } skApi.enablePhoto(!!pr); } }); }
+  else if(skApi) skApi.enablePhoto(!!skPhoto);
   $('skOv').hidden=false; document.body.classList.add('rep-open'); }
 function closeSketch(){ $('skOv').hidden=true; document.body.classList.remove('rep-open'); }
 $('openSk').addEventListener('click',openSketch); $('skBack').addEventListener('click',closeSketch);
@@ -1762,6 +1801,7 @@ onlineInit();
       if(!window.html2canvas) await load('https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js');
       if(!window.jspdf) await load('https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js');
       const pdf=new window.jspdf.jsPDF({orientation:'landscape',unit:'mm',format:'a3'}); const PWm=420, PHm=297, M=8;
+      pdf.setProperties({title:'Raport schelă – '+(last.P.nume||'proiect'),subject:'GCPROJ:'+projB64()+':END',creator:'Calcul Schelă – Giovani Construct'});
       const sheets=[...document.querySelectorAll('#rbody .sheet')];
       for(let i=0;i<sheets.length;i++){ const cv=await window.html2canvas(sheets[i],{scale:2,backgroundColor:'#ffffff',useCORS:true});
         const r=Math.min((PWm-2*M)/cv.width,(PHm-2*M)/cv.height), w=cv.width*r, h=cv.height*r;
@@ -1771,6 +1811,28 @@ onlineInit();
     }catch(e){ toast(e&&e.code==='cancelled'?'Salvarea a fost anulată.':'PDF-ul nu s-a putut face. Încearcă din nou.'); }
     finally{ b.disabled=false; b.textContent='Descarcă PDF'; } });
 })();
+
+
+/* ===== proiectul salvat în PDF și deschiderea lui ===== */
+function projB64(){ try{ const o=projSnapshot(); return btoa(unescape(encodeURIComponent(JSON.stringify(o)))); }catch(e){ return ''; } }
+function fromB64(b){ return JSON.parse(decodeURIComponent(escape(atob(b)))); }
+async function readProjFromPdf(file){
+  const buf=await file.arrayBuffer();
+  // 1) PDF făcut cu „Descarcă PDF”: datele sunt în proprietățile documentului (text necomprimat)
+  let txt=''; const u8=new Uint8Array(buf); for(let i=0;i<u8.length;i+=65536) txt+=String.fromCharCode.apply(null,u8.subarray(i,i+65536));
+  let m=txt.match(/GCPROJ:([A-Za-z0-9+\/=\s\\]+?):END/); if(m) return fromB64(m[1].replace(/[\s\\]/g,''));
+  // 2) PDF tipărit (telefon / calculator): datele sunt în text ascuns, citit cu pdf.js
+  const load=src=>new Promise((ok,no)=>{ const sc=document.createElement('script'); sc.src=src; sc.onload=ok; sc.onerror=no; document.head.appendChild(sc); });
+  if(!window.pdfjsLib){ const CDN='https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/'; let base='lib/'; try{ await load(base+'pdf.min.js'); }catch(e){ base=CDN; await load(base+'pdf.min.js'); } await load(base+'pdf.worker.min.js'); }
+  const doc=await window.pdfjsLib.getDocument({data:new Uint8Array(buf)}).promise; let all='';
+  for(let n=doc.numPages;n>=1;n--){ const pg=await doc.getPage(n); const tc=await pg.getTextContent(); all=tc.items.map(i=>i.str).join('')+all; if(/GCPROJ:/.test(all)&&/:END/.test(all)) break; }
+  all=all.replace(/\s+/g,''); m=all.match(/GCPROJ:([A-Za-z0-9+\/=]+):END/); if(m) return fromB64(m[1]);
+  return null; }
+$('pdfIn').addEventListener('change',async e=>{ const f=e.target.files&&e.target.files[0]; if(!f) return; $('pdfMsg').textContent='Citesc PDF-ul…';
+  try{ const o=await readProjFromPdf(f); if(!o||!o.segs) throw 0; if(typeof ON!=='undefined'){ ON.curId=null; ON.curUpd=null; ON.sig=null; }
+    load(o); $('pdfMsg').textContent=`Am deschis proiectul „${o.nume||''}” din PDF. Apasă „Salvează proiectul” ca să rămână pe acest dispozitiv.`; }
+  catch(x){ $('pdfMsg').textContent='În acest PDF nu am găsit datele proiectului. Merge doar cu rapoartele făcute de versiunea nouă a aplicației (de acum încolo).'; }
+  e.target.value=''; });
 
 $('copy').addEventListener('click',()=>{
   const {P,list,totKg}=last;
@@ -1790,7 +1852,7 @@ function fallback(txt){
 let tt;function toast(m){const t=$('toast');t.textContent=m;t.hidden=false;clearTimeout(tt);tt=setTimeout(()=>t.hidden=true,2600);}
 
 $('addSeg').addEventListener('click',()=>{readSegs();segs.push(S('Fațada '+(segs.length+1),10)); if(cfg!=='man'){ $('cExt').value=CFG[cfg].ext; $('cInt').value=CFG[cfg].int; cfg='man'; renderFaces(); } renderSegs();calc();});
-$('autoSc').addEventListener('click',()=>{readSegs();segs.forEach(s=>s.sc=autoSc(s.L));renderSegs();calc();toast('Scări propuse: 1 până la 25 m, apoi 1 la ~30 m.');});
+$('autoSc').addEventListener('click',()=>{readSegs();segs.forEach(s=>s.sc=autoSc(s.L));renderSegs();calc();toast('Câte o scară pe fiecare fațadă.');});
 ['Lb','lb'].forEach(id=>$(id).addEventListener('change',()=>{ if(!CFG[cfg].mk)return; readSegs(); const L=+$('Lb').value||0,l=+$('lb').value||0;
   segs.forEach(s=>{ if(/principal|spate/i.test(s.n)) {s.L=L;} else if(/lateral/i.test(s.n)) {s.L=l;} }); renderSegs(); calc(); }));
 
@@ -1839,5 +1901,6 @@ document.querySelectorAll('.mnav [data-go]').forEach(b=>b.addEventListener('clic
 segs=defaultSegs(); renderDmodes(); renderFaces(); renderSegs(); renderSaved(); calc();
 })();
 </script>
+
 
 </html>

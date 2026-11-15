@@ -16,7 +16,7 @@
   "build": {
     "appId": "ro.giovaniconstruct.calculschela",
     "productName": "Calcul Schela",
-    "files": ["main.js", "preload.js", "index.html", "icon.ico"],
+    "files": ["main.js", "preload.js", "index.html", "icon.ico", "lib/**/*"],
     "directories": { "output": "dist" },
     "win": { "target": ["portable", "nsis"], "icon": "icon.ico" },
     "portable": { "artifactName": "CalculSchela-Portable.exe" },
