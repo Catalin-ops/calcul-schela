@@ -496,7 +496,7 @@ table.of tr.tot td{border-top:2px solid var(--ink);font-size:16px}
         <label>Travee (lungime podină)<select id="bay"><option value="1.8" selected>1,80 m (podină ≈1,85 cu cârligele)</option><option value="3.07">3,07 m</option><option value="2.57">2,57 m</option><option value="2.07">2,07 m</option><option value="2">2,00 m</option></select></label>
         <label>Lățime podină<select id="pw"><option value="0.5" selected>0,50 m</option><option value="0.32">0,32 m</option></select></label>
         <label>Înălțime cadru<select id="fh" disabled><option>2,00 m</option></select></label>
-        <label>Bazetă – lungime (m)<input id="jack" type="number" step="0.05" min="0.2" max="1.5" value="0.50" title="lungimea piciorului reglabil; alege mai lung pe teren în pantă"></label>
+        <label>Bazetă prestabilită (m)<input id="jack" type="number" step="0.05" min="0.2" max="1.5" value="0.50" title="lungimea piciorului reglabil; alege mai lung pe teren în pantă"></label>
         <label class="full">Legătura la colțuri<select id="cj"><option value="rot" selected>cuple rotative, cadru lângă cadru la ~3 cm (schela legată continuu)</option><option value="tube">țeavă 1,50 m + cuple ortogonale</option></select></label>
         <label class="full">Parapet peste înălțimea dată (prestabilit pentru toate fațadele)<select id="par"><option value="frame2" selected>2 m – un nivel de cadre de 2,00 m</option><option value="frame3">2 + 1 m – nivel de cadre + stâlpi de balustradă de 1 m (3 m)</option><option value="post1">1 m – stâlpi de balustradă</option></select></label>
         <label class="full">Pasaje (travee incomplete și colțuri)<select id="pas"><option value="overlap" selected>podină normală suprapusă + țeavă de legătură</option><option value="short">travee scurte (podine mai scurte)</option></select></label>
@@ -699,12 +699,13 @@ function segHTML(s,i){
     <label class="c2">Lungime (m)<input id="sl${i}" type="number" step="0.01" min="0" value="${s.L}" ${s.parts&&s.parts.length?'disabled title="suma porțiunilor"':''}></label>
     <label class="c2">Înălțime (m)<input id="sh${i}" type="number" step="0.1" min="0" placeholder="ca blocul" value="${s.H}" ${s.parts&&s.parts.length?'disabled':''}></label>
     <label class="c2">Parapet sus<select id="spar${i}"><option value="">ca la Sistem schelă</option>${PAROPT.replace(`value="${s.par}"`,`value="${s.par}" selected`)}</select></label>
+    <label class="c2">Bazetă (m)<input id="sjk${i}" type="number" step="0.05" min="0.2" max="1.5" placeholder="${fmt(+$('jack').value||0.5)}" value="${s.jack||''}" title="lungimea picioarelor reglabile pe această fațadă; gol = ca la Sistem schelă"></label>
     <label class="c2">Scări / accese
       <span class="stepper"><button type="button" data-dec="${i}" aria-label="Mai puține scări">−</button><input id="ss${i}" type="number" min="0" value="${s.sc}"><button type="button" data-inc="${i}" aria-label="Mai multe scări">+</button></span></label>
     ${cfg==='man'?`<label class="c6 cornsel">Colț la capătul fațadei (spre următoarea)
       <select id="sce${i}"><option value="ext" ${(s.ce||'ext')==='ext'?'selected':''}>colț exterior (clădirea face colț în afară)</option><option value="int" ${s.ce==='int'?'selected':''}>colț interior (intrând, retragere)</option><option value="free" ${s.ce==='free'?'selected':''}>capăt liber (schela se oprește)</option></select></label>`:''}
     <div class="sub">Înălțimi diferite pe aceeași fațadă <button type="button" class="mini" data-padd="${i}">+ porțiune</button></div>
-    ${(s.parts||[]).map((pp,j)=>`<label class="c3">${pp.n?`Porțiunea ${esc(pp.n)}`:`Porțiunea ${j+1}`}: lungime (m)<input id="pl${i}_${j}" type="number" step="0.01" min="0" value="${pp.L}"></label><label class="c2">înălțime (m)<input id="ph${i}_${j}" type="number" step="0.1" min="0" value="${pp.H}"></label><button type="button" class="del mini" data-pdel="${i}_${j}" aria-label="Șterge porțiunea">✕</button><label class="c3">parapet ${pp.n?esc(pp.n):"porțiunea "+(j+1)}<select id="ppar${i}_${j}"><option value="">ca fațada</option>${PAROPT.replace(`value="${pp.par}"`,`value="${pp.par}" selected`)}</select></label><span class="c3"></span>`).join('')}
+    ${(s.parts||[]).map((pp,j)=>`<label class="c3">${pp.n?`Porțiunea ${esc(pp.n)}`:`Porțiunea ${j+1}`}: lungime (m)<input id="pl${i}_${j}" type="number" step="0.01" min="0" value="${pp.L}"></label><label class="c2">înălțime (m)<input id="ph${i}_${j}" type="number" step="0.1" min="0" value="${pp.H}"></label><button type="button" class="del mini" data-pdel="${i}_${j}" aria-label="Șterge porțiunea">✕</button><label class="c2">bazetă ${pp.n?esc(pp.n):""} (m)<input id="pjk${i}_${j}" type="number" step="0.05" min="0.2" max="1.5" placeholder="ca fațada" value="${pp.jack||''}"></label><label class="c3">parapet ${pp.n?esc(pp.n):"porțiunea "+(j+1)}<select id="ppar${i}_${j}"><option value="">ca fațada</option>${PAROPT.replace(`value="${pp.par}"`,`value="${pp.par}" selected`)}</select></label><span class="c1"></span>`).join('')}
     ${(s.parts||[]).length?'':'<p class="hint c6" style="margin:0">Dacă o parte din fațadă e mai înaltă (ex. 14,50 m la 5,50 și 11,30 m la 9,50), apasă „+ porțiune” și scrie porțiunile în ordine.</p>'}
     <div class="sub"><label class="chk"><input id="sb${i}" type="checkbox" ${s.bal?'checked':''}> Are balcoane</label></div>
     <label class="c2">Adâncime balcon (m)<input id="sbd${i}" type="number" step="0.05" min="0" value="${s.bd}" ${s.bal?'':'disabled'}></label>
@@ -729,9 +730,9 @@ function renderSegs(){
 }
 function syncDisabled(){ segs.forEach((s,i)=>{ $('sbd'+i).disabled=!s.bal; $('sba'+i).disabled=!s.bal; }); }
 function readSegs(){
-  segs=segs.map((s,i)=>{ const parts=(s.parts||[]).map((pp,j)=>({L:$('pl'+i+'_'+j)?$('pl'+i+'_'+j).value:pp.L,H:$('ph'+i+'_'+j)?$('ph'+i+'_'+j).value:pp.H,par:$('ppar'+i+'_'+j)?$('ppar'+i+'_'+j).value:(pp.par||''),n:pp.n||''}));
+  segs=segs.map((s,i)=>{ const parts=(s.parts||[]).map((pp,j)=>({L:$('pl'+i+'_'+j)?$('pl'+i+'_'+j).value:pp.L,H:$('ph'+i+'_'+j)?$('ph'+i+'_'+j).value:pp.H,par:$('ppar'+i+'_'+j)?$('ppar'+i+'_'+j).value:(pp.par||''),n:pp.n||'',jack:$('pjk'+i+'_'+j)?$('pjk'+i+'_'+j).value:(pp.jack||'')}));
     const Lp=parts.reduce((a,pp)=>a+(+pp.L||0),0);
-    return {parts, par:$('spar'+i)?$('spar'+i).value:(s.par||''), ce:$('sce'+i)?$('sce'+i).value:(s.ce||'ext'), n:$('sn'+i).value||('Fațada '+(i+1)),L:parts.length?Math.round(Lp*100)/100:Math.max(0,+$('sl'+i).value||0),H:$('sh'+i).value,
+    return {parts, jack:$('sjk'+i)?$('sjk'+i).value:(s.jack||''), par:$('spar'+i)?$('spar'+i).value:(s.par||''), ce:$('sce'+i)?$('sce'+i).value:(s.ce||'ext'), n:$('sn'+i).value||('Fațada '+(i+1)),L:parts.length?Math.round(Lp*100)/100:Math.max(0,+$('sl'+i).value||0),H:$('sh'+i).value,
     sc:Math.max(0,Math.round(+$('ss'+i).value||0)),bal:$('sb'+i).checked,bd:Math.max(0,+$('sbd'+i).value||0),ancBal:$('sba'+i).checked,
     st:Math.max(0,Math.round(+$('sst'+i).value||0)),sd:Math.max(0,+$('ssd'+i).value||0),p:Math.max(0,+$('sp'+i).value||0)}; });
   segs.forEach((sg,i)=>{ if(sg.parts.length&&$('sl'+i)) $('sl'+i).value=sg.L; });
@@ -796,7 +797,7 @@ function compute(capN){
   const endInfo=[];                       // N la capătul de start / final al fiecărei fațade (pentru colțuri)
   const capJ={n:0};                       // capete deschise la schimbarea de înălțime
   segs.forEach((s,i)=>{
-    const levInfo=(H,par)=>{ const pi=parInfo(par||s.par||P.par), N=Math.min(decksFor(H,pi.ext),CAP), top=0.2+2*N; let Nd=0; for(let k=N;k>=1;k-=(P.decks==='alt'?2:1)) Nd++; return {N,Nf:N+pi.ext,top,Nd,Hs:H,...pi}; };
+    const levInfo=(H,par,jk)=>{ const jack=Math.min(1.5,Math.max(0.2,+(jk||s.jack||P.jack)||0.5)), pi=parInfo(par||s.par||P.par), N=Math.min(decksFor(H,pi.ext),CAP), top=0.2+2*N; let Nd=0; for(let k=N;k>=1;k-=(P.decks==='alt'?2:1)) Nd++; return {N,Nf:N+pi.ext,top,Nd,Hs:H,jack,...pi}; };
     const Hdef=s.H!==''&&+s.H>0?+s.H:P.H;
     const parts=(s.parts||[]).filter(p=>+p.L>0);
     const useParts=parts.length>0;
@@ -807,7 +808,7 @@ function compute(capN){
     if(useParts){
       let rem=cut/2, rem2=cut/2;
       parts.forEach((p,j)=>{ let L=+p.L; if(j===0&&cornerStart(i)==='int') L-=(P.gap+P.w); if(j===parts.length-1&&cornerEnd(i)==='int') L-=(P.gap+P.w);
-        const li=levInfo(+p.H>0?+p.H:Hdef,p.par); tr.push({front:true,bays:splitBays(Math.max(0.3,L),P.bay,P.pas==='overlap'),join:j>0,...li}); });
+        const li=levInfo(+p.H>0?+p.H:Hdef,p.par,p.jack); tr.push({front:true,bays:splitBays(Math.max(0.3,L),P.bay,P.pas==='overlap'),join:j>0,...li}); });
     } else {
       const li=levInfo(Hdef);
       const nFr=2*s.st+1, ret=Math.max(0,s.sd-P.gap-P.w), Lf=Math.max(0.3,(s.L-cut));
@@ -825,7 +826,8 @@ function compute(capN){
     let fa=0; tr.forEach(t=>{ const len=t.bays.reduce((a,b)=>a+b,0); fa+=len*(t.top+t.pg); }); area+=fa;
     add('cadru','Structură','Cadru vertical oțel',`${fmt(P.w)} × 2,00 m`,frames,KG.cadru[P.w],'pe fiecare nivel, la fiecare linie de cadre');
     if(stl) add('stalp','Structură','Stâlp balustradă 1 m (parapet)','1,00 m',stl,KG.stalp,'deasupra ultimului nivel de cadre, unde parapetul e de 1 m sau 2 + 1 m');
-    add('picior','Bază','Bazetă – picior reglabil cu filet',`${fmt(P.jack)} m`,2*lines,+(1.2+3.6*P.jack).toFixed(1),`2 la fiecare linie de cadre · reglaj max. ≈ ${Math.round((P.jack-0.1)*100)} cm`);
+    tr.forEach((t,ti)=>{ if(!t.bays.length) return; const n=t.bays.length+1-(t.join?1:0), jl=t.jack;
+      add('picior'+(Math.abs(jl-0.5)<1e-6?'':'_'+jl),'Bază','Bazetă – picior reglabil cu filet',`${fmt(jl)} m`,2*n,+(1.2+3.6*jl).toFixed(1),`2 la fiecare linie de cadre · reglaj max. ≈ ${Math.round((jl-0.1)*100)} cm`); });
     add('talpa','Bază','Talpă de repartiție lemn','40 × 25 × 5 cm',2*lines,KG.talpa,'sub fiecare picior');
     // diagonale
     let nd=0, ndL=0; const f=P.dfreq, mult=DMODES[P.dmode].mult;
@@ -1073,10 +1075,10 @@ function renderElev(){
   renderCheck();
 }
 function renderCheck(){
-  const rows=last.geo.map((g,i)=>g?`<tr${i===active?' class="on"':''}><td>${esc(g.s.n)}</td><td class="n">${g.bays.length}</td><td class="n">${g.tr.filter(t=>t.bays.length).length}</td><td class="n">${g.F}</td><td class="n">${[...new Set(g.tr.map(t=>t.N))].join(" / ")}</td><td class="n">${fmt0(g.frames)}</td><td class="n">${g.tr.every(t=>t.Nf===g.Nf)?`${g.nd} × ${g.Nf} = `:''}${fmt0(g.ndL)}</td><td class="n">${g.tr.every(t=>t.N===g.N)?`${g.a} × ${g.N} = `:''}${fmt0(g.ladders)}</td><td class="n">${fmt0(g.nA)}</td><td class="n b">${fmt(g.ar,1)}</td></tr>`:'').join('')
-    +(last.areaC>0?`<tr><td>Colțuri exterioare (travee de colț)</td><td colspan="8"></td><td class="n b">${fmt(last.areaC,1)}</td></tr>`:'')
-    +`<tr class="tot"><td><b>Total</b></td><td colspan="8"></td><td class="n b">${fmt(last.area,1)}</td></tr>`;
-  $('check').innerHTML=`<h3>Verificare pe fațadă <small>fără rezervă</small></h3><div class="tbl"><table><thead><tr><th>Fațadă</th><th class="n">Travee</th><th class="n">Tronsoane</th><th class="n">Cadre / nivel</th><th class="n">Niveluri</th><th class="n">Cadre</th><th class="n">Diagonale</th><th class="n">Scări</th><th class="n">Ancore</th><th class="n">m² schelă</th></tr></thead><tbody>${rows}</tbody></table></div>
+  const rows=last.geo.map((g,i)=>g?`<tr${i===active?' class="on"':''}><td>${esc(g.s.n)}</td><td class="n">${g.bays.length}</td><td class="n">${g.tr.filter(t=>t.bays.length).length}</td><td class="n">${g.F}</td><td class="n">${[...new Set(g.tr.map(t=>t.N))].join(" / ")}</td><td class="n">${fmt0(g.frames)}</td><td class="n">${g.tr.every(t=>t.Nf===g.Nf)?`${g.nd} × ${g.Nf} = `:''}${fmt0(g.ndL)}</td><td class="n">${g.tr.every(t=>t.N===g.N)?`${g.a} × ${g.N} = `:''}${fmt0(g.ladders)}</td><td class="n">${fmt0(g.nA)}</td><td class="n">${[...new Set(g.tr.filter(t=>t.bays.length).map(t=>fmt(t.jack)))].join(' / ')} m</td><td class="n b">${fmt(g.ar,1)}</td></tr>`:'').join('')
+    +(last.areaC>0?`<tr><td>Colțuri exterioare (travee de colț)</td><td colspan="9"></td><td class="n b">${fmt(last.areaC,1)}</td></tr>`:'')
+    +`<tr class="tot"><td><b>Total</b></td><td colspan="9"></td><td class="n b">${fmt(last.area,1)}</td></tr>`;
+  $('check').innerHTML=`<h3>Verificare pe fațadă <small>fără rezervă</small></h3><div class="tbl"><table><thead><tr><th>Fațadă</th><th class="n">Travee</th><th class="n">Tronsoane</th><th class="n">Cadre / nivel</th><th class="n">Niveluri</th><th class="n">Cadre</th><th class="n">Diagonale</th><th class="n">Scări</th><th class="n">Ancore</th><th class="n">Bazete</th><th class="n">m² schelă</th></tr></thead><tbody>${rows}</tbody></table></div>
   <p class="note">m² schelă = lungimea traveelor × înălțimea până la vârful parapetului, pe fiecare porțiune (inclusiv retragerile). Traveele de colț exterior sunt trecute separat. Cadre pe nivel = travee + 1 pe fiecare tronson. Diagonale: pe fiecare nivel, în fiecare grup de travee ales, montate după modul ales în „Sistem schelă”, în traveele lungi (nu cea cu scara, nu cele de 0,73 / 1,09 m). Modurile încrucișate numără 2 diagonale pe nivel. La retrageri/rezalituri fațada se împarte în tronsoane egale. Scări: 1 pe nivel în fiecare coloană de acces.</p>`;
 }
 
@@ -1309,7 +1311,7 @@ function qpz(qb,cat,z){ const T=TEREN[cat]||TEREN.III, kr=0.19*Math.pow(T.z0/0.0
 function techCalc(){
   const {P,list,area,maxTop,geo}=last; const D=dosarVals();
   const kN=kg=>kg*9.81/1000;
-  const G=kN(list.reduce((a,x)=>a+x.qty*x.kg,0)), nJ=(list.find(x=>x.key==='picior')||{qty:0}).qty||1;
+  const G=kN(list.reduce((a,x)=>a+x.qty*x.kg,0)), nJ=list.filter(x=>x.key.startsWith('picior')).reduce((a,x)=>a+x.qty,0)||1;
   const g=G/Math.max(1,area);                                        // kN/m² de fațadă
   const b=P.bay, w=P.w, cl=CLASE[D.cls]||CLASE[3];
   const Htop=Math.max(...geo.filter(Boolean).flatMap(x=>x.tr.filter(t=>t.bays.length).map(t=>t.top+t.pg)));
@@ -1328,6 +1330,8 @@ function techCalc(){
 function dosarVals(){ return {nr:$('dNr').value.trim(),adr:$('dAdr').value.trim(),proi:$('dProi').value.trim(),ver:$('dVer').value.trim(),rte:$('dRte').value.trim(),
   cls:+$('dCls').value||3,qb:Math.max(0.2,+$('dQb').value||0.4),teren:$('dTer').value||'III',sol:Math.max(20,+$('dSol').value||100),luni:+$('ofLuni').value||0}; }
 const f2=(n,d=2)=>fmt(n,d);
+function jacksTxt(){ const js=[...new Set(last.geo.filter(Boolean).flatMap(g=>g.tr.filter(t=>t.bays.length).map(t=>t.jack)))].sort((a,b)=>a-b);
+  return js.map(j=>`${fmt(j)} m (reglaj max. ≈ ${Math.round((j-0.1)*100)} cm)`).join(', ')+(js.length>1?', după fațadă – vezi tabelul de verificare':''); }
 function dosarSheets(cartus){
   const {P,list,totKg,area,maxTop,geo,anchorsTotal}=last; const T=techCalc(), D=T.D, F=firma();
   const today=$('rdata').value||new Date().toLocaleDateString('ro-RO');
@@ -1387,7 +1391,7 @@ function dosarSheets(cartus){
       <li>Colțuri: ${P.cj==='tube'?'legătură cu țeavă Ø48,3 și cuple ortogonale':'traversele celor două fațade se îmbină între ele cu cuple rotative la ~3 cm, pe fiecare nivel de cadre'}; schela lucrează ca un ansamblu continuu.</li>
       <li>Protecție: ${P.plasa?'plasă de protecție pe toată fața exterioară':'fără plasă de protecție'}.</li></ul>
     <h3>4. Rezemare</h3>
-    <p>Cadrele reazemă pe bazete (picioare reglabile) de ${f2(P.jack)} m, cu reglaj de cel mult ${Math.round((P.jack-0.1)*100)} cm, așezate pe tălpi de repartiție din lemn de minim 40 × 25 × 5 cm. Terenul se nivelează și se compactează; nu se reazemă pe pământ înghețat, umplutură necompactată, capace de cămin sau marginea șanțurilor. Presiunea pe teren rezultată din breviar este de ${f2(T.ps,0)} kPa.</p>
+    <p>Cadrele reazemă pe bazete (picioare reglabile) de ${jacksTxt()}, așezate pe tălpi de repartiție din lemn de minim 40 × 25 × 5 cm. Terenul se nivelează și se compactează; nu se reazemă pe pământ înghețat, umplutură necompactată, capace de cămin sau marginea șanțurilor. Presiunea pe teren rezultată din breviar este de ${f2(T.ps,0)} kPa.</p>
     <h3>5. Ancorare</h3>
     <p>Schela se ancorează de structura clădirii cu țevi de ancorare cu cârlig și șuruburi cu ochi Ø12 cu diblu, din 4 în 4 m pe înălțime, ${P.ancMode==='all'?'la fiecare cadru':'1 da – 1 nu, decalat de la un rând la altul, cu capetele de tronson ancorate întotdeauna'}. Total ${fmt0(anchorsTotal)} ancore. Ancorele se fixează numai în elemente portante (beton, zidărie plină), nu în termoizolație sau parapeți subțiri.</p>
     <h3>6. Normative de referință</h3>
@@ -1420,7 +1424,7 @@ function dosarSheets(cartus){
       <tr><td>Q<sub>k</sub> = q · L · B / 2 · 1,5 = ${f2(T.cl.q)} · ${f2(P.bay)} · ${f2(P.w)} / 2 · 1,5</td><td class="n b">${f2(T.Qp,2)} kN</td></tr>
       <tr><td>N<sub>k</sub> = G<sub>k</sub> + Q<sub>k</sub> (valoare caracteristică)</td><td class="n b">${f2(T.Nk,2)} kN</td></tr>
       <tr><td>N<sub>d</sub> = 1,35 · G<sub>k</sub> + 1,50 · Q<sub>k</sub> (valoare de calcul)</td><td class="n b">${f2(T.Nd,2)} kN</td></tr></tbody></table>
-    <p class="small">N<sub>d</sub> se compară cu capacitatea montantului / bazetei din tabelele producătorului, pentru lungimea de reglaj folosită (${Math.round((P.jack-0.1)*100)} cm).</p>
+    <p class="small">N<sub>d</sub> se compară cu capacitatea montantului / bazetei din tabelele producătorului, pentru bazetele folosite: ${jacksTxt()}.</p>
     <h3>4. Presiunea pe teren</h3>
     <table class="rt calc"><tbody>
       <tr><td>Talpă de lemn 0,40 × 0,25 m, A = ${f2(T.Atalpa)} m²</td><td class="n b">p = N<sub>k</sub> / A = ${f2(T.ps,0)} kPa</td></tr>
@@ -1455,7 +1459,7 @@ function dosarSheets(cartus){
       <li>Nivelarea și compactarea terenului; trasarea liniilor de cadre la ${f2(P.gap)} m de perete.</li>
       <li>Verificarea rețelelor electrice aeriene: distanța minimă față de liniile sub tensiune conform furnizorului de energie.</li></ul>
     <h3>3. Montajul</h3>
-    <ol><li>Se așază tălpile de lemn și bazetele de ${f2(P.jack)} m; se reglează primul nivel cu nivela.</li>
+    <ol><li>Se așază tălpile de lemn și bazetele (${jacksTxt()}); se reglează primul nivel cu nivela.</li>
       <li>Se montează cadrele primului nivel, balustradele / diagonalele și podinele; se verifică verticalitatea și orizontalitatea.</li>
       <li>Se urcă nivel cu nivel; montatorul lucrează numai de pe un nivel complet podit, asigurat cu hamul.</li>
       <li>Diagonalele se montează pe măsura înălțării: ${esc((DMODES[P.dmode]||{t:''}).t.toLowerCase())}, ${P.dfreq===1?'în fiecare travee':'1 la '+P.dfreq+' travee'}.</li>
@@ -1763,7 +1767,7 @@ function mountSketch(root, opts){
           </div>
           <p class="sk-hint sk-tothint"></p>
           <div class="sk-tbl"><table>
-            <thead><tr><th>Latura</th><th>Lungime</th><th title="calculată din celelalte și din total">auto</th><th>H</th><th title="parapetul de deasupra ultimului nivel pe această latură">Parapet</th><th>La capăt</th><th></th></tr></thead>
+            <thead><tr><th>Latura</th><th>Lungime</th><th title="calculată din celelalte și din total">auto</th><th>H</th><th title="parapetul de deasupra ultimului nivel pe această latură">Parapet</th><th title="lungimea bazetei (picior reglabil) pe această latură; gol = prestabilit">Bazetă</th><th>La capăt</th><th></th></tr></thead>
             <tbody class="sk-tb"></tbody></table></div>
           <div class="sk-row" style="margin-top:8px">
             <button type="button" class="sk-add">+ Latură</button>
@@ -1816,6 +1820,7 @@ function mountSketch(root, opts){
       <td><input type="checkbox" data-k="auto" data-i="${i}" ${s.auto?'checked':''} aria-label="${lab(i)} calculată automat"></td>
       <td><input type="number" step="0.1" min="0" data-k="H" data-i="${i}" value="${s.H}" class="sk-h" aria-label="Înălțime ${lab(i)}"></td>
       <td><select data-k="par" data-i="${i}" aria-label="Parapet ${lab(i)}"><option value="" ${!s.par?'selected':''}>implicit</option><option value="frame2" ${s.par==='frame2'?'selected':''}>2 m</option><option value="frame3" ${s.par==='frame3'?'selected':''}>2+1 m</option><option value="post1" ${s.par==='post1'?'selected':''}>1 m</option></select></td>
+      <td><input type="number" step="0.05" min="0.2" max="1.5" data-k="jack" data-i="${i}" value="${s.jack||''}" placeholder="0,50" class="sk-h" aria-label="Bazetă ${lab(i)}"></td>
       <td><select data-k="ce" data-i="${i}" aria-label="Colț la ${LET[(i+1)%st.sides.length]}"><option value="ext" ${s.ce==='ext'?'selected':''}>exterior</option><option value="int" ${s.ce==='int'?'selected':''}>interior</option><option value="drept" ${s.ce==='drept'?'selected':''}>drept</option></select></td>
       <td class="sk-act"><button type="button" class="sk-del" data-split="${i}" title="Împarte latura în două (punct unde se schimbă înălțimea)" aria-label="Împarte latura ${lab(i)}">✂</button><button type="button" class="sk-del" data-del="${i}" aria-label="Șterge latura ${lab(i)}">✕</button></td></tr>`).join('');
   }
@@ -1942,7 +1947,8 @@ function mountSketch(root, opts){
     if(t.classList.contains('sk-Hd')){ st.Hdef=Math.max(0,+t.value||0)||st.Hdef; update(false); return; }
     const i=+t.dataset.i, k=t.dataset.k; if(!k||isNaN(i)) return;
     if(k==='L'){ st.sides[i].L=Math.max(0,+t.value||0); update(false); }
-    else if(k==='H'){ st.sides[i].H=Math.max(0,+t.value||0); update(false); } });
+    else if(k==='H'){ st.sides[i].H=Math.max(0,+t.value||0); update(false); }
+    else if(k==='jack'){ st.sides[i].jack=t.value; update(false); } });
   root.addEventListener('change',e=>{ const t=e.target, i=+t.dataset.i, k=t.dataset.k; if(!k||isNaN(i)) return;
     if(k==='auto'){ if(!t.checked){ const {Ls}=solve(); st.sides[i].L=Math.round(Ls[i]*100)/100; } st.sides[i].auto=t.checked; update(true); }
     else if(k==='ce'){ st.sides[i].ce=t.value; update(true); }
@@ -1950,7 +1956,7 @@ function mountSketch(root, opts){
   root.addEventListener('click',e=>{ const t=e.target.closest('button'); if(!t||!root.contains(t)) return;
     if(t.dataset.del!==undefined){ st.sides.splice(+t.dataset.del,1); update(true); }
     else if(t.dataset.split!==undefined){ const i=+t.dataset.split, {Ls}=solve(), sd=st.sides[i], half=Math.round(Ls[i]/2*100)/100;
-      st.sides.splice(i,1,{L:half,H:sd.H,par:sd.par||'',ce:'drept',auto:false},{L:Math.round((Ls[i]-half)*100)/100,H:sd.H,par:sd.par||'',ce:sd.ce,auto:sd.auto}); update(true); }
+      st.sides.splice(i,1,{L:half,H:sd.H,par:sd.par||'',jack:sd.jack||'',ce:'drept',auto:false},{L:Math.round((Ls[i]-half)*100)/100,H:sd.H,par:sd.par||'',jack:sd.jack||'',ce:sd.ce,auto:sd.auto}); update(true); }
     else if(t.classList.contains('sk-pstop')){ pctl&&pctl.abort(); }
     else if(t.classList.contains('sk-add')){ st.sides.push({L:3,H:st.Hdef,ce:'ext',auto:false}); update(true); }
     else if(t.classList.contains('sk-new')){ drawMode=true; pts=[]; hover=null; q('.sk-drawbar').hidden=false; drawCanvas(); }
@@ -2025,8 +2031,8 @@ let sketchState=null, skApi=null, skPhoto;
 const LETS='ABCDEFGHIJKLMNOPQRSTUVWXYZ';
 function sketchFromSegs(){ readSegs(); const Hd=+$('H').value||5.5; const sides=[];
   segs.forEach(sg=>{ const ce=cfg==='man'?(sg.ce||'ext'):'ext';
-    if(sg.parts&&sg.parts.length) sg.parts.forEach((pp,j)=>sides.push({L:+pp.L||0,H:+pp.H||Hd,par:pp.par||sg.par||'',ce:j<sg.parts.length-1?'drept':ce,auto:false}));
-    else sides.push({L:+sg.L||0,H:+sg.H||Hd,par:sg.par||'',ce,auto:false}); });
+    if(sg.parts&&sg.parts.length) sg.parts.forEach((pp,j)=>sides.push({L:+pp.L||0,H:+pp.H||Hd,par:pp.par||sg.par||'',jack:pp.jack||sg.jack||'',ce:j<sg.parts.length-1?'drept':ce,auto:false}));
+    else sides.push({L:+sg.L||0,H:+sg.H||Hd,par:sg.par||'',jack:sg.jack||'',ce,auto:false}); });
   return {sides,totals:{W:'',D:''},Hdef:Hd}; }
 function segsFromSketch(v){ const out=[]; let grp=[], start=0;
   v.sides.forEach((sd,i)=>{ grp.push(sd); if(sd.ce!=='drept'||i===v.sides.length-1){
@@ -2035,7 +2041,7 @@ function segsFromSketch(v){ const out=[]; let grp=[], start=0;
       const o0=segs[out.length]||null, old=o0&&Math.abs((+o0.L||0)-grp.reduce((a2,z)=>a2+(+z.L||0),0))<0.6?o0:null, desc=old&&old.n?old.n.replace(/^[A-Z]–[A-Z]\s*/,''):'Fațadă';
       const sg=S(name+' '+(desc||'Fațadă'),L); if(old){ ['sc','bal','bd','ancBal','p'].forEach(k=>sg[k]=old[k]); } else sg.sc=grp.some(z=>z.sc!==undefined)?Math.max(...grp.map(z=>+z.sc||0)):autoSc(L);
       const hs=[...new Set(grp.map(z=>+z.H))];
-      if(grp.length>1){ sg.parts=grp.map((z,k)=>({L:+z.L,H:+z.H,par:z.par||'',n:`${LETS[(start+k)%26]}–${LETS[(start+k+1)%v.sides.length%26]}`})); const ps=[...new Set(grp.map(z=>z.par||''))]; if(ps.length===1){ sg.par=ps[0]; sg.parts.forEach(pp=>pp.par=''); } } else { sg.H=hs[0]||''; sg.par=grp[0].par||''; }
+      if(grp.length>1){ sg.parts=grp.map((z,k)=>({L:+z.L,H:+z.H,par:z.par||'',jack:z.jack||'',n:`${LETS[(start+k)%26]}–${LETS[(start+k+1)%v.sides.length%26]}`})); const ps=[...new Set(grp.map(z=>z.par||''))]; if(ps.length===1){ sg.par=ps[0]; sg.parts.forEach(pp=>pp.par=''); } const js=[...new Set(grp.map(z=>String(z.jack||'')))]; if(js.length===1){ sg.jack=js[0]; sg.parts.forEach(pp=>pp.jack=''); } } else { sg.H=hs[0]||''; sg.par=grp[0].par||''; sg.jack=grp[0].jack||''; }
       sg.ce=sd.ce==='drept'?'ext':sd.ce; out.push(sg); grp=[]; start=end; } });
   return out; }
 function openSketch(){ const fs=sketchFromSegs(); let init=fs;
