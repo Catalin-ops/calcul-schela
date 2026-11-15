@@ -223,7 +223,7 @@ table.pr td,table.pr th{padding:4px 6px}
 .c-sig>div{display:flex;align-items:center;gap:10px;flex-wrap:wrap}
 .c-sig img{height:46px;width:auto;background:#fff}
 .c-sig i{font-size:10px;color:var(--muted)}
-.pmeta{font-size:1px;line-height:1px;color:#fff;word-break:break-all;height:2px;overflow:hidden;opacity:.01}
+.pmeta{display:block;font-size:1px;line-height:1px;color:#fff;text-decoration:none;word-break:break-all;width:3px;height:3px;overflow:hidden;opacity:.01;pointer-events:none}
 .mini{font-size:12px;padding:3px 8px;font-weight:600}
 .seg .c3{grid-column:span 3}
 .seg .del.mini{align-self:end;padding:7px 0}
@@ -1212,7 +1212,7 @@ function buildReport(){
       </div>
     </div>
   </section>`;
-  h=h.replace(/<\/section>\s*$/,`<div class="pmeta" aria-hidden="true">GCPROJ:${projB64()}:END</div></section>`);
+  { const pb=projB64(); h=h.replace(/<\/section>\s*$/,`<a class="pmeta" aria-hidden="true" tabindex="-1" href="https://giovaniconstruct.ro/#GCPROJ:${pb}:END">GCPROJ:${pb}:END</a></section>`); }
   $('rbody').innerHTML=h;
 }
 function openReport(){ calc(); buildReport(); $('report').hidden=false; document.body.classList.add('rep-open'); $('report').scrollTop=0; }
@@ -1825,8 +1825,9 @@ async function readProjFromPdf(file){
   const load=src=>new Promise((ok,no)=>{ const sc=document.createElement('script'); sc.src=src; sc.onload=ok; sc.onerror=no; document.head.appendChild(sc); });
   if(!window.pdfjsLib){ const CDN='https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/'; let base='lib/'; try{ await load(base+'pdf.min.js'); }catch(e){ base=CDN; await load(base+'pdf.min.js'); } await load(base+'pdf.worker.min.js'); }
   const doc=await window.pdfjsLib.getDocument({data:new Uint8Array(buf)}).promise; let all='';
-  for(let n=doc.numPages;n>=1;n--){ const pg=await doc.getPage(n); const tc=await pg.getTextContent(); all=tc.items.map(i=>i.str).join('')+all; if(/GCPROJ:/.test(all)&&/:END/.test(all)) break; }
-  all=all.replace(/\s+/g,''); m=all.match(/GCPROJ:([A-Za-z0-9+\/=]+):END/); if(m) return fromB64(m[1]);
+  for(let n=doc.numPages;n>=1;n--){ const pg=await doc.getPage(n); try{ const an=await pg.getAnnotations(); for(const a of an){ const u=a.url||a.unsafeUrl||''; const k=decodeURIComponent(u).match(/GCPROJ:([A-Za-z0-9+\/=]+):END/); if(k) return fromB64(k[1]); } }catch(e){} const tc=await pg.getTextContent(); all=tc.items.map(i=>i.str).join('')+all; if(/GCPROJ/.test(all)&&/END/.test(all)) break; }
+  all=all.replace(/\s+/g,''); m=all.match(/GCPROJ:?([A-Za-z0-9+\/=]+)/);
+  if(m){ const b=m[1]; for(const c of (b.endsWith('END')?[b.slice(0,-3),b]:[b])){ try{ return fromB64(c); }catch(e){} } }
   return null; }
 $('pdfIn').addEventListener('change',async e=>{ const f=e.target.files&&e.target.files[0]; if(!f) return; $('pdfMsg').textContent='Citesc PDF-ul…';
   try{ const o=await readProjFromPdf(f); if(!o||!o.segs) throw 0; if(typeof ON!=='undefined'){ ON.curId=null; ON.curUpd=null; ON.sig=null; }
