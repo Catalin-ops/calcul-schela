@@ -853,11 +853,11 @@ function compute(capN){
       const isAcc=front&&accSet.has(fi); if(front) fi++;
       if(isAcc){
         const tl=KG.trapa[b]?b:3.07;
-        add('trapa'+tl,'Platforme','Podină cu trapă și scară',`${fmt(tl)} × ${PW<0.4?'0,64':fmt(PW)} m`,t.N,KG.trapa[tl],'pe fiecare nivel în coloana de acces');
+        add('trapa'+tl,'Platforme','Podină cu trapă și scară integrată',`${fmt(tl)} × ${PW<0.4?'0,64':fmt(PW)} m`,t.N,KG.trapa[tl],'pe fiecare nivel în coloana de acces');
         if(nPod>trapRep) add('pod'+b,'Platforme','Podină oțel',pdim(b),(nPod-trapRep)*t.N,pkg(b));
         ladders+=t.N;
       } else add('pod'+b,'Platforme','Podină oțel',pdim(b),nPod*t.Nd,pkg(b),`${nPod} pe travee, pe nivelurile cu podine`);
-      add('bal'+b,'Protecție','Balustradă (mână curentă + intermediară)',`${fmt(b)} m`,2*t.Nd+2*t.ext+(t.par==='frame3'?2:0),KG.balustrada[b],'2 pe travee pe nivelurile de lucru + parapetul (2 m: 2 buc · 2 + 1 m: 4 buc pe travee)');
+      add('bal'+b,'Protecție','Balustradă (mână curentă + intermediară)',`${fmt(b)} m`,2*t.Nd+(t.par==='frame3'?2:0),KG.balustrada[b],'2 pe travee pe fiecare nivel de lucru (la parapetul de 2 m sunt cele ale ultimului nivel); la 2 + 1 m încă 2 pe stâlpii de 1 m');
       add('pl'+b,'Protecție','Plintă',`${fmt(b)} m`,t.Nd,KG.plinta[b],'1 pe travee pe nivelurile de lucru');
     });
     // distanțe
@@ -888,19 +888,18 @@ function compute(capN){
     if(s.st>0&&!useParts){
       const t0=tr[0], ce=2*s.st, ci=2*s.st;
       add('pod'+P.w,'Platforme','Podină oțel',pdim(CB),ce*nPod*t0.Nd+ci*t0.Nd,pkg(CB),'travee de colț la retrageri / rezalituri');
-      add('bal'+CB,'Protecție','Balustradă (mână curentă + intermediară)',`${fmt(CB)} m`,ce*(2*t0.Nd+2*t0.ext+(t0.par==='frame3'?2:0)),KG.balustrada[CB]||KG.balustrada[3.07]);
+      add('bal'+CB,'Protecție','Balustradă (mână curentă + intermediară)',`${fmt(CB)} m`,ce*(2*t0.Nd+(t0.par==='frame3'?2:0)),KG.balustrada[CB]||KG.balustrada[3.07]);
       add('pl'+CB,'Protecție','Plintă',`${fmt(CB)} m`,ce*t0.Nd,KG.plinta[CB]||KG.plinta[3.07]);
       cornerJoint(ce+ci,t0.N,t0.top,t0.ext);
       { const x=ce*P.w*(t0.top+1); area+=x; fa+=x; }
     }
-    add('scara','Acces','Scară interioară aluminiu','2,15 m',ladders,KG.scara,'1 pe nivel în fiecare coloană de acces');
     geo.push({ar:fa,bays,tr,F,a,Nf:Math.max(...tr.map(t=>t.Nf)),N:Nmax,Nd:Math.max(...tr.map(t=>t.Nd)),nd,ndL,nA,ladders,frames,top:topMax,Hs:Math.max(...tr.map(t=>t.Hs)),wallDist,workDist,cons,al,s});
   });
 
   // colțuri
   const cornerItems=(type,N,Nd,top,pi)=>{ pi=pi||parInfo0(P.par);
     if(type==='ext'){ add('pod'+CB,'Platforme','Podină oțel',pdim(CB),nPod*Nd,pkg(CB),P.pas==='overlap'?'pasaj de colț: podină normală suprapusă':'travee de colț exterior');
-      add('bal'+CB,'Protecție','Balustradă (mână curentă + intermediară)',`${fmt(CB)} m`,2*Nd+2*pi.ext+(pi.pg===3?2:0),KG.balustrada[CB]||KG.balustrada[3.07]);
+      add('bal'+CB,'Protecție','Balustradă (mână curentă + intermediară)',`${fmt(CB)} m`,2*Nd+(pi.pg===3?2:0),KG.balustrada[CB]||KG.balustrada[3.07]);
       if(pi.par!=='frame2') add('stalp','Structură','Stâlp balustradă 1 m (parapet)','1,00 m',1,KG.stalp);
       add('pl'+CB,'Protecție','Plintă',`${fmt(CB)} m`,Nd,KG.plinta[CB]||KG.plinta[3.07]); { const x=P.w*(top+pi.pg); area+=x; areaC+=x; } }
     else add('pod'+CB,'Platforme','Podină oțel',pdim(CB),Nd,pkg(CB),'închidere colț interior');
@@ -1344,7 +1343,7 @@ function dosarSheets(cartus){
   const items=geo.map((g,i)=>g?{g,i}:null).filter(Boolean);
   const nFac=items.length, Ltot=items.reduce((a,{i})=>a+(+segs[i].L||0),0);
   const pars=[...new Set(items.flatMap(({g})=>g.tr.filter(t=>t.bays.length).map(t=>({frame2:'2 m (un nivel de cadre)',frame3:'2 + 1 m (nivel de cadre + stâlpi 1 m)',post1:'1 m (stâlpi)'})[t.par])))].join('; ');
-  const ladders=(list.find(x=>x.key==='scara')||{qty:0}).qty;
+  const ladders=list.filter(x=>x.key.startsWith('trapa')).reduce((a,x)=>a+x.qty,0);
   const sheet=(title,sub,body,cont)=>({title,sub,body,cont});
   const S=[];
   // 1. COPERTĂ + BORDEROU
