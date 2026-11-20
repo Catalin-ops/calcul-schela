@@ -50,7 +50,7 @@ label{display:flex;flex-direction:column;gap:4px;font-size:13px;color:var(--mute
 label.full{grid-column:1/-1}
 label.chk{flex-direction:row;align-items:center;gap:8px;color:var(--ink);font-size:14px}
 input,select{font:inherit;font-size:15px;color:var(--ink);background:var(--bg);border:1px solid var(--line);border-radius:4px;padding:7px 9px;width:100%;min-width:0}
-input[type=number]{font-family:var(--f-mono);font-size:14px}
+input[type=number],input.num{font-family:var(--f-mono);font-size:14px}
 input[type=checkbox]{width:18px;height:18px;accent-color:var(--accent);flex:none}
 input:disabled{opacity:.45}
 input:focus-visible,select:focus-visible,button:focus-visible{outline:2px solid var(--accent);outline-offset:1px}
@@ -157,7 +157,8 @@ table.pr td,table.pr th{padding:4px 6px}
 .sk-drawbar{display:flex;flex-direction:column;gap:6px}
 .sk-drawbar[hidden]{display:none}
 .sk select{min-width:92px;padding:5px 2px}
-.sk td input[type=number]:not(.sk-h){min-width:64px}
+.sk td input.num:not(.sk-h){min-width:64px}
+.sk-dg{display:flex;gap:3px;align-items:center}.sk-dg input{min-width:52px!important;width:58px}.sk-dg span{color:var(--sk-muted)}.sk-dl{display:block;color:var(--sk-muted);font-size:11px}.sk-del.on{background:var(--sk-accent);color:#111}
 .sk td:nth-child(5){min-width:96px}
 .sk-side{display:flex;flex-direction:column;gap:12px;min-width:0}
 .sk-card{background:var(--sk-panel);border:1px solid var(--sk-line);border-radius:6px;padding:12px;display:flex;flex-direction:column;gap:6px}
@@ -171,7 +172,7 @@ table.pr td,table.pr th{padding:4px 6px}
 .sk td{padding:3px;border-bottom:1px solid var(--sk-line);vertical-align:middle}
 .sk td.sk-l{font-family:"IBM Plex Mono",monospace;font-weight:600;white-space:nowrap}
 .sk input,.sk select{font:inherit;font-size:14px;color:var(--sk-ink);background:var(--sk-bg);border:1px solid var(--sk-line);border-radius:4px;padding:5px 6px;width:100%;min-width:0}
-.sk input[type=number]{font-family:"IBM Plex Mono",monospace;text-align:right}
+.sk input.num{font-family:"IBM Plex Mono",monospace;text-align:right}
 .sk input[type=checkbox]{width:18px;height:18px;accent-color:var(--sk-accent)}
 .sk input:disabled{background:var(--sk-accent-soft);color:var(--sk-ink);font-weight:600;opacity:1}
 .sk .sk-h{width:58px;min-width:58px}
@@ -613,6 +614,15 @@ table.of tr.tot td{border-top:2px solid var(--ink);font-size:16px}
 <div class="toast" id="toast" hidden></div>
 
 <script>
+/* câmpuri numerice: se poate scrie cu virgulă (4,53) sau cu punct; se afișează cu virgulă */
+(function(){ const D=Object.getOwnPropertyDescriptor(HTMLInputElement.prototype,'value');
+  const conv=el=>{ if(el.dataset.num) return; el.dataset.num='1'; const v=D.get.call(el); el.type='text'; el.setAttribute('inputmode','decimal'); el.classList.add('num'); el.autocomplete='off';
+    Object.defineProperty(el,'value',{configurable:true,get(){ return D.get.call(this).trim().replace(/\s/g,'').replace(',','.'); },set(x){ D.set.call(this,x==null?'':String(x).replace('.',',')); }});
+    el.value=v; };
+  const scan=r=>{ if(r.matches&&r.matches('input[type=number]')) conv(r); r.querySelectorAll&&r.querySelectorAll('input[type=number]').forEach(conv); };
+  scan(document); new MutationObserver(ms=>ms.forEach(m=>m.addedNodes.forEach(scan))).observe(document.documentElement,{childList:true,subtree:true});
+  document.addEventListener('beforeinput',e=>{ const t=e.target; if(!t.dataset||!t.dataset.num||!e.data) return; if(/[^0-9,.\-]/.test(e.data)) e.preventDefault(); });
+})();
 (function(){
 const $=id=>document.getElementById(id);
 const STD=[0.73,1.09,1.57,2.07,2.57,3.07];
@@ -697,7 +707,7 @@ function segHTML(s,i){
   return `<div class="seg" data-i="${i}">
     <div class="hd"><label>Denumire fațadă<input id="sn${i}" type="text" value="${esc(s.n)}"></label>
       <button type="button" class="del" aria-label="Șterge fațada" data-del="${i}" title="Șterge fațada">✕ Șterge</button></div>
-    <label class="c2">Lungime (m)<input id="sl${i}" type="number" step="0.01" min="0" value="${s.L}" ${s.parts&&s.parts.length?'disabled title="suma porțiunilor"':''}></label>
+    <label class="c2">Lungime (m)<input id="sl${i}" type="number" step="0.01" min="0" value="${s.L}" ${s.parts&&s.parts.length?'disabled title="suma porțiunilor"':s.diag?`disabled title="latură oblică ${fmt(s.diag.c1)} × ${fmt(s.diag.c2)} m – se modifică din schiță"`:''}></label>
     <label class="c2">Înălțime (m)<input id="sh${i}" type="number" step="0.1" min="0" placeholder="ca blocul" value="${s.H}" ${s.parts&&s.parts.length?'disabled':''}></label>
     <label class="c2">Parapet sus<select id="spar${i}"><option value="">ca la Sistem schelă</option>${PAROPT.replace(`value="${s.par}"`,`value="${s.par}" selected`)}</select></label>
     <label class="c2">Bazetă (m)<input id="sjk${i}" type="number" step="0.05" min="0.2" max="1.5" placeholder="${fmt(+$('jack').value||0.5)}" value="${s.jack||''}" title="lungimea picioarelor reglabile pe această fațadă; gol = ca la Sistem schelă"></label>
@@ -733,7 +743,7 @@ function syncDisabled(){ segs.forEach((s,i)=>{ $('sbd'+i).disabled=!s.bal; $('sb
 function readSegs(){
   segs=segs.map((s,i)=>{ const parts=(s.parts||[]).map((pp,j)=>({L:$('pl'+i+'_'+j)?$('pl'+i+'_'+j).value:pp.L,H:$('ph'+i+'_'+j)?$('ph'+i+'_'+j).value:pp.H,par:$('ppar'+i+'_'+j)?$('ppar'+i+'_'+j).value:(pp.par||''),n:pp.n||'',jack:$('pjk'+i+'_'+j)?$('pjk'+i+'_'+j).value:(pp.jack||'')}));
     const Lp=parts.reduce((a,pp)=>a+(+pp.L||0),0);
-    return {parts, jack:$('sjk'+i)?$('sjk'+i).value:(s.jack||''), par:$('spar'+i)?$('spar'+i).value:(s.par||''), ce:$('sce'+i)?$('sce'+i).value:(s.ce||'ext'), n:$('sn'+i).value||('Fațada '+(i+1)),L:parts.length?Math.round(Lp*100)/100:Math.max(0,+$('sl'+i).value||0),H:$('sh'+i).value,
+    return {parts, diag:s.diag||null, jack:$('sjk'+i)?$('sjk'+i).value:(s.jack||''), par:$('spar'+i)?$('spar'+i).value:(s.par||''), ce:$('sce'+i)?$('sce'+i).value:(s.ce||'ext'), n:$('sn'+i).value||('Fațada '+(i+1)),L:parts.length?Math.round(Lp*100)/100:Math.max(0,+$('sl'+i).value||0),H:$('sh'+i).value,
     sc:Math.max(0,Math.round(+$('ss'+i).value||0)),bal:$('sb'+i).checked,bd:Math.max(0,+$('sbd'+i).value||0),ancBal:$('sba'+i).checked,
     st:Math.max(0,Math.round(+$('sst'+i).value||0)),sd:Math.max(0,+$('ssd'+i).value||0),p:Math.max(0,+$('sp'+i).value||0)}; });
   segs.forEach((sg,i)=>{ if(sg.parts.length&&$('sl'+i)) $('sl'+i).value=sg.L; });
@@ -1149,8 +1159,13 @@ function planSVG(){
   if(cfg==='man'){
     // contur din fațade: ocolire în sensul acelor de ceasornic; colț exterior = viraj la dreapta, interior = la stânga
     let px=0,py=0,dx=1,dy=0; const segP=[];
-    segs.forEach((sg,i)=>{ const L=+sg.L||0; segP.push({i,x0:px,y0:py,dx,dy,L}); px+=dx*L; py+=dy*L;
-      const ce=sg.ce||'ext'; if(ce==='int'){ const t=dx; dx=dy; dy=-t; } else { const t=dx; dx=-dy; dy=t; } });
+    const rotH=(x,y,ce)=>ce==='int'?[y,-x]:[-y,x];
+    segs.forEach((sg,i)=>{ const ce=sg.ce||'ext';
+      if(sg.diag){ const [nx,ny]=rotH(dx,dy,ce), vx=sg.diag.c1*dx+sg.diag.c2*nx, vy=sg.diag.c1*dy+sg.diag.c2*ny, L=Math.hypot(vx,vy)||1;
+        segP.push({i,x0:px,y0:py,dx:vx/L,dy:vy/L,L}); px+=vx; py+=vy; dx=nx; dy=ny; return; }
+      const L=+sg.L||0; segP.push({i,x0:px,y0:py,dx,dy,L}); px+=dx*L; py+=dy*L;
+      const nxt=segs[(i+1)%segs.length]; if(nxt&&nxt.diag&&segs.length>1) return;
+      [dx,dy]=rotH(dx,dy,ce); });
     const closed=Math.hypot(px,py)<0.15;
     const maxOff=Math.max(0,...items.map(x=>offOf(x.s))), M=maxOff+W+4.6;
     const xs=segP.flatMap(p=>[p.x0,p.x0+p.dx*p.L]), ys=segP.flatMap(p=>[p.y0,p.y0+p.dy*p.L]);
@@ -1183,7 +1198,7 @@ function planSVG(){
       const acc=accPos(fb.map(z=>z.b),g.a);
       acc.forEach(ai=>{ r+=poly([[pos[ai],off],[pos[ai+1],off],[pos[ai+1],off+W],[pos[ai],off+W]],'fill="var(--ok)" fill-opacity=".25" stroke="var(--ok)"'); const [cx,cy]=P2((pos[ai]+pos[ai+1])/2,off+W/2); r+=`<text x="${cx}" y="${cy+4}" text-anchor="middle" class="t-s">S</text>`; });
       pos.forEach((q,qi)=>{ const joint=qi>0&&qi<pos.length-1&&fb[qi].t!==fb[qi-1].t; r+=line(q,off,q,off+W,`stroke="var(--ink)" stroke-width="${joint||qi===0||qi===pos.length-1?2.4:1.3}"`); });
-      const ang=Math.round(Math.atan2(p.dy,p.dx)*180/Math.PI); const rot=ang===180||ang===-180?0:ang;
+      let ang=Math.round(Math.atan2(p.dy,p.dx)*180/Math.PI); if(ang>90) ang-=180; if(ang<-90) ang+=180; const rot=ang;
       const T=(u,v,t,cls='')=>{ const [tx,ty]=P2(u,v); return `<text x="${tx}" y="${ty}" text-anchor="middle" dominant-baseline="middle" class="${cls}" ${rot?`transform="rotate(${rot} ${tx} ${ty})"`:''}>${t}</text>`; };
       const short=p.L<4.5, vd=off+W+0.9;
       if(!short){ r+=line(u0,vd,u0+len,vd,'stroke="var(--muted)" stroke-width=".8"'); pos.forEach(q=>r+=line(q,vd-0.22,q,vd+0.22,'stroke="var(--muted)"'));
@@ -1762,7 +1777,7 @@ function mountSketch(root, opts){
     <div class="sk-grid">
       <div class="sk-sheet"><div class="sk-draw"></div>
         <div class="sk-drawbar" hidden>
-          <span class="sk-hint">Atinge colțurile clădirii pe rând. Liniile se fac singure drepte (orizontal sau vertical). Un punct pus pe o latură dreaptă devine punct galben, unde se schimbă înălțimea. Atinge primul punct ca să închizi conturul.</span>
+          <span class="sk-hint">Atinge colțurile clădirii pe rând. Liniile aproape drepte se îndreaptă singure (orizontal sau vertical); dacă tragi clar în unghi, rămâne latură oblică. Un punct pus pe o latură dreaptă devine punct galben, unde se schimbă înălțimea. Atinge primul punct ca să închizi conturul.</span>
           <div class="sk-row"><button type="button" class="sk-undo">↶ Șterge ultimul punct</button><button type="button" class="sk-cancel">Renunță</button></div>
         </div>
       </div>
@@ -1778,6 +1793,7 @@ function mountSketch(root, opts){
           <div class="sk-tbl"><table>
             <thead><tr><th>Latura</th><th>Lungime</th><th title="calculată din celelalte și din total">auto</th><th>H</th><th title="parapetul de deasupra ultimului nivel pe această latură">Parapet</th><th title="lungimea bazetei (picior reglabil) pe această latură; gol = prestabilit">Bazetă</th><th>La capăt</th><th></th></tr></thead>
             <tbody class="sk-tb"></tbody></table></div>
+          <p class="sk-hint" style="margin:6px 0 0">⟋ = latură oblică (perete în unghi). Scrii cele două catete: cât înaintează în direcția laturii dinainte și cât în direcția laturii de după. Exemplu: colț teșit 13 × 10 m dă o latură oblică de 16,40 m. La capăt = cum cotește clădirea după latura oblică.</p>
           <div class="sk-row" style="margin-top:8px">
             <button type="button" class="sk-add">+ Latură</button>
             <button type="button" class="sk-new">✎ Desenează din nou</button>
@@ -1798,14 +1814,22 @@ function mountSketch(root, opts){
   const q=s=>root.querySelector(s);
 
   /* direcții din colțuri: prima latură spre est; ext = viraj dreapta, int = stânga */
-  function dirs(){ let dx=1,dy=0; return st.sides.map(s=>{ const d={dx,dy}; if(s.ce==='ext'){const t=dx;dx=-dy;dy=t;} else if(s.ce==='int'){const t=dx;dx=dy;dy=-t;} return d; }); }
+  /* latură oblică (s.diag): merge c1 m în direcția laturii dinainte și c2 m în direcția laturii de după;
+     latura dinaintea ei nu mai cotește (cotitura e făcută de latura oblică) */
+  const num=v=>{ const n=parseFloat(String(v==null?'':v).replace(',','.')); return isNaN(n)?0:n; };
+  const rot=(h,ce)=>ce==='ext'?{dx:-h.dy,dy:h.dx}:ce==='int'?{dx:h.dy,dy:-h.dx}:{dx:h.dx,dy:h.dy};
+  const dlen=s=>Math.hypot(num(s.c1),num(s.c2));
+  function dirs(){ let h={dx:1,dy:0}; const n=st.sides.length; return st.sides.map((s,i)=>{ let d;
+      if(s.diag){ const hn=rot(h,s.ce), vx=num(s.c1)*h.dx+num(s.c2)*hn.dx, vy=num(s.c1)*h.dy+num(s.c2)*hn.dy, L=Math.hypot(vx,vy)||1; d={dx:vx/L,dy:vy/L,diag:true}; h=hn; }
+      else { d={dx:h.dx,dy:h.dy}; const nx=st.sides[(i+1)%n]; if(!(nx&&nx.diag&&n>1)) h=rot(h,s.ce); }
+      return d; }); }
   function walk(Ls){ const D=dirs(); let x=0,y=0; const P=[]; Ls.forEach((L,i)=>{ P.push({x,y,dx:D[i].dx,dy:D[i].dy}); x+=D[i].dx*L; y+=D[i].dy*L; }); return {P,ex:x,ey:y}; }
   /* rezolvă laturile „auto”: 1 pe direcție -> din închidere; 2 -> din închidere + total */
   function solve(){
-    const D=dirs(), Ls=st.sides.map(s=>+s.L||0), msg=[];
+    const D=dirs(), Ls=st.sides.map(s=>s.diag?dlen(s):num(s.L)), msg=[];
     ['h','v'].forEach(ax=>{
       const isAx=i=>ax==='h'?D[i].dx!==0:D[i].dy!==0, sg=i=>ax==='h'?D[i].dx:D[i].dy;
-      const U=st.sides.map((s,i)=>i).filter(i=>st.sides[i].auto&&isAx(i));
+      const U=st.sides.map((s,i)=>i).filter(i=>st.sides[i].auto&&!st.sides[i].diag&&isAx(i));
       const known=st.sides.reduce((a,s,i)=>a+(isAx(i)&&!U.includes(i)?sg(i)*Ls[i]:0),0);
       const T=+(ax==='h'?st.totals.W:st.totals.D)||0;
       if(U.length===1){ const v=-known/sg(U[0]); Ls[U[0]]=v; if(v<=0) msg.push(`Latura ${lab(U[0])} ar ieși ${f2(v)} m – verifică celelalte cote.`); }
@@ -1825,13 +1849,13 @@ function mountSketch(root, opts){
     q('.sk-W').value=st.totals.W; q('.sk-D').value=st.totals.D; q('.sk-Hd').value=st.Hdef;
     q('.sk-tb').innerHTML=st.sides.map((s,i)=>`<tr>
       <td class="sk-l">${lab(i)}</td>
-      <td><input type="number" step="0.01" min="0" data-k="L" data-i="${i}" value="${s.auto?(Math.round(Ls[i]*100)/100):s.L}" ${s.auto?'disabled':''} aria-label="Lungime ${lab(i)}"></td>
-      <td><input type="checkbox" data-k="auto" data-i="${i}" ${s.auto?'checked':''} aria-label="${lab(i)} calculată automat"></td>
+      <td>${s.diag?`<div class="sk-dg"><input type="number" step="0.01" data-k="c1" data-i="${i}" value="${s.c1}" title="cât înaintează în direcția laturii dinainte" aria-label="${lab(i)}: înainte"><span>×</span><input type="number" step="0.01" data-k="c2" data-i="${i}" value="${s.c2}" title="cât merge în direcția laturii de după" aria-label="${lab(i)}: lateral"></div><small class="sk-dl">oblică ${f2(Ls[i])} m</small>`:`<input type="number" step="0.01" min="0" data-k="L" data-i="${i}" value="${s.auto?(Math.round(Ls[i]*100)/100):s.L}" ${s.auto?'disabled':''} aria-label="Lungime ${lab(i)}">`}</td>
+      <td><input type="checkbox" data-k="auto" data-i="${i}" ${s.auto?'checked':''} ${s.diag?'disabled':''} aria-label="${lab(i)} calculată automat"></td>
       <td><input type="number" step="0.1" min="0" data-k="H" data-i="${i}" value="${s.H}" class="sk-h" aria-label="Înălțime ${lab(i)}"></td>
       <td><select data-k="par" data-i="${i}" aria-label="Parapet ${lab(i)}"><option value="" ${!s.par?'selected':''}>implicit</option><option value="frame2" ${s.par==='frame2'?'selected':''}>2 m</option><option value="frame3" ${s.par==='frame3'?'selected':''}>2+1 m</option><option value="post1" ${s.par==='post1'?'selected':''}>1 m</option></select></td>
       <td><input type="number" step="0.05" min="0.2" max="1.5" data-k="jack" data-i="${i}" value="${s.jack||''}" placeholder="0,50" class="sk-h" aria-label="Bazetă ${lab(i)}"></td>
       <td><select data-k="ce" data-i="${i}" aria-label="Colț la ${LET[(i+1)%st.sides.length]}"><option value="ext" ${s.ce==='ext'?'selected':''}>exterior</option><option value="int" ${s.ce==='int'?'selected':''}>interior</option><option value="drept" ${s.ce==='drept'?'selected':''}>drept</option></select></td>
-      <td class="sk-act"><button type="button" class="sk-del" data-split="${i}" title="Împarte latura în două (punct unde se schimbă înălțimea)" aria-label="Împarte latura ${lab(i)}">✂</button><button type="button" class="sk-del" data-del="${i}" aria-label="Șterge latura ${lab(i)}">✕</button></td></tr>`).join('');
+      <td class="sk-act"><button type="button" class="sk-del${s.diag?' on':''}" data-diag="${i}" title="${s.diag?'Fă latura dreaptă':'Fă latura oblică (colț teșit / perete în unghi)'}" aria-label="Latură oblică ${lab(i)}">⟋</button><button type="button" class="sk-del" data-split="${i}" title="Împarte latura în două (punct unde se schimbă înălțimea)" aria-label="Împarte latura ${lab(i)}">✂</button><button type="button" class="sk-del" data-del="${i}" aria-label="Șterge latura ${lab(i)}">✕</button></td></tr>`).join('');
   }
   function update(full){
     const {Ls,msg}=solve();
@@ -1868,7 +1892,7 @@ function mountSketch(root, opts){
     o+= closed?`<polygon points="${pts}" fill="none" stroke="var(--sk-ink)" stroke-width="3"/>`:`<polyline points="${pts} ${X(ex)},${Y(ey)}" fill="none" stroke="var(--sk-ink)" stroke-width="4"/><line x1="${X(ex)}" y1="${Y(ey)}" x2="${X(0)}" y2="${Y(0)}" stroke="var(--sk-warn)" stroke-width="2" stroke-dasharray="4 4"/>`;
     P.forEach((p,i)=>{ const s=st.sides[i], L=Ls[i], nx=p.dy, ny=-p.dx, off=1.15;
       const x0=p.x,y0=p.y,x1=p.x+p.dx*L,y1=p.y+p.dy*L; const col=hcol(+s.H||st.Hdef);
-      const ang=Math.round(Math.atan2(p.dy,p.dx)*180/Math.PI), rot=Math.abs(ang)===180?0:ang;
+      let ang=Math.round(Math.atan2(p.dy,p.dx)*180/Math.PI); if(ang>90) ang-=180; if(ang<-90) ang+=180; const rot=ang;
       const txt=`${f2(L)}${s.auto?'*':''}`;
       if(L<2.6){ const tx=(x0+x1)/2+nx*0.6, ty=(y0+y1)/2+ny*0.6; o+=`<text x="${X(tx)}" y="${Y(ty)}" text-anchor="middle" dominant-baseline="middle" font-weight="600" fill="var(--sk-ink)">${txt}</text>`; return; }
       const ax=x0+nx*off, ay=y0+ny*off, bx2=x1+nx*off, by2=y1+ny*off;
@@ -1892,7 +1916,7 @@ function mountSketch(root, opts){
     svgEl.querySelectorAll('.sk-drag').forEach(c=>c.addEventListener('pointerdown',ev=>{
       ev.preventDefault(); const v=+c.dataset.v, a=(v-1+st.sides.length)%st.sides.length, b=v; const pd=P[a];
       const r=svgEl.getBoundingClientRect(), sc=r.width/W, x0=ev.clientX, y0=ev.clientY, La=Ls[a], Lb=Ls[b];
-      const move=e2=>{ const d=Math.round((((e2.clientX-x0)*pd.dx+(e2.clientY-y0)*pd.dy)/sc/k)*20)/20;
+      const move=e2=>{ const d=Math.round((((e2.clientX-x0)*pd.dx+(e2.clientY-y0)*pd.dy)/sc/k)*100)/100;
         const na=Math.max(0.3,La+d), nb=Lb-(na-La); if(nb<0.3) return;
         st.sides[a].L=na; st.sides[a].auto=false; if(!st.sides[b].auto) st.sides[b].L=nb; update(true); };
       const up=()=>{ window.removeEventListener('pointermove',move); window.removeEventListener('pointerup',up); };
@@ -1922,7 +1946,9 @@ function mountSketch(root, opts){
     q('.sk-draw').innerHTML=o;
     const svg=q('.sk-canvas');
     const toW=e=>{ const r=svg.getBoundingClientRect(); return {x:(e.clientX-r.left)/r.width*GW, y:(e.clientY-r.top)/r.height*GH}; };
-    const snap=p=>{ let x=Math.round(p.x*2)/2, y=Math.round(p.y*2)/2; if(pts.length){ const l=pts[pts.length-1]; if(Math.abs(x-l.x)>=Math.abs(y-l.y)) y=l.y; else x=l.x; } return {x,y}; };
+    const snap=p=>{ let x=Math.round(p.x*10)/10, y=Math.round(p.y*10)/10; if(pts.length){ const l=pts[pts.length-1], ax=Math.abs(x-l.x), ay=Math.abs(y-l.y);
+        if(ay<=0.36*ax) y=l.y; else if(ax<=0.36*ay) x=l.x; }   // între ~20° și ~70° rămâne oblică
+      return {x,y}; };
     svg.addEventListener('pointermove',e=>{ hover=snap(toW(e)); drawCanvasLite(); });
     svg.addEventListener('pointerleave',()=>{ hover=null; drawCanvasLite(); });
     svg.addEventListener('pointerdown',e=>{ e.preventDefault(); const p=snap(toW(e));
@@ -1935,17 +1961,20 @@ function mountSketch(root, opts){
   let raf=0; function drawCanvasLite(){ cancelAnimationFrame(raf); raf=requestAnimationFrame(drawCanvas); }
   function finish(){
     let P=pts.slice(); const f=P[0], l=P[P.length-1];
-    if(f.x!==l.x&&f.y!==l.y) P.push({x:l.x,y:f.y});              // un colț ca să ajungă drept la primul punct
+    { const ax=Math.abs(f.x-l.x), ay=Math.abs(f.y-l.y); if(ax>0.01&&ay>0.01&&(ay<=0.36*ax||ax<=0.36*ay)) P.push({x:l.x,y:f.y}); }  // aproape drept: un colț ca să ajungă drept la primul punct
     // sens orar (în coordonate ecran, y în jos): aria pozitivă
     let A=0; for(let i=0;i<P.length;i++){ const a=P[i], b=P[(i+1)%P.length]; A+=a.x*b.y-b.x*a.y; }
     if(A<0) P.reverse();
     // începe din colțul de sus-stânga, cu latura spre dreapta
     let s0=0, best=1e9; P.forEach((p,i)=>{ const n=P[(i+1)%P.length]; if(n.x>p.x&&n.y===p.y){ const sc=p.y*1000+p.x; if(sc<best){best=sc;s0=i;} } });
     P=P.slice(s0).concat(P.slice(0,s0));
-    const n=P.length, sides=[];
-    for(let i=0;i<n;i++){ const a=P[i], b=P[(i+1)%n], c=P[(i+2)%n];
-      const d1={x:Math.sign(b.x-a.x),y:Math.sign(b.y-a.y)}, d2={x:Math.sign(c.x-b.x),y:Math.sign(c.y-b.y)};
-      const cr=d1.x*d2.y-d1.y*d2.x; sides.push({L:Math.round(Math.hypot(b.x-a.x,b.y-a.y)*100)/100,H:st.Hdef,ce:cr>0?'ext':cr<0?'int':'drept',auto:false}); }
+    const n=P.length, sides=[], r2=v=>Math.round(v*100)/100;
+    const vec=i=>{ const a=P[i%n], b=P[(i+1)%n]; return {x:b.x-a.x,y:b.y-a.y}; };
+    const isO=v=>Math.abs(v.x)<0.01||Math.abs(v.y)<0.01, unit=v=>{ const L=Math.hypot(v.x,v.y)||1; return {x:v.x/L,y:v.y/L}; };
+    for(let i=0;i<n;i++){ const v=vec(i), w=vec(i+1), cr=Math.sign(v.x*w.y-v.y*w.x);
+      if(isO(v)||!isO(vec(i-1+n))||!isO(w)){ const u=unit(v); sides.push({L:r2(Math.hypot(v.x,v.y)),H:st.Hdef,ce:cr>0?'ext':cr<0?'int':'drept',auto:false}); continue; }
+      const h=unit(vec(i-1+n)), hn=unit(w), c1=r2(v.x*h.x+v.y*h.y), c2=r2(v.x*hn.x+v.y*hn.y), t=Math.sign(h.x*hn.y-h.y*hn.x);
+      sides.push({L:r2(Math.hypot(v.x,v.y)),diag:true,c1,c2,H:st.Hdef,ce:t>0?'ext':t<0?'int':'ext',auto:false}); }
     st.sides=sides; drawMode=false; pts=[]; hover=null; q('.sk-drawbar').hidden=true; update(true);
   }
 
@@ -1955,8 +1984,9 @@ function mountSketch(root, opts){
     if(t.classList.contains('sk-D')){ st.totals.D=t.value; update(false); return; }
     if(t.classList.contains('sk-Hd')){ st.Hdef=Math.max(0,+t.value||0)||st.Hdef; update(false); return; }
     const i=+t.dataset.i, k=t.dataset.k; if(!k||isNaN(i)) return;
-    if(k==='L'){ st.sides[i].L=Math.max(0,+t.value||0); update(false); }
-    else if(k==='H'){ st.sides[i].H=Math.max(0,+t.value||0); update(false); }
+    if(k==='L'){ st.sides[i].L=Math.max(0,num(t.value)); update(false); }
+    else if(k==='c1'||k==='c2'){ st.sides[i][k]=num(t.value); update(false); const dl=t.closest('td').querySelector('.sk-dl'); if(dl){ const {Ls}=solve(); dl.textContent='oblică '+f2(Ls[i])+' m'; } }
+    else if(k==='H'){ st.sides[i].H=Math.max(0,num(t.value)); update(false); }
     else if(k==='jack'){ st.sides[i].jack=t.value; update(false); } });
   root.addEventListener('change',e=>{ const t=e.target, i=+t.dataset.i, k=t.dataset.k; if(!k||isNaN(i)) return;
     if(k==='auto'){ if(!t.checked){ const {Ls}=solve(); st.sides[i].L=Math.round(Ls[i]*100)/100; } st.sides[i].auto=t.checked; update(true); }
@@ -1964,6 +1994,10 @@ function mountSketch(root, opts){
     else if(k==='par'){ st.sides[i].par=t.value; update(false); } });
   root.addEventListener('click',e=>{ const t=e.target.closest('button'); if(!t||!root.contains(t)) return;
     if(t.dataset.del!==undefined){ st.sides.splice(+t.dataset.del,1); update(true); }
+    else if(t.dataset.diag!==undefined){ const i=+t.dataset.diag, sd=st.sides[i], {Ls}=solve();
+      if(sd.diag){ sd.diag=false; sd.L=Math.round(Ls[i]*100)/100; }
+      else { const v=Math.round(Ls[i]/Math.SQRT2*100)/100||1; sd.diag=true; sd.c1=v; sd.c2=v; sd.auto=false; if(sd.ce==='drept') sd.ce='ext'; }
+      update(true); }
     else if(t.dataset.split!==undefined){ const i=+t.dataset.split, {Ls}=solve(), sd=st.sides[i], half=Math.round(Ls[i]/2*100)/100;
       st.sides.splice(i,1,{L:half,H:sd.H,par:sd.par||'',jack:sd.jack||'',ce:'drept',auto:false},{L:Math.round((Ls[i]-half)*100)/100,H:sd.H,par:sd.par||'',jack:sd.jack||'',ce:sd.ce,auto:sd.auto}); update(true); }
     else if(t.classList.contains('sk-pstop')){ pctl&&pctl.abort(); }
@@ -2041,7 +2075,7 @@ const LETS='ABCDEFGHIJKLMNOPQRSTUVWXYZ';
 function sketchFromSegs(){ readSegs(); const Hd=+$('H').value||5.5; const sides=[];
   segs.forEach(sg=>{ const ce=cfg==='man'?(sg.ce||'ext'):'ext';
     if(sg.parts&&sg.parts.length) sg.parts.forEach((pp,j)=>sides.push({L:+pp.L||0,H:+pp.H||Hd,par:pp.par||sg.par||'',jack:pp.jack||sg.jack||'',ce:j<sg.parts.length-1?'drept':ce,auto:false}));
-    else sides.push({L:+sg.L||0,H:+sg.H||Hd,par:sg.par||'',jack:sg.jack||'',ce,auto:false}); });
+    else sides.push({L:+sg.L||0,H:+sg.H||Hd,par:sg.par||'',jack:sg.jack||'',ce,auto:false,...(sg.diag?{diag:true,c1:sg.diag.c1,c2:sg.diag.c2}:{})}); });
   return {sides,totals:{W:'',D:''},Hdef:Hd}; }
 function segsFromSketch(v){ const out=[]; let grp=[], start=0;
   v.sides.forEach((sd,i)=>{ grp.push(sd); if(sd.ce!=='drept'||i===v.sides.length-1){
@@ -2051,6 +2085,7 @@ function segsFromSketch(v){ const out=[]; let grp=[], start=0;
       const sg=S(name+' '+(desc||'Fațadă'),L); if(old){ ['sc','bal','bd','ancBal','p'].forEach(k=>sg[k]=old[k]); } else sg.sc=grp.some(z=>z.sc!==undefined)?Math.max(...grp.map(z=>+z.sc||0)):autoSc(L);
       const hs=[...new Set(grp.map(z=>+z.H))];
       if(grp.length>1){ sg.parts=grp.map((z,k)=>({L:+z.L,H:+z.H,par:z.par||'',jack:z.jack||'',n:`${LETS[(start+k)%26]}–${LETS[(start+k+1)%v.sides.length%26]}`})); const ps=[...new Set(grp.map(z=>z.par||''))]; if(ps.length===1){ sg.par=ps[0]; sg.parts.forEach(pp=>pp.par=''); } const js=[...new Set(grp.map(z=>String(z.jack||'')))]; if(js.length===1){ sg.jack=js[0]; sg.parts.forEach(pp=>pp.jack=''); } } else { sg.H=hs[0]||''; sg.par=grp[0].par||''; sg.jack=grp[0].jack||''; }
+      if(grp.length===1&&grp[0].diag) sg.diag={c1:+grp[0].c1,c2:+grp[0].c2};
       sg.ce=sd.ce==='drept'?'ext':sd.ce; out.push(sg); grp=[]; start=end; } });
   return out; }
 function openSketch(){ const fs=sketchFromSegs(); let init=fs;
