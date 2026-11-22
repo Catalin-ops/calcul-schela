@@ -632,7 +632,7 @@ const fmt0=n=>Math.round(n).toLocaleString('ro-RO');
 const esc=s=>String(s).replace(/&/g,'&amp;').replace(/"/g,'&quot;').replace(/</g,'&lt;');
 
 const KG={
-  cadru:{1.05:20.0,0.73:18.5,1.09:22.0}, capat:{1.05:10.5,0.73:9.5,1.09:11.5}, stalp:4.0, picior:3.0, talpa:2.5,
+  cadru:{1.05:20.0,0.73:18.5,1.09:22.0}, capat:{1.05:10.5,0.73:9.5,1.09:11.5}, stalp:4.0, terminal:{1.05:9.5,0.73:8.5,1.09:10.0}, picior:3.0, talpa:2.5,
   podina:{2:14.2,0.73:6.5,1.09:8.5,1.57:11.5,2.07:14.5,2.57:18.5,3.07:22.0},
   trapa:{1.8:20,2:19,2.07:19,2.57:22,3.07:25}, scara:7.4,
   balustrada:{1.8:3.8,2:4.4,0.73:2.2,1.09:3.0,1.57:3.6,2.07:4.5,2.57:5.3,3.07:6.3},
@@ -833,11 +833,12 @@ function compute(capN){
     const fronts=tr.filter(t=>t.front&&t.bays.length);
     endInfo.push({s:fronts[0],e:fronts[fronts.length-1]});
     // linii de cadre și cadre (la îmbinarea a două porțiuni, linia comună se numără o dată, pe înălțimea mai mare)
-    let lines=0, frames=0, F=0, stl=0, bal3=0;
-    tr.forEach((t,ti)=>{ if(!t.bays.length)return; const nl=t.bays.length+1; lines+=nl; frames+=nl*t.Nf; F+=nl; if(t.par!=='frame2') stl+=nl;
-      if(t.join){ const pv=tr[ti-1]; lines--; F--; frames-=Math.min(pv.Nf,t.Nf); if(t.par!=='frame2'&&pv.par!=='frame2') stl--; capJ.n+=Math.abs(pv.Nd-t.Nd); } });
+    let lines=0, frames=0, F=0, stl=0, bal3=0, term=0;
+    tr.forEach((t,ti)=>{ if(!t.bays.length)return; const nl=t.bays.length+1; lines+=nl; frames+=nl*t.N; F+=nl; if(t.ext) term+=nl; if(t.par!=='frame2') stl+=nl;
+      if(t.join){ const pv=tr[ti-1]; lines--; F--; frames-=Math.min(pv.N,t.N); if(t.ext&&pv.ext) term--; if(t.par!=='frame2'&&pv.par!=='frame2') stl--; capJ.n+=Math.abs(pv.Nd-t.Nd); } });
     let fa=0; tr.forEach(t=>{ fa+=t.len*(t.top+t.pg); }); area+=fa;
-    add('cadru','Structură','Cadru vertical oțel',`${fmt(P.w)} × 2,00 m`,frames,KG.cadru[P.w],'pe fiecare nivel, la fiecare linie de cadre');
+    add('cadru','Structură','Cadru vertical oțel',`${fmt(P.w)} × 2,00 m`,frames,KG.cadru[P.w],'pe fiecare nivel de lucru, la fiecare linie de cadre (fără nivelul de parapet)');
+    if(term) add('terminal','Structură','Terminal schelă (cadru parapet)',`${fmt(P.w)} × 2,00 m`,term,KG.terminal[P.w]||9.5,'deasupra ultimului nivel de lucru, la fiecare linie de cadre');
     if(stl) add('stalp','Structură','Stâlp balustradă 1 m (parapet)','1,00 m',stl,KG.stalp,'deasupra ultimului nivel de cadre, unde parapetul e de 1 m sau 2 + 1 m');
     tr.forEach((t,ti)=>{ if(!t.bays.length) return; const n=t.bays.length+1-(t.join?1:0), jl=t.jack;
       add('picior'+(Math.abs(jl-0.5)<1e-6?'':'_'+jl),'Bază','Bazetă – picior reglabil cu filet',`${fmt(jl)} m`,2*n,+(1.2+3.6*jl).toFixed(1),`2 la fiecare linie de cadre · reglaj max. ≈ ${Math.round((jl-0.1)*100)} cm`); });
@@ -1616,7 +1617,7 @@ let toolTab='stoc';
 const PLUR={palet:'paleți',coș:'coșuri',legătură:'legături',cutie:'cutii',rolă:'role',pungă:'pungi',pachet:'pachete'};
 const pu=(n,u)=>n===1?u:(PLUR[u]||u);
 const BUNDLE=[['cadru',25,'palet'],['podC',25,'palet'],['pod',25,'palet'],['trapa',10,'palet'],['bal',50,'legătură'],['plC',50,'legătură'],['pl',50,'legătură'],['diag',50,'legătură'],['tdiag',25,'legătură'],
-  ['picior',50,'coș'],['talpa',50,'palet'],['stalp',50,'coș'],['capat',25,'palet'],['anc',50,'legătură'],['cupla',50,'cutie'],['surub',100,'cutie'],['scara',10,'legătură'],['cons',25,'palet'],['plasa',1,'rolă'],['bride',500,'pungă'],['t',50,'legătură']];
+  ['picior',50,'coș'],['talpa',50,'palet'],['stalp',50,'coș'],['terminal',25,'palet'],['capat',25,'palet'],['anc',50,'legătură'],['cupla',50,'cutie'],['surub',100,'cutie'],['scara',10,'legătură'],['cons',25,'palet'],['plasa',1,'rolă'],['bride',500,'pungă'],['t',50,'legătură']];
 function bundleOf(key){ const b=BUNDLE.find(([p])=>key.startsWith(p)); return b?{n:b[1],u:b[2]}:{n:50,u:'pachet'}; }
 function getStock(){ try{return JSON.parse(localStorage.getItem('schela_stoc')||'{}')}catch(e){return {}} }
 function setStock(o){ try{localStorage.setItem('schela_stoc',JSON.stringify(o))}catch(e){} }
