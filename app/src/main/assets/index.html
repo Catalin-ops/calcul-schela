@@ -869,7 +869,6 @@ function compute(capN){
         ladders+=t.N;
       } else add('pod'+b,'Platforme','Podină oțel',pdim(b),nPod*t.Nd,pkg(b),`${nPod} pe travee, pe nivelurile cu podine`);
       add('bal'+b,'Protecție','Balustradă (mână curentă + intermediară)',`${fmt(b)} m`,2*t.Nd+(t.par==='frame3'?2:0),KG.balustrada[b],'2 pe travee pe fiecare nivel de lucru (la parapetul de 2 m sunt cele ale ultimului nivel); la 2 + 1 m încă 2 pe stâlpii de 1 m');
-      if(P.balIn) add('bali'+b,'Protecție','Balustradă interioară, spre clădire (mână curentă + intermediară)',`${fmt(b)} m`,2*t.Nd,KG.balustrada[b],'2 pe travee pe fiecare nivel de lucru, pe partea dinspre clădire');
       add('pl'+b,'Protecție','Plintă',`${fmt(b)} m`,t.Nd,KG.plinta[b],'1 pe travee pe nivelurile de lucru');
     });
     // distanțe
@@ -943,6 +942,8 @@ function compute(capN){
   }
 
   const k=1+P.rez/100;
+  // balustrada interioară: exact cât pe exterior, pe fiecare lungime
+  if(P.balIn) Object.values(items).filter(x=>/^bal[\d.]/.test(x.key)&&x.qty>0).forEach(x=>add('bali'+x.key.slice(3),'Protecție','Balustradă interioară, spre clădire (mână curentă + intermediară)',x.dim,x.qty,x.kg,'cât pe exterior: aceleași travee, niveluri și colțuri, pe partea dinspre clădire'));
   const list=Object.values(items).filter(x=>x.qty>0).map(x=>({...x,qr:Math.ceil(x.qty*k)}));
   const order=['Bază','Structură','Platforme','Console','Protecție','Acces','Ancorare','Colțuri'];
   list.sort((a,b)=>order.indexOf(a.cat)-order.indexOf(b.cat)||a.name.localeCompare(b.name)||parseFloat(a.dim)-parseFloat(b.dim));
