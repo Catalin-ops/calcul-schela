@@ -508,7 +508,7 @@ table.of tr.tot td{border-top:2px solid var(--ink);font-size:16px}
         <label>Rezervă (%)<input id="rez" type="number" min="0" max="50" value="5"></label>
         <label>Camion – încărcătură (t)<input id="truck" type="number" step="0.1" min="0.5" value="3"></label>
         <label class="chk full"><input id="plasa" type="checkbox" checked> Plasă de protecție pe toată fața</label>
-        <label class="chk full"><input id="cons" type="checkbox" checked> Console interioare unde golul la perete &gt; 30 cm</label>
+        <label class="chk full"><input id="cons" type="checkbox" checked> Console interioare unde golul la perete &gt; 30 cm (nu se pun dacă e bifată balustrada pe interior)</label>
         <label class="chk full"><input id="balIn" type="checkbox" checked> Balustradă și pe interior, spre clădire (pe toată schela)</label>
       </fieldset>
 
@@ -876,15 +876,15 @@ function compute(capN){
     const workDist=s.bal&&s.ancBal?P.gap+s.p:wallDist;
     const anchDist=s.bal&&s.ancBal?P.gap:wallDist;
     let cons=null;
-    if(workDist>0.30 && P.cons){
+    if(workDist>0.30 && P.cons && !P.balIn){
       if(workDist<=0.66) cons=0.36; else if(workDist<=1.03) cons=0.73;
       else alerts.push({t:`<b>${esc(s.n)}:</b> golul de lucru la perete e ${fmt(workDist)} m și nu se acoperă nici cu consola de 0,73 m. Variante: schela pe fruntea balcoanelor (bifează opțiunea), cadre de 1,09 m cu console sau schelă separată.`});
       if(cons){
         const pc=cons===0.36?1:2;
         tr.forEach(t=>{ if(!t.bays.length)return; add('cons'+cons,'Console','Consolă interioară',`${fmt(cons)} m`,(t.bays.length+1)*t.Nd,KG.consola[cons],'pe fiecare cadru, pe nivelurile de lucru (gol > 30 cm)');
-          t.bays.forEach(b=>add('pod'+b,'Platforme','Podină oțel',pdim(b),pc*t.Nd,pkg(b))); });
+          t.bays.forEach(b=>add('podc'+b,'Console','Podină pe consolă',pdim(b),pc*t.Nd,pkg(b),`${pc} pe travee, pe console`)); });
       }
-    } else if(workDist>0.30) alerts.push({t:`<b>${esc(s.n)}:</b> golul la perete e ${fmt(workDist)} m (peste 30 cm) și consolele sunt dezactivate. Spre perete trebuie balustradă sau consolă.`});
+    } else if(workDist>0.30 && !P.balIn) alerts.push({t:`<b>${esc(s.n)}:</b> golul la perete e ${fmt(workDist)} m (peste 30 cm) și consolele sunt dezactivate. Spre perete trebuie balustradă sau consolă.`});
     if(s.bal && s.ancBal) alerts.push({cls:'info',t:`<b>${esc(s.n)}:</b> schela stă la ${fmt(P.gap)} m de fruntea balcoanelor. Peretele dintre balcoane se lucrează de pe balcon. Verifică dacă placa balconului ține șurubul de ancorare (beton, nu doar parapet).`});
     // ancoraje: rânduri din 4 în 4 m (din 2 în 2 niveluri, plus ultimul nivel); pe rând: la fiecare cadru sau 1 da – 1 nu, decalat
     let nA=0;
